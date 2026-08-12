@@ -215,72 +215,96 @@
       <th>Training</th>
       <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;) &darr;</th>
       <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;) &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), |&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
       <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01) (%) &uarr;</th>
       <th data-dir="high">Frac(&lt;0.01 &amp; &lt;1&deg;/20&deg;) (%) &uarr;</th>
       <th data-dir="low">Frac(|&Delta;|<i>F</i>||&gt;1) (%) &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), on FE atoms &darr;</th>
+      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;), on FE atoms &darr;</th>
     </tr></thead><tbody><tr>
       <td class="rank">1</td>
       <td class="fp-name">MACE <span class="tag-ood">OOD</span></td>
       <td class="training-col">MPtrj + sAlex</td>
       <td data-val="0.23">0.23 / 1.93</td>
       <td data-val="37">37 / 58</td>
+      <td data-val="0.17">0.17 / 0.27</td>
       <td data-val="8.34">8.34</td>
       <td data-val="1.07">1.07 / 4.51</td>
       <td data-val="3.44">3.44</td>
+      <td data-val="0.49">0.49 / 3.65</td>
+      <td data-val="18">18 / 29</td>
     </tr><tr>
       <td class="rank">2</td>
       <td class="fp-name">CHGNet <span class="tag-ood">OOD</span></td>
       <td class="training-col">MPtrj</td>
       <td data-val="0.31">0.31 / 2.19</td>
       <td data-val="45">45 / 66</td>
+      <td data-val="0.22">0.22 / 0.32</td>
       <td data-val="5.61">5.61</td>
       <td data-val="0.66">0.66 / 2.16</td>
       <td data-val="5.71">5.71</td>
+      <td data-val="0.7">0.70 / 4.14</td>
+      <td data-val="24">24 / 36</td>
     </tr><tr>
       <td class="rank">3</td>
       <td class="fp-name">M3GNet <span class="tag-ood">OOD</span></td>
       <td class="training-col">MP-2021.2.8</td>
       <td data-val="0.44">0.44 / 1.49</td>
       <td data-val="56">56 / 76</td>
+      <td data-val="0.26">0.26 / 0.36</td>
       <td data-val="4.56">4.56</td>
       <td data-val="0.54">0.54 / 1.45</td>
       <td data-val="10.79">10.79</td>
+      <td data-val="0.98">0.98 / 2.76</td>
+      <td data-val="40">40 / 56</td>
     </tr><tr>
       <td class="rank">4</td>
       <td class="fp-name">UMA <span class="tag-ood">OOD</span></td>
       <td class="training-col">OC20+ODAC23+OMat24+OMC25+OMol25</td>
       <td data-val="0.56">0.56 / 7.93</td>
       <td data-val="28">28 / 51</td>
+      <td data-val="0.12">0.12 / 0.21</td>
       <td data-val="15.13">15.13</td>
       <td data-val="2.79">2.79 / 11.44</td>
       <td data-val="2.69">2.69</td>
+      <td data-val="1.13">1.13 / 11.89</td>
+      <td data-val="12">12 / 25</td>
     </tr><tr>
       <td class="rank">5</td>
       <td class="fp-name">M3GNet-MatPES <span class="tag-training">training</span></td>
       <td class="training-col">MatPES-PBE</td>
       <td data-val="0.21">0.21 / 1.24</td>
       <td data-val="34">34 / 53</td>
+      <td data-val="0.17">0.17 / 0.25</td>
       <td data-val="7.14">7.14</td>
       <td data-val="0.92">0.92 / 3.75</td>
       <td data-val="2.35">2.35</td>
+      <td data-val="0.43">0.43 / 2.34</td>
+      <td data-val="18">18 / 27</td>
     </tr><tr>
       <td class="rank">6</td>
       <td class="fp-name">TensorNet-MatPES <span class="tag-training">training</span></td>
       <td class="training-col">MatPES-PBE</td>
       <td data-val="0.17">0.17 / 1.39</td>
       <td data-val="29">29 / 49</td>
+      <td data-val="0.15">0.15 / 0.22</td>
       <td data-val="7.66">7.66</td>
       <td data-val="0.98">0.98 / 4.65</td>
       <td data-val="1.2">1.20</td>
+      <td data-val="0.33">0.33 / 2.63</td>
+      <td data-val="12">12 / 18</td>
     </tr><tr>
       <td class="rank">7</td>
       <td class="fp-name">MACE-MatPES <span class="tag-training">training</span></td>
       <td class="training-col">MatPES-PBE (fine-tuned)</td>
       <td data-val="0.08">0.08 / 1.10</td>
       <td data-val="16">16 / 32</td>
+      <td data-val="0.07">0.07 / 0.13</td>
       <td data-val="19.02">19.02</td>
       <td data-val="3.88">3.88 / 15.35</td>
       <td data-val="0.25">0.25</td>
+      <td data-val="0.16">0.16 / 2.09</td>
+      <td data-val="6">6 / 10</td>
     </tr></tbody></table>
     </div>
 
@@ -342,36 +366,48 @@
       <th>Training</th>
       <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;) &darr;</th>
       <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;) &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), |&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
       <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01) (%) &uarr;</th>
       <th data-dir="high">Frac(&lt;0.01 &amp; &lt;1&deg;/20&deg;) (%) &uarr;</th>
       <th data-dir="low">Frac(|&Delta;|<i>F</i>||&gt;1) (%) &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), on FE atoms &darr;</th>
+      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;), on FE atoms &darr;</th>
     </tr></thead><tbody><tr>
       <td class="rank">1</td>
       <td class="fp-name">M3GNet-MatPES-r2SCAN <span class="tag-training">training</span></td>
       <td class="training-col">MatPES-r2SCAN</td>
       <td data-val="0.23">0.23 / 0.65</td>
       <td data-val="30">30 / 48</td>
+      <td data-val="0.19">0.19 / 0.27</td>
       <td data-val="5.93">5.93</td>
       <td data-val="0.8">0.80 / 3.48</td>
       <td data-val="2.87">2.87</td>
+      <td data-val="0.41">0.41 / 1.07</td>
+      <td data-val="18">18 / 27</td>
     </tr><tr>
       <td class="rank">2</td>
       <td class="fp-name">TensorNet-MatPES-r2SCAN <span class="tag-training">training</span></td>
       <td class="training-col">MatPES-r2SCAN</td>
       <td data-val="0.19">0.19 / 0.71</td>
       <td data-val="26">26 / 45</td>
+      <td data-val="0.17">0.17 / 0.24</td>
       <td data-val="6.39">6.39</td>
       <td data-val="0.79">0.79 / 4.19</td>
       <td data-val="1.64">1.64</td>
+      <td data-val="0.33">0.33 / 1.17</td>
+      <td data-val="13">13 / 19</td>
     </tr><tr>
       <td class="rank">3</td>
       <td class="fp-name">MACE-MatPES-r2SCAN <span class="tag-training">training</span></td>
       <td class="training-col">MatPES-r2SCAN (fine-tuned)</td>
       <td data-val="0.12">0.12 / 1.34</td>
       <td data-val="17">17 / 33</td>
+      <td data-val="0.1">0.10 / 0.17</td>
       <td data-val="12.82">12.82</td>
       <td data-val="2.33">2.33 / 10.35</td>
       <td data-val="0.54">0.54</td>
+      <td data-val="0.2">0.20 / 2.27</td>
+      <td data-val="8">8 / 12</td>
     </tr></tbody></table>
     </div>
 
@@ -433,72 +469,96 @@
       <th>Training</th>
       <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;) &darr;</th>
       <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;) &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), |&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
       <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01) (%) &uarr;</th>
       <th data-dir="high">Frac(&lt;0.01 &amp; &lt;1&deg;/20&deg;) (%) &uarr;</th>
       <th data-dir="low">Frac(|&Delta;|<i>F</i>||&gt;1) (%) &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), on FE atoms &darr;</th>
+      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;), on FE atoms &darr;</th>
     </tr></thead><tbody><tr>
       <td class="rank">1</td>
       <td class="fp-name">MACE <span class="tag-ood">OOD</span></td>
       <td class="training-col">MPtrj + sAlex</td>
       <td data-val="0.34">0.34 / 2.83</td>
       <td data-val="8">8 / 14</td>
+      <td data-val="0.21">0.21 / 0.30</td>
       <td data-val="4.08">4.08</td>
       <td data-val="0.27">0.27 / 3.71</td>
       <td data-val="5.72">5.72</td>
+      <td data-val="0.4">0.40 / 3.16</td>
+      <td data-val="6">6 / 9</td>
     </tr><tr>
       <td class="rank">2</td>
       <td class="fp-name">CHGNet <span class="tag-ood">OOD</span></td>
       <td class="training-col">MPtrj</td>
       <td data-val="0.76">0.76 / 4.00</td>
       <td data-val="13">13 / 22</td>
+      <td data-val="0.34">0.34 / 0.42</td>
       <td data-val="1.81">1.81</td>
       <td data-val="0.03">0.03 / 1.34</td>
       <td data-val="18.5">18.50</td>
+      <td data-val="0.9">0.90 / 4.46</td>
+      <td data-val="9">9 / 15</td>
     </tr><tr>
       <td class="rank">3</td>
       <td class="fp-name">M3GNet <span class="tag-ood">OOD</span></td>
       <td class="training-col">MP-2021.2.8</td>
       <td data-val="0.91">0.91 / 1.96</td>
       <td data-val="19">19 / 30</td>
+      <td data-val="0.37">0.37 / 0.46</td>
       <td data-val="1.3">1.30</td>
       <td data-val="0.01">0.01 / 0.81</td>
       <td data-val="27.66">27.66</td>
+      <td data-val="1.06">1.06 / 2.18</td>
+      <td data-val="13">13 / 21</td>
     </tr><tr>
       <td class="rank">4</td>
       <td class="fp-name">UMA <span class="tag-training">training</span></td>
       <td class="training-col">OC20+ODAC23+OMat24+OMC25+OMol25</td>
       <td data-val="0.09">0.09 / 0.22</td>
       <td data-val="4">4 / 8</td>
+      <td data-val="0.08">0.08 / 0.14</td>
       <td data-val="13.14">13.14</td>
       <td data-val="4.76">4.76 / 12.97</td>
       <td data-val="0.51">0.51</td>
+      <td data-val="0.1">0.10 / 0.24</td>
+      <td data-val="2">2 / 5</td>
     </tr><tr>
       <td class="rank">5</td>
       <td class="fp-name">M3GNet-MatPES <span class="tag-ood">OOD</span></td>
       <td class="training-col">MatPES-PBE</td>
       <td data-val="0.55">0.55 / 2.18</td>
       <td data-val="13">13 / 22</td>
+      <td data-val="0.29">0.29 / 0.38</td>
       <td data-val="2.3">2.30</td>
       <td data-val="0.06">0.06 / 1.79</td>
       <td data-val="12.43">12.43</td>
+      <td data-val="0.64">0.64 / 2.43</td>
+      <td data-val="9">9 / 14</td>
     </tr><tr>
       <td class="rank">6</td>
       <td class="fp-name">TensorNet-MatPES <span class="tag-ood">OOD</span></td>
       <td class="training-col">MatPES-PBE</td>
       <td data-val="0.6">0.60 / 4.04</td>
       <td data-val="11">11 / 19</td>
+      <td data-val="0.27">0.27 / 0.36</td>
       <td data-val="2.76">2.76</td>
       <td data-val="0.11">0.11 / 2.30</td>
       <td data-val="12.19">12.19</td>
+      <td data-val="0.7">0.70 / 4.52</td>
+      <td data-val="8">8 / 12</td>
     </tr><tr>
       <td class="rank">7</td>
       <td class="fp-name">MACE-MatPES <span class="tag-finetuned">fine-tuned</span></td>
       <td class="training-col">MatPES-PBE (fine-tuned)</td>
       <td data-val="0.43">0.43 / 2.25</td>
       <td data-val="8">8 / 15</td>
+      <td data-val="0.22">0.22 / 0.31</td>
       <td data-val="4.12">4.12</td>
       <td data-val="0.31">0.31 / 3.74</td>
       <td data-val="8.94">8.94</td>
+      <td data-val="0.51">0.51 / 2.51</td>
+      <td data-val="6">6 / 9</td>
     </tr></tbody></table>
     </div>
 
