@@ -37,19 +37,20 @@ single overall ranking.
 
 ## Notation
 
-The force error was decomposed into the force-magnitude error, `Δ|F| = |F_FP| − |F_DFT|`, and the
-force-angle error, `Δθ`, defined as the angle between the FP and DFT force vectors. We also
-computed the force-vector error, `e_vec = ||F_FP − F_DFT||`, and the relative force-magnitude
-error for FE atoms, `r_F = |Δ|F|| / |F_DFT|`.
+The force error was decomposed into the force-magnitude error, &Delta;|<i>F</i>| = |<i>F</i><sub>FP</sub>|
+&minus; |<i>F</i><sub>DFT</sub>|, and the force-angle error, &Delta;<i>&theta;</i>, defined as the
+angle between the FP and DFT force vectors. We also computed the force-vector error,
+<i>e</i><sub>vec</sub> = ||<i>F</i><sub>FP</sub> &minus; <i>F</i><sub>DFT</sub>||, and the relative
+force-magnitude error for FE atoms, <i>r</i><sub><i>F</i></sub> = |&Delta;|<i>F</i>|| / |<i>F</i><sub>DFT</sub>|.
 
-`Δ|F| MAE/RMSE` is used for the MAE/RMSE metric name. `|Δ|F||` is used for CDFs, thresholds, and
-fraction metrics.
+&Delta;|<i>F</i>| MAE/RMSE is used for the MAE/RMSE metric name. |&Delta;|<i>F</i>|| is used for CDFs,
+thresholds, and fraction metrics.
 
 Atoms with zero FP or DFT force were excluded from all metrics, since the force angle is
 undefined in these cases. Except for the all-atom MAE/RMSE analysis, all force metrics were
-evaluated only for atoms with `|F_DFT| > 0.01` eV/Å, because for near-zero DFT forces, small
-absolute differences in the force components can produce large changes in the calculated force
-angle. FE atoms correspond to `|F_DFT| > 1` eV/Å.
+evaluated only for atoms with |<i>F</i><sub>DFT</sub>| &gt; 0.01 eV/&Aring;, because for near-zero DFT
+forces, small absolute differences in the force components can produce large changes in the
+calculated force angle. FE atoms correspond to |<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;.
 
 ---
 
