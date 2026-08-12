@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FPBench: Force Prediction</title>
+  <style>
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --surface2: #1c2230;
+      --border:   #30363d;
+      --accent:   #58a6ff;
+      --accent2:  #3fb950;
+      --accent3:  #f78166;
+      --accent4:  #d29922;
+      --text:     #c9d1d9;
+      --muted:    #8b949e;
+      --heading:  #e6edf3;
+      --code-bg:  #1f2937;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav .logo { font-weight: 700; font-size: 1rem; color: var(--heading); text-decoration: none; }
+    nav .nav-links { display: flex; align-items: center; }
+    nav a { color: var(--muted); text-decoration: none; font-size: 0.88rem; margin-left: 1.4rem; }
+    nav a:hover { color: var(--accent); }
+    nav a.nav-highlight { color: var(--accent); font-weight: 600; }
+
+    .hero { text-align: center; padding: 4.5rem 2rem 3rem; max-width: 860px; margin: 0 auto; }
+    .hero .tag-line { font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; }
+    .hero h1 { font-size: 2.4rem; font-weight: 800; color: var(--heading); letter-spacing: -0.5px; line-height: 1.2; }
+    .hero p { margin-top: 1rem; font-size: 1.05rem; color: var(--muted); max-width: 660px; margin-left: auto; margin-right: auto; }
+    .cta { margin-top: 1.8rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-block; padding: 0.6rem 1.3rem; border-radius: 6px; font-size: 0.92rem; font-weight: 600; text-decoration: none; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--accent); color: #0d1117; }
+    .btn-outline { border: 1px solid var(--border); color: var(--heading); background: var(--surface); }
+    .btn-green  { background: var(--accent2); color: #0d1117; }
+
+    section { max-width: 1080px; margin: 0 auto; padding: 3rem 2rem; border-top: 1px solid var(--border); }
+    section h2 { font-size: 1.55rem; color: var(--heading); font-weight: 700; margin-bottom: 1rem; }
+    section h3 { font-size: 1.05rem; color: var(--heading); font-weight: 600; margin: 1.8rem 0 0.6rem; }
+    section p { color: var(--text); margin-bottom: 0.8rem; }
+
+    .callout { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 1rem 1.4rem; margin: 1.2rem 0; font-size: 0.95rem; color: var(--text); }
+    .callout.amber { border-left-color: var(--accent4); }
+    .callout strong { color: var(--heading); }
+
+    .metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.2rem 0; }
+    @media (max-width: 700px) { .metric-row { grid-template-columns: 1fr; } }
+    .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem 1.6rem; }
+    .metric-card h3 { margin-top: 0; font-size: 1rem; }
+    .metric-card p { font-size: 0.9rem; color: var(--text); margin-bottom: 0; }
+    .metric-card .formula { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.83rem; color: var(--accent2); background: var(--code-bg); border-radius: 4px; padding: 0.3rem 0.6rem; margin: 0.6rem 0; display: inline-block; }
+
+    .notation-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.2rem 0; }
+    @media (max-width: 800px) { .notation-row { grid-template-columns: 1fr; } }
+    .notation-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; text-align: center; }
+    .notation-card .symbol { font-size: 1.2rem; font-weight: 800; color: var(--accent); font-family: "Georgia", serif; }
+    .notation-card .formula { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.8rem; color: var(--accent2); margin-top: 0.4rem; }
+
+    .regime-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.2rem 0; }
+    @media (max-width: 700px) { .regime-row { grid-template-columns: 1fr; } }
+    .regime-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1.4rem; }
+    .regime-card .rtag { display: inline-block; border-radius: 4px; padding: 0.2rem 0.6rem; font-size: 0.74rem; font-weight: 700; margin-bottom: 0.6rem; }
+    .regime-card h3 { font-size: 0.95rem; margin: 0 0 0.4rem; color: var(--heading); }
+    .regime-card p { font-size: 0.84rem; color: var(--muted); margin: 0; }
+    .tag-green { background: rgba(63,185,80,0.15); color: var(--accent2); }
+    .tag-red   { background: rgba(247,129,102,0.15); color: var(--accent3); }
+    .tag-blue  { background: rgba(88,166,255,0.15); color: var(--accent); }
+
+    .dataset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .dataset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem 1.6rem; }
+    .dataset-card .ds-name { font-size: 1rem; font-weight: 700; color: var(--heading); margin-bottom: 0.4rem; }
+    .dataset-card .ds-stat { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.2rem; }
+    .dataset-card .ds-stat span { color: var(--text); }
+    .dataset-card .ds-desc { font-size: 0.87rem; color: var(--text); margin-top: 0.7rem; line-height: 1.5; }
+
+    .tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; overflow-x: auto; }
+    .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-size: 0.9rem; font-weight: 600; padding: 0.7rem 1.4rem; cursor: pointer; white-space: nowrap; font-family: inherit; transition: color 0.15s, border-color 0.15s; }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .col-legend { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: 0.8rem; color: var(--muted); }
+    .col-legend .arrow-down { color: var(--accent3); }
+    .col-legend .arrow-up   { color: var(--accent2); }
+
+    details { border: 1px solid var(--border); border-radius: 8px; margin-top: 0.9rem; background: var(--surface); }
+    details summary { padding: 0.85rem 1.1rem; cursor: pointer; font-size: 0.98rem; font-weight: 700; color: var(--heading); list-style: none; display: flex; align-items: center; gap: 0.5rem; }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::before { content: "▶"; font-size: 0.7rem; color: var(--muted); transition: transform 0.15s; }
+    details[open] summary::before { transform: rotate(90deg); }
+    details[open] summary { border-bottom: 1px solid var(--border); }
+    .metric-description { padding: 0.9rem 1.1rem 0; font-size: 0.87rem; color: var(--muted); line-height: 1.55; }
+    .table-scroll { overflow-x: auto; padding: 1rem 1.1rem 1.1rem; }
+
+    table.dt { border-collapse: collapse; font-size: 0.82rem; min-width: 100%; }
+    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; }
+    table.dt th { background: var(--surface2); color: var(--muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.3px; }
+    table.dt td { color: var(--text); font-family: "SFMono-Regular", Consolas, monospace; }
+    table.dt tr:last-child td { border-bottom: none; }
+    table.dt th:first-child, table.dt td:first-child {
+      position: sticky; left: 0; background: var(--surface); text-align: left;
+      font-family: inherit; font-weight: 600; color: var(--heading); z-index: 2;
+    }
+    table.dt th:first-child { background: var(--surface2); z-index: 3; }
+    table.dt tr:hover td { filter: brightness(1.08); }
+
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.84rem; line-height: 1.6; margin-top: 0.8rem; }
+    code { background: var(--code-bg); border-radius: 4px; padding: 0.15em 0.45em; font-size: 0.85em; color: #79c0ff; font-family: "SFMono-Regular", Consolas, monospace; }
+    pre code { background: none; padding: 0; color: var(--text); }
+    table.gen { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 0.8rem; }
+    table.gen th { background: var(--surface); color: var(--muted); text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    table.gen td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); }
+    table.gen tr:last-child td { border-bottom: none; }
+
+    footer { text-align: center; padding: 2.5rem 2rem; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer .affil { margin-top: 0.3rem; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">FPBench</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a class="nav-highlight" href="force-error.html">Force Prediction</a>
+    <a href="phase-stability-ordering.html">Phase Stability &amp; Ordering</a>
+    <a href="ion-migration-neb.html">Ion Migration (NEB)</a>
+    <a href="https://github.com/kamirian/FPBench">GitHub</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="tag-line">FPBench &middot; Force Prediction Component</div>
+  <h1>FPBench: Force Prediction</h1>
+  <p>
+    Application-oriented force-error metrics for foundation potentials (FPs), evaluated on
+    MatPES-PBE, MatPES-r2SCAN, and OMat24 rattled-1000.
+  </p>
+  <div class="cta">
+    <a class="btn btn-primary" href="#results">View Results</a>
+    <a class="btn btn-green"  href="#reproduce">Reproduce / Extend</a>
+    <a class="btn btn-outline" href="https://github.com/kamirian/FPBench/tree/main/Force_error">GitHub</a>
+  </div>
+</div>
+
+<!-- ============== APPLICATION-ORIENTED METRICS ============== -->
+<section id="metrics">
+  <h2>Application-Oriented Force Metrics</h2>
+  <p>FPBench evaluates FP force predictions using four metrics chosen for their direct relevance to atomistic simulation workflows.</p>
+
+  <div class="metric-row">
+    <div class="metric-card">
+      <h3>Highly accurate force predictions (small-force-error atoms)</h3>
+      <p>Strict force convergence criteria of 0.001-0.01 eV/&Aring; are often used to relax structures for subsequent calculations such as defect energies, electronic structure, and NEB. Force errors comparable to these convergence thresholds can drive the relaxation toward a different minimum or cause it to stop before the correct DFT equilibrium structure is reached.</p>
+    </div>
+    <div class="metric-card">
+      <h3>Joint force magnitude-angle accuracy</h3>
+      <p>Joint force magnitude-angle accuracy measures the fraction of atoms that simultaneously satisfy the |&Delta;|F|| and &Delta;&theta; thresholds. This analysis shows whether both force magnitude and force angle are predicted accurately for the same atom and reveals the difficulty of achieving high accuracy in both quantities simultaneously.</p>
+    </div>
+  </div>
+  <div class="metric-row">
+    <div class="metric-card">
+      <h3>Large-force-error atoms</h3>
+      <p>Large force errors are highly undesired in atomistic simulations using FPs because even a single occurrence can lead to significant problems, such as erroneous atomic dynamics in MD simulations or failure of convergence in NEB calculations. The fraction of large-force-error atoms is therefore a key FP error metric.</p>
+    </div>
+    <div class="metric-card">
+      <h3>Force errors on far-from-equilibrium (FE) atoms</h3>
+      <p>Many computational tasks involve far-from-equilibrium atoms, including migrating ions, defect and disordered structures, and large thermal displacements in high-temperature MD simulations. Force errors on FE atoms should be evaluated separately; otherwise, they can be diluted by the dominant near-equilibrium population.</p>
+    </div>
+  </div>
+  <p style="margin-top:1rem;"><strong style="color:var(--heading);">Together, these metrics evaluate force-prediction behavior directly relevant to structural relaxation, MD, NEB, and other atomistic simulations.</strong></p>
+</section>
+
+<!-- ============== NOTATION ============== -->
+<section id="notation">
+  <h2>Notation</h2>
+  <div class="notation-row">
+    <div class="notation-card"><div class="symbol">&Delta;|F|</div><div class="formula">|F_FP| &minus; |F_DFT|</div></div>
+    <div class="notation-card"><div class="symbol">|&Delta;|F||</div><div class="formula">absolute value of &Delta;|F|</div></div>
+    <div class="notation-card"><div class="symbol">&Delta;&theta;</div><div class="formula">force-angle error (degrees)</div></div>
+  </div>
+  <div class="notation-row">
+    <div class="notation-card"><div class="symbol">e_vec</div><div class="formula">||F_FP &minus; F_DFT||</div></div>
+    <div class="notation-card"><div class="symbol">r_F</div><div class="formula">|&Delta;|F|| / |F_DFT|</div></div>
+    <div class="notation-card"><div class="symbol">FE</div><div class="formula">|F_DFT| &gt; 1 eV/&Aring;</div></div>
+  </div>
+  <p style="margin-top:1.2rem;">Δ|F| MAE/RMSE is used for MAE/RMSE analyses. |Δ|F|| is used for CDFs and threshold/fraction analyses.</p>
+
+  <div class="callout" style="margin-top:1rem;">
+    Atoms with zero FP or DFT force were excluded from all metrics, since the force angle is undefined in these cases. Except for the all-atom MAE/RMSE analysis, all force metrics were evaluated only for atoms with |F<sub>DFT</sub>| &gt; 0.01 eV/&Aring;, because for near-zero DFT forces, small absolute differences in the force components can produce large changes in the calculated force angle.
+  </div>
+
+  <div class="regime-row">
+    <div class="regime-card">
+      <div class="rtag tag-green">Evaluated</div>
+      <h3>|F_DFT| &gt; 0.01 eV/&Aring;</h3>
+      <p>The cutoff used throughout the force-metric tables below, except the all-atom MAE/RMSE analysis.</p>
+    </div>
+    <div class="regime-card">
+      <div class="rtag tag-blue">non-FE</div>
+      <h3>0.01 &lt; |F_DFT| &le; 1 eV/&Aring;</h3>
+      <p>Near-equilibrium atoms.</p>
+    </div>
+    <div class="regime-card">
+      <div class="rtag tag-red">FE</div>
+      <h3>|F_DFT| &gt; 1 eV/&Aring;</h3>
+      <p>Far-from-equilibrium atoms, operationally defined by this force-magnitude threshold.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== DATASETS ============== -->
+<section id="datasets">
+  <h2>Datasets</h2>
+  <div class="dataset-grid">
+    <div class="dataset-card">
+      <div class="ds-name">MatPES-PBE</div>
+      <div class="ds-stat">DFT functional: <span>PBE</span></div>
+      <div class="ds-stat">FPs evaluated: <span>7</span></div>
+      <div class="ds-desc">Main PBE benchmark dataset.</div>
+    </div>
+    <div class="dataset-card">
+      <div class="ds-name">MatPES-r2SCAN</div>
+      <div class="ds-stat">DFT functional: <span>r2SCAN</span></div>
+      <div class="ds-stat">FPs evaluated: <span>3</span></div>
+      <div class="ds-desc">Contains the three r2SCAN-trained FPs.</div>
+    </div>
+    <div class="dataset-card">
+      <div class="ds-name">OMat24 rattled-1000</div>
+      <div class="ds-stat">DFT functional: <span>PBE</span></div>
+      <div class="ds-stat">FPs evaluated: <span>7</span></div>
+      <div class="ds-desc">The PBE-labeled OMat24 rattled-1000 validation dataset.</div>
+    </div>
+  </div>
+  <div class="callout amber" style="margin-top:1.2rem;">
+    Dataset-level atom counts and FE fractions are not shown here. The currently-committed
+    standardized files do not yet include the generators' dataset-wide
+    <code>reference_population</code> field, so a model-independent count has not been
+    calculated. Per-FP evaluated-atom counts differ slightly across FPs (each FP excludes its own
+    zero-force atoms) and are not a substitute for a dataset-level count.
+  </div>
+</section>
+
+<!-- ============== RESULTS ============== -->
+<section id="results">
+  <h2>Results</h2>
+  <p>
+    Results below are read directly from each dataset's current executed analysis notebook. FPBench
+    does not publish a single overall ranking. The tables are complementary measurements,
+    and which one matters most depends on the target application. Per-column highlighting marks
+    the best/worst value for that metric only.
+  </p>
+  <div class="col-legend">
+    <span><span class="arrow-down">&#9660;</span> lower is better</span>
+    <span><span class="arrow-up">&#9650;</span> higher is better</span>
+    <span style="color:var(--accent2);font-weight:700">green = favorable in column</span>
+    <span style="color:var(--accent3)">red = unfavorable in column</span>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('pbe',this)">MatPES-PBE</button>
+    <button class="tab-btn" onclick="switchTab('r2scan',this)">MatPES-r2SCAN</button>
+    <button class="tab-btn" onclick="switchTab('rattled',this)">OMat24 rattled-1000</button>
+  </div>
+
+
+  <div id="tab-pbe" class="tab-panel active">
+    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Dataset: MatPES-PBE. Values are read directly from the currently-executed <code>analysis/force_error_analysis_matpes_pbe.ipynb</code>.</p>
+
+    <h3 style="margin-top:0;">Combined Summary Table</h3>
+    <div class="table-scroll">
+      <table class="dt summary-table"><thead><tr><th>FP</th><th>Δ|F| MAE/RMSE (eV/Å)</th><th>Δθ MAE/RMSE (°)</th><th>Δ|F| MAE/RMSE, |Δ|F||&lt;1 (eV/Å)</th><th>Frac(&lt;0.01 &amp; &lt;1°/20°) (%)</th><th>Frac(|Δ|F||&lt;0.01) (%)</th><th>Frac(|Δ|F||&gt;1) (%)</th><th>Δ|F| MAE/RMSE, FE (eV/Å)</th><th>Δθ MAE/RMSE, FE (°)</th></tr></thead><tbody><tr><td>MACE</td><td data-val="0.23">0.23 / 1.93</td><td data-val="37">37 / 58</td><td data-val="0.17">0.17 / 0.27</td><td data-val="1.07">1.07 / 4.51</td><td data-val="8.34">8.34</td><td data-val="3.44">3.44</td><td data-val="0.49">0.49 / 3.65</td><td data-val="18">18 / 29</td></tr><tr><td>CHGNet</td><td data-val="0.31">0.31 / 2.19</td><td data-val="45">45 / 66</td><td data-val="0.22">0.22 / 0.32</td><td data-val="0.66">0.66 / 2.16</td><td data-val="5.61">5.61</td><td data-val="5.71">5.71</td><td data-val="0.7">0.70 / 4.14</td><td data-val="24">24 / 36</td></tr><tr><td>M3GNet</td><td data-val="0.44">0.44 / 1.49</td><td data-val="56">56 / 76</td><td data-val="0.26">0.26 / 0.36</td><td data-val="0.54">0.54 / 1.45</td><td data-val="4.56">4.56</td><td data-val="10.79">10.79</td><td data-val="0.98">0.98 / 2.76</td><td data-val="40">40 / 56</td></tr><tr><td>UMA</td><td data-val="0.56">0.56 / 7.93</td><td data-val="28">28 / 51</td><td data-val="0.12">0.12 / 0.21</td><td data-val="2.79">2.79 / 11.44</td><td data-val="15.13">15.13</td><td data-val="2.69">2.69</td><td data-val="1.13">1.13 / 11.89</td><td data-val="12">12 / 25</td></tr><tr><td>M3GNet-MatPES</td><td data-val="0.21">0.21 / 1.24</td><td data-val="34">34 / 53</td><td data-val="0.17">0.17 / 0.25</td><td data-val="0.92">0.92 / 3.75</td><td data-val="7.14">7.14</td><td data-val="2.35">2.35</td><td data-val="0.43">0.43 / 2.34</td><td data-val="18">18 / 27</td></tr><tr><td>TensorNet-MatPES</td><td data-val="0.17">0.17 / 1.39</td><td data-val="29">29 / 49</td><td data-val="0.15">0.15 / 0.22</td><td data-val="0.98">0.98 / 4.65</td><td data-val="7.66">7.66</td><td data-val="1.2">1.20</td><td data-val="0.33">0.33 / 2.63</td><td data-val="12">12 / 18</td></tr><tr><td>MACE-MatPES</td><td data-val="0.08">0.08 / 1.10</td><td data-val="16">16 / 32</td><td data-val="0.07">0.07 / 0.13</td><td data-val="3.88">3.88 / 15.35</td><td data-val="19.02">19.02</td><td data-val="0.25">0.25</td><td data-val="0.16">0.16 / 2.09</td><td data-val="6">6 / 10</td></tr></tbody></table>
+    </div>
+
+    <details open>
+      <summary>Highly accurate force predictions</summary>
+      <div class="metric-description">Percentage of evaluated atoms satisfying |&Delta;|F|| &lt; threshold. Higher is better. The |F_DFT| &gt; 0.01 eV/&Aring; cutoff is applied.</div>
+      <div class="table-scroll">
+        <table class="dt acc-table"><thead><tr><th>FP</th><th>&lt;0.01 eV/Å</th><th>&lt;0.02 eV/Å</th><th>&lt;0.05 eV/Å</th><th>&lt;0.07 eV/Å</th><th>&lt;0.1 eV/Å</th><th>&lt;0.2 eV/Å</th><th>&lt;0.5 eV/Å</th></tr></thead><tbody><tr><td>MACE</td><td data-val="8.34">8.34</td><td data-val="15.92">15.92</td><td data-val="33.11">33.11</td><td data-val="41.21">41.21</td><td data-val="50.31">50.31</td><td data-val="68.03">68.03</td><td data-val="88.05">88.05</td></tr><tr><td>CHGNet</td><td data-val="5.61">5.61</td><td data-val="10.91">10.91</td><td data-val="23.93">23.93</td><td data-val="30.79">30.79</td><td data-val="39.06">39.06</td><td data-val="57.21">57.21</td><td data-val="81.66">81.66</td></tr><tr><td>M3GNet</td><td data-val="4.56">4.56</td><td data-val="8.88">8.88</td><td data-val="19.54">19.54</td><td data-val="25.3">25.30</td><td data-val="32.42">32.42</td><td data-val="48.81">48.81</td><td data-val="73.45">73.45</td></tr><tr><td>UMA</td><td data-val="15.13">15.13</td><td data-val="26.4">26.40</td><td data-val="46.86">46.86</td><td data-val="55.13">55.13</td><td data-val="63.72">63.72</td><td data-val="78.73">78.73</td><td data-val="92.22">92.22</td></tr><tr><td>M3GNet-MatPES</td><td data-val="7.14">7.14</td><td data-val="13.87">13.87</td><td data-val="30.42">30.42</td><td data-val="38.99">38.99</td><td data-val="49.2">49.20</td><td data-val="69.76">69.76</td><td data-val="90.64">90.64</td></tr><tr><td>TensorNet-MatPES</td><td data-val="7.66">7.66</td><td data-val="14.81">14.81</td><td data-val="32.53">32.53</td><td data-val="41.8">41.80</td><td data-val="52.86">52.86</td><td data-val="74.74">74.74</td><td data-val="93.92">93.92</td></tr><tr><td>MACE-MatPES</td><td data-val="19.02">19.02</td><td data-val="33.5">33.50</td><td data-val="58.92">58.92</td><td data-val="68.47">68.47</td><td data-val="77.66">77.66</td><td data-val="90.97">90.97</td><td data-val="98.47">98.47</td></tr></tbody></table>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Joint force magnitude-angle accuracy</summary>
+      <div class="metric-description">Percentage of evaluated atoms satisfying both |&Delta;|F|| &lt; threshold and &Delta;&theta; &lt; 1&deg; or 20&deg;. Each cell reports the &Delta;&theta; &lt; 1&deg; fraction followed by the &Delta;&theta; &lt; 20&deg; fraction. Higher is better. The |F_DFT| &gt; 0.01 eV/&Aring; cutoff is applied.</div>
+      <div class="table-scroll">
+        <table class="dt joint-table"><thead><tr><th>FP</th><th>&lt;0.01 eV/Å</th><th>&lt;0.02 eV/Å</th><th>&lt;0.05 eV/Å</th><th>&lt;0.07 eV/Å</th><th>&lt;0.1 eV/Å</th><th>&lt;0.2 eV/Å</th><th>&lt;0.5 eV/Å</th></tr></thead><tbody><tr><td>MACE</td><td data-val="1.07" data-val2="4.51">1.07 / 4.51</td><td data-val="1.96" data-val2="8.57">1.96 / 8.57</td><td data-val="3.74" data-val2="17.98">3.74 / 17.98</td><td data-val="4.42" data-val2="22.44">4.42 / 22.44</td><td data-val="5.09" data-val2="27.54">5.09 / 27.54</td><td data-val="6.01" data-val2="37.35">6.01 / 37.35</td><td data-val="6.66" data-val2="47.6">6.66 / 47.60</td></tr><tr><td>CHGNet</td><td data-val="0.66" data-val2="2.16">0.66 / 2.16</td><td data-val="1.26" data-val2="4.17">1.26 / 4.17</td><td data-val="2.49" data-val2="9.18">2.49 / 9.18</td><td data-val="3.05" data-val2="11.92">3.05 / 11.92</td><td data-val="3.66" data-val2="15.32">3.66 / 15.32</td><td data-val="4.66" data-val2="23.07">4.66 / 23.07</td><td data-val="5.46" data-val2="33.7">5.46 / 33.70</td></tr><tr><td>M3GNet</td><td data-val="0.54" data-val2="1.45">0.54 / 1.45</td><td data-val="1.02" data-val2="2.79">1.02 / 2.79</td><td data-val="2.06" data-val2="6.11">2.06 / 6.11</td><td data-val="2.55" data-val2="7.94">2.55 / 7.94</td><td data-val="3.09" data-val2="10.22">3.09 / 10.22</td><td data-val="4.03" data-val2="15.44">4.03 / 15.44</td><td data-val="4.81" data-val2="23.03">4.81 / 23.03</td></tr><tr><td>UMA</td><td data-val="2.79" data-val2="11.44">2.79 / 11.44</td><td data-val="4.59" data-val2="19.76">4.59 / 19.76</td><td data-val="7.19" data-val2="34.56">7.19 / 34.56</td><td data-val="8.01" data-val2="40.39">8.01 / 40.39</td><td data-val="8.74" data-val2="46.32">8.74 / 46.32</td><td data-val="9.78" data-val2="56.05">9.78 / 56.05</td><td data-val="10.48" data-val2="63.3">10.48 / 63.30</td></tr><tr><td>M3GNet-MatPES</td><td data-val="0.92" data-val2="3.75">0.92 / 3.75</td><td data-val="1.74" data-val2="7.26">1.74 / 7.26</td><td data-val="3.48" data-val2="16.01">3.48 / 16.01</td><td data-val="4.27" data-val2="20.67">4.27 / 20.67</td><td data-val="5.08" data-val2="26.24">5.08 / 26.24</td><td data-val="6.34" data-val2="37.46">6.34 / 37.46</td><td data-val="7.09" data-val2="48.32">7.09 / 48.32</td></tr><tr><td>TensorNet-MatPES</td><td data-val="0.98" data-val2="4.65">0.98 / 4.65</td><td data-val="1.83" data-val2="8.98">1.83 / 8.98</td><td data-val="3.66" data-val2="19.76">3.66 / 19.76</td><td data-val="4.48" data-val2="25.44">4.48 / 25.44</td><td data-val="5.34" data-val2="32.22">5.34 / 32.22</td><td data-val="6.73" data-val2="45.71">6.73 / 45.71</td><td data-val="7.57" data-val2="57.49">7.57 / 57.49</td></tr><tr><td>MACE-MatPES</td><td data-val="3.88" data-val2="15.35">3.88 / 15.35</td><td data-val="6.37" data-val2="26.95">6.37 / 26.95</td><td data-val="9.71" data-val2="47.5">9.71 / 47.50</td><td data-val="10.67" data-val2="55.26">10.67 / 55.26</td><td data-val="11.44" data-val2="62.75">11.44 / 62.75</td><td data-val="12.33" data-val2="73.48">12.33 / 73.48</td><td data-val="12.73" data-val2="79.28">12.73 / 79.28</td></tr></tbody></table>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Large-force-error atoms</summary>
+      <div class="metric-description">Percentage of evaluated atoms with |&Delta;|F|| exceeding each threshold. Lower is better. The |F_DFT| &gt; 0.01 eV/&Aring; cutoff is applied.</div>
+      <div class="table-scroll">
+        <table class="dt err-table"><thead><tr><th>FP</th><th>&gt;0.5 eV/Å</th><th>&gt;1 eV/Å</th><th>&gt;2 eV/Å</th><th>&gt;3 eV/Å</th><th>&gt;4 eV/Å</th><th>&gt;5 eV/Å</th><th>&gt;7 eV/Å</th><th>&gt;10 eV/Å</th></tr></thead><tbody><tr><td>MACE</td><td data-val="11.954">11.954</td><td data-val="3.438">3.438</td><td data-val="0.59">0.590</td><td data-val="0.194">0.194</td><td data-val="0.083">0.083</td><td data-val="0.046">0.046</td><td data-val="0.025">0.025</td><td data-val="0.018">0.018</td></tr><tr><td>CHGNet</td><td data-val="18.338">18.338</td><td data-val="5.707">5.707</td><td data-val="0.945">0.945</td><td data-val="0.29">0.290</td><td data-val="0.122">0.122</td><td data-val="0.069">0.069</td><td data-val="0.036">0.036</td><td data-val="0.023">0.023</td></tr><tr><td>M3GNet</td><td data-val="26.553">26.553</td><td data-val="10.789">10.789</td><td data-val="2.757">2.757</td><td data-val="1.056">1.056</td><td data-val="0.493">0.493</td><td data-val="0.261">0.261</td><td data-val="0.103">0.103</td><td data-val="0.035">0.035</td></tr><tr><td>UMA</td><td data-val="7.785">7.785</td><td data-val="2.686">2.686</td><td data-val="1.055">1.055</td><td data-val="0.808">0.808</td><td data-val="0.712">0.712</td><td data-val="0.654">0.654</td><td data-val="0.583">0.583</td><td data-val="0.52">0.520</td></tr><tr><td>M3GNet-MatPES</td><td data-val="9.363">9.363</td><td data-val="2.355">2.355</td><td data-val="0.452">0.452</td><td data-val="0.159">0.159</td><td data-val="0.073">0.073</td><td data-val="0.04">0.040</td><td data-val="0.02">0.020</td><td data-val="0.013">0.013</td></tr><tr><td>TensorNet-MatPES</td><td data-val="6.08">6.080</td><td data-val="1.196">1.196</td><td data-val="0.175">0.175</td><td data-val="0.065">0.065</td><td data-val="0.043">0.043</td><td data-val="0.033">0.033</td><td data-val="0.024">0.024</td><td data-val="0.018">0.018</td></tr><tr><td>MACE-MatPES</td><td data-val="1.535">1.535</td><td data-val="0.249">0.249</td><td data-val="0.039">0.039</td><td data-val="0.021">0.021</td><td data-val="0.017">0.017</td><td data-val="0.014">0.014</td><td data-val="0.011">0.011</td><td data-val="0.01">0.010</td></tr></tbody></table>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Force errors on far-from-equilibrium (FE) atoms</summary>
+      <div class="metric-description">FE atoms are defined by |F_DFT| &gt; 1 eV/&Aring;. All four sub-tables below are restricted to this FE population.</div>
+      <div class="table-scroll" style="padding-top:0;">
+        <p style="font-size:0.82rem;color:var(--muted);margin:0.6rem 0 0.4rem;">&Delta;|F| and &Delta;&theta; MAE/RMSE on FE atoms</p>
+        <table class="dt mae-rmse-table"><thead><tr><th>FP</th><th>Δ|F| MAE/RMSE (eV/Å)</th><th>Δθ MAE/RMSE (°)</th></tr></thead><tbody><tr><td>MACE</td><td data-val="0.49">0.49 / 3.65</td><td data-val="18">18 / 29</td></tr><tr><td>CHGNet</td><td data-val="0.7">0.70 / 4.14</td><td data-val="24">24 / 36</td></tr><tr><td>M3GNet</td><td data-val="0.98">0.98 / 2.76</td><td data-val="40">40 / 56</td></tr><tr><td>UMA</td><td data-val="1.13">1.13 / 11.89</td><td data-val="12">12 / 25</td></tr><tr><td>M3GNet-MatPES</td><td data-val="0.43">0.43 / 2.34</td><td data-val="18">18 / 27</td></tr><tr><td>TensorNet-MatPES</td><td data-val="0.33">0.33 / 2.63</td><td data-val="12">12 / 18</td></tr><tr><td>MACE-MatPES</td><td data-val="0.16">0.16 / 2.09</td><td data-val="6">6 / 10</td></tr></tbody></table>
+        <p style="font-size:0.82rem;color:var(--muted);margin:1rem 0 0.4rem;">r_F = |&Delta;|F|| / |F_DFT| threshold fractions on FE atoms (%, higher is better)</p>
+        <table class="dt rf-table"><thead><tr><th>FP</th><th>&lt;0.01</th><th>&lt;0.05</th><th>&lt;0.1</th><th>&lt;0.2</th><th>&lt;0.3</th><th>&lt;0.4</th><th>&lt;0.5</th><th>&lt;1</th><th>&lt;2</th></tr></thead><tbody><tr><td>MACE</td><td data-val="4.0">4.00</td><td data-val="18.904">18.90</td><td data-val="34.565">34.56</td><td data-val="57.18">57.18</td><td data-val="71.816">71.82</td><td data-val="81.26">81.26</td><td data-val="87.222">87.22</td><td data-val="99.289">99.29</td><td data-val="99.89">99.89</td></tr><tr><td>CHGNet</td><td data-val="1.913">1.91</td><td data-val="9.427">9.43</td><td data-val="18.402">18.40</td><td data-val="35.363">35.36</td><td data-val="50.817">50.82</td><td data-val="64.443">64.44</td><td data-val="75.649">75.65</td><td data-val="99.471">99.47</td><td data-val="99.932">99.93</td></tr><tr><td>M3GNet</td><td data-val="1.075">1.07</td><td data-val="5.353">5.35</td><td data-val="10.539">10.54</td><td data-val="20.974">20.97</td><td data-val="31.653">31.65</td><td data-val="42.918">42.92</td><td data-val="54.668">54.67</td><td data-val="98.337">98.34</td><td data-val="99.63">99.63</td></tr><tr><td>UMA</td><td data-val="11.068">11.07</td><td data-val="42.036">42.04</td><td data-val="61.998">62.00</td><td data-val="78.926">78.93</td><td data-val="85.632">85.63</td><td data-val="89.111">89.11</td><td data-val="91.254">91.25</td><td data-val="97.984">97.98</td><td data-val="98.588">98.59</td></tr><tr><td>M3GNet-MatPES</td><td data-val="3.937">3.94</td><td data-val="19.058">19.06</td><td data-val="35.251">35.25</td><td data-val="59.039">59.04</td><td data-val="74.688">74.69</td><td data-val="84.773">84.77</td><td data-val="91.25">91.25</td><td data-val="99.827">99.83</td><td data-val="99.987">99.99</td></tr><tr><td>TensorNet-MatPES</td><td data-val="5.223">5.22</td><td data-val="24.867">24.87</td><td data-val="45.178">45.18</td><td data-val="71.848">71.85</td><td data-val="85.781">85.78</td><td data-val="92.884">92.88</td><td data-val="96.413">96.41</td><td data-val="99.916">99.92</td><td data-val="99.995">100.00</td></tr><tr><td>MACE-MatPES</td><td data-val="13.942">13.94</td><td data-val="52.537">52.54</td><td data-val="75.302">75.30</td><td data-val="91.75">91.75</td><td data-val="96.647">96.65</td><td data-val="98.401">98.40</td><td data-val="99.121">99.12</td><td data-val="99.993">99.99</td><td data-val="100.0">100.00</td></tr></tbody></table>
+        <p style="font-size:0.82rem;color:var(--muted);margin:1rem 0 0.4rem;">FE-only joint force magnitude-angle accuracy (&Delta;&theta;&lt;1&deg; / &Delta;&theta;&lt;20&deg;, %, higher is better)</p>
+        <table class="dt joint-table"><thead><tr><th>FP</th><th>&lt;0.01 eV/Å</th><th>&lt;0.02 eV/Å</th><th>&lt;0.05 eV/Å</th><th>&lt;0.07 eV/Å</th><th>&lt;0.1 eV/Å</th><th>&lt;0.2 eV/Å</th><th>&lt;0.5 eV/Å</th></tr></thead><tbody><tr><td>MACE</td><td data-val="0.12" data-val2="2.05">0.12 / 2.05</td><td data-val="0.23" data-val2="4.06">0.23 / 4.06</td><td data-val="0.55" data-val2="10.03">0.55 / 10.03</td><td data-val="0.73" data-val2="13.79">0.73 / 13.79</td><td data-val="0.97" data-val2="19.1">0.97 / 19.10</td><td data-val="1.52" data-val2="33.49">1.52 / 33.49</td><td data-val="2.21" data-val2="56.5">2.21 / 56.50</td></tr><tr><td>CHGNet</td><td data-val="0.03" data-val2="0.8">0.03 / 0.80</td><td data-val="0.05" data-val2="1.61">0.05 / 1.61</td><td data-val="0.12" data-val2="4.03">0.12 / 4.03</td><td data-val="0.17" data-val2="5.61">0.17 / 5.61</td><td data-val="0.24" data-val2="7.97">0.24 / 7.97</td><td data-val="0.46" data-val2="15.56">0.46 / 15.56</td><td data-val="0.97" data-val2="34.78">0.97 / 34.78</td></tr><tr><td>M3GNet</td><td data-val="0.01" data-val2="0.34">0.01 / 0.34</td><td data-val="0.01" data-val2="0.66">0.01 / 0.66</td><td data-val="0.03" data-val2="1.68">0.03 / 1.68</td><td data-val="0.04" data-val2="2.35">0.04 / 2.35</td><td data-val="0.06" data-val2="3.36">0.06 / 3.36</td><td data-val="0.11" data-val2="6.67">0.11 / 6.67</td><td data-val="0.27" data-val2="16.37">0.27 / 16.37</td></tr><tr><td>UMA</td><td data-val="1.61" data-val2="6.4">1.61 / 6.40</td><td data-val="2.97" data-val2="12.42">2.97 / 12.42</td><td data-val="5.54" data-val2="27.34">5.54 / 27.34</td><td data-val="6.48" data-val2="35.0">6.48 / 35.00</td><td data-val="7.37" data-val2="44.01">7.37 / 44.01</td><td data-val="8.72" data-val2="62.01">8.72 / 62.01</td><td data-val="9.63" data-val2="78.32">9.63 / 78.32</td></tr><tr><td>M3GNet-MatPES</td><td data-val="0.11" data-val2="1.87">0.11 / 1.87</td><td data-val="0.21" data-val2="3.72">0.21 / 3.72</td><td data-val="0.53" data-val2="9.32">0.53 / 9.32</td><td data-val="0.74" data-val2="12.92">0.74 / 12.92</td><td data-val="1.0" data-val2="18.06">1.00 / 18.06</td><td data-val="1.59" data-val2="32.34">1.59 / 32.34</td><td data-val="2.33" data-val2="55.62">2.33 / 55.62</td></tr><tr><td>TensorNet-MatPES</td><td data-val="0.19" data-val2="2.85">0.19 / 2.85</td><td data-val="0.37" data-val2="5.67">0.37 / 5.67</td><td data-val="0.84" data-val2="13.79">0.84 / 13.79</td><td data-val="1.13" data-val2="18.97">1.13 / 18.97</td><td data-val="1.5" data-val2="26.23">1.50 / 26.23</td><td data-val="2.33" data-val2="45.58">2.33 / 45.58</td><td data-val="3.21" data-val2="72.29">3.21 / 72.29</td></tr><tr><td>MACE-MatPES</td><td data-val="1.57" data-val2="7.98">1.57 / 7.98</td><td data-val="2.98" data-val2="15.56">2.98 / 15.56</td><td data-val="6.0" data-val2="34.9">6.00 / 34.90</td><td data-val="7.25" data-val2="44.86">7.25 / 44.86</td><td data-val="8.41" data-val2="56.34">8.41 / 56.34</td><td data-val="10.06" data-val2="77.44">10.06 / 77.44</td><td data-val="11.0" data-val2="92.87">11.00 / 92.87</td></tr></tbody></table>
+      </div>
+    </details>
+  </div>
+
+
+
+  <div id="tab-r2scan" class="tab-panel">
+    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Dataset: MatPES-r2SCAN, the three r2SCAN-trained FPs. Values are read directly from the currently-executed <code>analysis/force_error_analysis_matpes_r2scan.ipynb</code>.</p>
+
+    <h3 style="margin-top:0;">Combined Summary Table</h3>
+    <div class="table-scroll">
+      <table class="dt summary-table"><thead><tr><th>FP</th><th>Δ|F| MAE/RMSE (eV/Å)</th><th>Δθ MAE/RMSE (°)</th><th>Δ|F| MAE/RMSE, |Δ|F||&lt;1 (eV/Å)</th><th>Frac(&lt;0.01 &amp; &lt;1°/20°) (%)</th><th>Frac(|Δ|F||&lt;0.01) (%)</th><th>Frac(|Δ|F||&gt;1) (%)</th><th>Δ|F| MAE/RMSE, FE (eV/Å)</th><th>Δθ MAE/RMSE, FE (°)</th></tr></thead><tbody><tr><td>M3GNet-MatPES-r2SCAN</td><td data-val="0.23">0.23 / 0.65</td><td data-val="30">30 / 48</td><td data-val="0.19">0.19 / 0.27</td><td data-val="0.8">0.80 / 3.48</td><td data-val="5.93">5.93</td><td data-val="2.87">2.87</td><td data-val="0.41">0.41 / 1.07</td><td data-val="18">18 / 27</td></tr><tr><td>TensorNet-MatPES-r2SCAN</td><td data-val="0.19">0.19 / 0.71</td><td data-val="26">26 / 45</td><td data-val="0.17">0.17 / 0.24</td><td data-val="0.79">0.79 / 4.19</td><td data-val="6.39">6.39</td><td data-val="1.64">1.64</td><td data-val="0.33">0.33 / 1.17</td><td data-val="13">13 / 19</td></tr><tr><td>MACE-MatPES-r2SCAN</td><td data-val="0.12">0.12 / 1.34</td><td data-val="17">17 / 33</td><td data-val="0.1">0.10 / 0.17</td><td data-val="2.33">2.33 / 10.35</td><td data-val="12.82">12.82</td><td data-val="0.54">0.54</td><td data-val="0.2">0.20 / 2.27</td><td data-val="8">8 / 12</td></tr></tbody></table>
+    </div>
+
+    <details open>
+      <summary>Highly accurate force predictions</summary>
+      <div class="metric-description">Percentage of evaluated atoms satisfying |&Delta;|F|| &lt; threshold. Higher is better. The |F_DFT| &gt; 0.01 eV/&Aring; cutoff is applied.</div>
+      <div class="table-scroll">
+        <table class="dt acc-table"><thead><tr><th>FP</th><th>&lt;0.01 eV/Å</th><th>&lt;0.02 eV/Å</th><th>&lt;0.05 eV/Å</th><th>&lt;0.07 eV/Å</th><th>&lt;0.1 eV/Å</th><th>&lt;0.2 eV/Å</th><th>&lt;0.5 eV/Å</th></tr></thead><tbody><tr><td>M3GNet-MatPES-r2SCAN</td><td data-val="5.93">5.93</td><td data-val="11.61">11.61</td><td data-val="26.34">26.34</td><td data-val="34.42">34.42</td><td data-val="44.42">44.42</td><td data-val="65.71">65.71</td><td data-val="88.81">88.81</td></tr><tr><td>TensorNet-MatPES-r2SCAN</td><td data-val="6.39">6.39</td><td data-val="12.45">12.45</td><td data-val="28.17">28.17</td><td data-val="36.78">36.78</td><td data-val="47.53">47.53</td><td data-val="70.16">70.16</td><td data-val="92.17">92.17</td></tr><tr><td>MACE-MatPES-r2SCAN</td><td data-val="12.82">12.82</td><td data-val="23.81">23.81</td><td data-val="46.83">46.83</td><td data-val="56.78">56.78</td><td data-val="67.22">67.22</td><td data-val="84.61">84.61</td><td data-val="96.91">96.91</td></tr></tbody></table>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Joint force magnitude-angle accuracy</summary>
+      <div class="metric-description">Percentage of evaluated atoms satisfying both |&Delta;|F|| &lt; threshold and &Delta;&theta; &lt; 1&deg; or 20&deg;. Each cell reports the &Delta;&theta; &lt; 1&deg; fraction followed by the &Delta;&theta; &lt; 20&deg; fraction. Higher is better. The |F_DFT| &gt; 0.01 eV/&Aring; cutoff is applied.</div>
+      <div class="table-scroll">
+        <table class="dt joint-table"><thead><tr><th>FP</th><th>&lt;0.01 eV/Å</th><th>&lt;0.02 eV/Å</th><th>&lt;0.05 eV/Å</th><th>&lt;0.07 eV/Å</th><th>&lt;0.1 eV/Å</th><th>&lt;0.2 eV/Å</th><th>&lt;0.5 eV/Å</th></tr></thead><tbody><tr><td>M3GNet-MatPES-r2SCAN</td><td data-val="0.8" data-val2="3.48">0.80 / 3.48</td><td data-val="1.54" data-val2="6.82">1.54 / 6.82</td><td data-val="3.19" data-val2="15.48">3.19 / 15.48</td><td data-val="3.97" data-val2="20.25">3.97 / 20.25</td><td data-val="4.82" data-val2="26.16">4.82 / 26.16</td><td data-val="6.17" data-val2="38.55">6.17 / 38.55</td><td data-val="6.98" data-val2="51.11">6.98 / 51.11</td></tr><tr><td>TensorNet-MatPES-r2SCAN</td><td data-val="0.79" data-val2="4.19">0.79 / 4.19</td><td data-val="1.5" data-val2="8.14">1.50 / 8.14</td><td data-val="3.13" data-val2="18.42">3.13 / 18.42</td><td data-val="3.91" data-val2="24.07">3.91 / 24.07</td><td data-val="4.76" data-val2="31.1">4.76 / 31.10</td><td data-val="6.26" data-val2="45.88">6.26 / 45.88</td><td data-val="7.3" data-val2="59.94">7.30 / 59.94</td></tr><tr><td>MACE-MatPES-r2SCAN</td><td data-val="2.33" data-val2="10.35">2.33 / 10.35</td><td data-val="4.14" data-val2="19.21">4.14 / 19.21</td><td data-val="7.13" data-val2="37.89">7.13 / 37.89</td><td data-val="8.13" data-val2="45.96">8.13 / 45.96</td><td data-val="9.02" data-val2="54.35">9.02 / 54.35</td><td data-val="10.18" data-val2="68.15">10.18 / 68.15</td><td data-val="10.77" data-val2="77.47">10.77 / 77.47</td></tr></tbody></table>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Large-force-error atoms</summary>
+      <div class="metric-description">Percentage of evaluated atoms with |&Delta;|F|| exceeding each threshold. Lower is better. The |F_DFT| &gt; 0.01 eV/&Aring; cutoff is applied.</div>
+      <div class="table-scroll">
+        <table class="dt err-table"><thead><tr><th>FP</th><th>&gt;0.5 eV/Å</th><th>&gt;1 eV/Å</th><th>&gt;2 eV/Å</th><th>&gt;3 eV/Å</th><th>&gt;4 eV/Å</th><th>&gt;5 eV/Å</th><th>&gt;7 eV/Å</th><th>&gt;10 eV/Å</th></tr></thead><tbody><tr><td>M3GNet-MatPES-r2SCAN</td><td data-val="11.189">11.189</td><td data-val="2.866">2.866</td><td data-val="0.538">0.538</td><td data-val="0.189">0.189</td><td data-val="0.085">0.085</td><td data-val="0.043">0.043</td><td data-val="0.018">0.018</td><td data-val="0.009">0.009</td></tr><tr><td>TensorNet-MatPES-r2SCAN</td><td data-val="7.834">7.834</td><td data-val="1.636">1.636</td><td data-val="0.254">0.254</td><td data-val="0.097">0.097</td><td data-val="0.058">0.058</td><td data-val="0.041">0.041</td><td data-val="0.024">0.024</td><td data-val="0.014">0.014</td></tr><tr><td>MACE-MatPES-r2SCAN</td><td data-val="3.091">3.091</td><td data-val="0.543">0.543</td><td data-val="0.087">0.087</td><td data-val="0.042">0.042</td><td data-val="0.028">0.028</td><td data-val="0.021">0.021</td><td data-val="0.012">0.012</td><td data-val="0.007">0.007</td></tr></tbody></table>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Force errors on far-from-equilibrium (FE) atoms</summary>
+      <div class="metric-description">FE atoms are defined by |F_DFT| &gt; 1 eV/&Aring;. All four sub-tables below are restricted to this FE population.</div>
+      <div class="table-scroll" style="padding-top:0;">
+        <p style="font-size:0.82rem;color:var(--muted);margin:0.6rem 0 0.4rem;">&Delta;|F| and &Delta;&theta; MAE/RMSE on FE atoms</p>
+        <table class="dt mae-rmse-table"><thead><tr><th>FP</th><th>Δ|F| MAE/RMSE (eV/Å)</th><th>Δθ MAE/RMSE (°)</th></tr></thead><tbody><tr><td>M3GNet-MatPES-r2SCAN</td><td data-val="0.41">0.41 / 1.07</td><td data-val="18">18 / 27</td></tr><tr><td>TensorNet-MatPES-r2SCAN</td><td data-val="0.33">0.33 / 1.17</td><td data-val="13">13 / 19</td></tr><tr><td>MACE-MatPES-r2SCAN</td><td data-val="0.2">0.20 / 2.27</td><td data-val="8">8 / 12</td></tr></tbody></table>
+        <p style="font-size:0.82rem;color:var(--muted);margin:1rem 0 0.4rem;">r_F = |&Delta;|F|| / |F_DFT| threshold fractions on FE atoms (%, higher is better)</p>
+        <table class="dt rf-table"><thead><tr><th>FP</th><th>&lt;0.01</th><th>&lt;0.05</th><th>&lt;0.1</th><th>&lt;0.2</th><th>&lt;0.3</th><th>&lt;0.4</th><th>&lt;0.5</th><th>&lt;1</th><th>&lt;2</th></tr></thead><tbody><tr><td>M3GNet-MatPES-r2SCAN</td><td data-val="3.976">3.98</td><td data-val="19.205">19.20</td><td data-val="35.502">35.50</td><td data-val="59.792">59.79</td><td data-val="75.394">75.39</td><td data-val="85.421">85.42</td><td data-val="91.725">91.72</td><td data-val="99.826">99.83</td><td data-val="99.987">99.99</td></tr><tr><td>TensorNet-MatPES-r2SCAN</td><td data-val="4.99">4.99</td><td data-val="23.982">23.98</td><td data-val="43.957">43.96</td><td data-val="70.7">70.70</td><td data-val="85.068">85.07</td><td data-val="92.482">92.48</td><td data-val="96.219">96.22</td><td data-val="99.89">99.89</td><td data-val="99.994">99.99</td></tr><tr><td>MACE-MatPES-r2SCAN</td><td data-val="10.165">10.16</td><td data-val="42.425">42.42</td><td data-val="65.958">65.96</td><td data-val="86.916">86.92</td><td data-val="94.467">94.47</td><td data-val="97.439">97.44</td><td data-val="98.725">98.72</td><td data-val="99.973">99.97</td><td data-val="99.998">100.00</td></tr></tbody></table>
+        <p style="font-size:0.82rem;color:var(--muted);margin:1rem 0 0.4rem;">FE-only joint force magnitude-angle accuracy (&Delta;&theta;&lt;1&deg; / &Delta;&theta;&lt;20&deg;, %, higher is better)</p>
+        <table class="dt joint-table"><thead><tr><th>FP</th><th>&lt;0.01 eV/Å</th><th>&lt;0.02 eV/Å</th><th>&lt;0.05 eV/Å</th><th>&lt;0.07 eV/Å</th><th>&lt;0.1 eV/Å</th><th>&lt;0.2 eV/Å</th><th>&lt;0.5 eV/Å</th></tr></thead><tbody><tr><td>M3GNet-MatPES-r2SCAN</td><td data-val="0.11" data-val2="1.87">0.11 / 1.87</td><td data-val="0.22" data-val2="3.72">0.22 / 3.72</td><td data-val="0.57" data-val2="9.25">0.57 / 9.25</td><td data-val="0.76" data-val2="12.82">0.76 / 12.82</td><td data-val="1.03" data-val2="17.94">1.03 / 17.94</td><td data-val="1.64" data-val2="32.42">1.64 / 32.42</td><td data-val="2.33" data-val2="55.74">2.33 / 55.74</td></tr><tr><td>TensorNet-MatPES-r2SCAN</td><td data-val="0.15" data-val2="2.65">0.15 / 2.65</td><td data-val="0.29" data-val2="5.28">0.29 / 5.28</td><td data-val="0.7" data-val2="12.99">0.70 / 12.99</td><td data-val="0.94" data-val2="17.88">0.94 / 17.88</td><td data-val="1.26" data-val2="24.8">1.26 / 24.80</td><td data-val="2.03" data-val2="43.41">2.03 / 43.41</td><td data-val="2.97" data-val2="70.05">2.97 / 70.05</td></tr><tr><td>MACE-MatPES-r2SCAN</td><td data-val="0.8" data-val2="5.73">0.80 / 5.73</td><td data-val="1.59" data-val2="11.31">1.59 / 11.31</td><td data-val="3.39" data-val2="26.43">3.39 / 26.43</td><td data-val="4.22" data-val2="34.91">4.22 / 34.91</td><td data-val="5.1" data-val2="45.38">5.10 / 45.38</td><td data-val="6.53" data-val2="67.48">6.53 / 67.48</td><td data-val="7.48" data-val2="87.73">7.48 / 87.73</td></tr></tbody></table>
+      </div>
+    </details>
+  </div>
+
+
+
+  <div id="tab-rattled" class="tab-panel">
+    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Dataset: OMat24 rattled-1000, the PBE-labeled OMat24 rattled-1000 validation dataset. Values are read directly from the currently-executed <code>analysis/force_error_analysis_omat24_rattled_1000.ipynb</code>.</p>
+
+    <h3 style="margin-top:0;">Combined Summary Table</h3>
+    <div class="table-scroll">
+      <table class="dt summary-table"><thead><tr><th>FP</th><th>Δ|F| MAE/RMSE (eV/Å)</th><th>Δθ MAE/RMSE (°)</th><th>Δ|F| MAE/RMSE, |Δ|F||&lt;1 (eV/Å)</th><th>Frac(&lt;0.01 &amp; &lt;1°/20°) (%)</th><th>Frac(|Δ|F||&lt;0.01) (%)</th><th>Frac(|Δ|F||&gt;1) (%)</th><th>Δ|F| MAE/RMSE, FE (eV/Å)</th><th>Δθ MAE/RMSE, FE (°)</th></tr></thead><tbody><tr><td>MACE</td><td data-val="0.34">0.34 / 2.83</td><td data-val="8">8 / 14</td><td data-val="0.21">0.21 / 0.30</td><td data-val="0.27">0.27 / 3.71</td><td data-val="4.08">4.08</td><td data-val="5.72">5.72</td><td data-val="0.4">0.40 / 3.16</td><td data-val="6">6 / 9</td></tr><tr><td>CHGNet</td><td data-val="0.76">0.76 / 4.00</td><td data-val="13">13 / 22</td><td data-val="0.34">0.34 / 0.42</td><td data-val="0.03">0.03 / 1.34</td><td data-val="1.81">1.81</td><td data-val="18.5">18.50</td><td data-val="0.9">0.90 / 4.46</td><td data-val="9">9 / 15</td></tr><tr><td>M3GNet</td><td data-val="0.91">0.91 / 1.96</td><td data-val="19">19 / 30</td><td data-val="0.37">0.37 / 0.46</td><td data-val="0.01">0.01 / 0.81</td><td data-val="1.3">1.30</td><td data-val="27.66">27.66</td><td data-val="1.06">1.06 / 2.18</td><td data-val="13">13 / 21</td></tr><tr><td>UMA</td><td data-val="0.09">0.09 / 0.22</td><td data-val="4">4 / 8</td><td data-val="0.08">0.08 / 0.14</td><td data-val="4.76">4.76 / 12.97</td><td data-val="13.14">13.14</td><td data-val="0.51">0.51</td><td data-val="0.1">0.10 / 0.24</td><td data-val="2">2 / 5</td></tr><tr><td>M3GNet-MatPES</td><td data-val="0.55">0.55 / 2.18</td><td data-val="13">13 / 22</td><td data-val="0.29">0.29 / 0.38</td><td data-val="0.06">0.06 / 1.79</td><td data-val="2.3">2.30</td><td data-val="12.43">12.43</td><td data-val="0.64">0.64 / 2.43</td><td data-val="9">9 / 14</td></tr><tr><td>TensorNet-MatPES</td><td data-val="0.6">0.60 / 4.04</td><td data-val="11">11 / 19</td><td data-val="0.27">0.27 / 0.36</td><td data-val="0.11">0.11 / 2.30</td><td data-val="2.76">2.76</td><td data-val="12.19">12.19</td><td data-val="0.7">0.70 / 4.52</td><td data-val="8">8 / 12</td></tr><tr><td>MACE-MatPES</td><td data-val="0.43">0.43 / 2.25</td><td data-val="8">8 / 15</td><td data-val="0.22">0.22 / 0.31</td><td data-val="0.31">0.31 / 3.74</td><td data-val="4.12">4.12</td><td data-val="8.94">8.94</td><td data-val="0.51">0.51 / 2.51</td><td data-val="6">6 / 9</td></tr></tbody></table>
+    </div>
+
+    <details open>
+      <summary>Highly accurate force predictions</summary>
+      <div class="metric-description">Percentage of evaluated atoms satisfying |&Delta;|F|| &lt; threshold. Higher is better. The |F_DFT| &gt; 0.01 eV/&Aring; cutoff is applied.</div>
+      <div class="table-scroll">
+        <table class="dt acc-table"><thead><tr><th>FP</th><th>&lt;0.01 eV/Å</th><th>&lt;0.02 eV/Å</th><th>&lt;0.05 eV/Å</th><th>&lt;0.07 eV/Å</th><th>&lt;0.1 eV/Å</th><th>&lt;0.2 eV/Å</th><th>&lt;0.5 eV/Å</th></tr></thead><tbody><tr><td>MACE</td><td data-val="4.08">4.08</td><td data-val="8.15">8.15</td><td data-val="19.75">19.75</td><td data-val="26.77">26.77</td><td data-val="36.09">36.09</td><td data-val="58.16">58.16</td><td data-val="83.88">83.88</td></tr><tr><td>CHGNet</td><td data-val="1.81">1.81</td><td data-val="3.6">3.60</td><td data-val="8.89">8.89</td><td data-val="12.32">12.32</td><td data-val="17.23">17.23</td><td data-val="31.73">31.73</td><td data-val="60.55">60.55</td></tr><tr><td>M3GNet</td><td data-val="1.3">1.30</td><td data-val="2.6">2.60</td><td data-val="6.49">6.49</td><td data-val="9.05">9.05</td><td data-val="12.85">12.85</td><td data-val="24.49">24.49</td><td data-val="50.02">50.02</td></tr><tr><td>UMA</td><td data-val="13.14">13.14</td><td data-val="24.96">24.96</td><td data-val="51.43">51.43</td><td data-val="63.05">63.05</td><td data-val="74.57">74.57</td><td data-val="90.29">90.29</td><td data-val="98.05">98.05</td></tr><tr><td>M3GNet-MatPES</td><td data-val="2.3">2.30</td><td data-val="4.59">4.59</td><td data-val="11.3">11.30</td><td data-val="15.63">15.63</td><td data-val="21.87">21.87</td><td data-val="39.76">39.76</td><td data-val="70.26">70.26</td></tr><tr><td>TensorNet-MatPES</td><td data-val="2.76">2.76</td><td data-val="5.52">5.52</td><td data-val="13.57">13.57</td><td data-val="18.68">18.68</td><td data-val="25.78">25.78</td><td data-val="44.65">44.65</td><td data-val="72.94">72.94</td></tr><tr><td>MACE-MatPES</td><td data-val="4.12">4.12</td><td data-val="8.19">8.19</td><td data-val="19.62">19.62</td><td data-val="26.34">26.34</td><td data-val="35.07">35.07</td><td data-val="55.22">55.22</td><td data-val="79.65">79.65</td></tr></tbody></table>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Joint force magnitude-angle accuracy</summary>
+      <div class="metric-description">Percentage of evaluated atoms satisfying both |&Delta;|F|| &lt; threshold and &Delta;&theta; &lt; 1&deg; or 20&deg;. Each cell reports the &Delta;&theta; &lt; 1&deg; fraction followed by the &Delta;&theta; &lt; 20&deg; fraction. Higher is better. The |F_DFT| &gt; 0.01 eV/&Aring; cutoff is applied.</div>
+      <div class="table-scroll">
+        <table class="dt joint-table"><thead><tr><th>FP</th><th>&lt;0.01 eV/Å</th><th>&lt;0.02 eV/Å</th><th>&lt;0.05 eV/Å</th><th>&lt;0.07 eV/Å</th><th>&lt;0.1 eV/Å</th><th>&lt;0.2 eV/Å</th><th>&lt;0.5 eV/Å</th></tr></thead><tbody><tr><td>MACE</td><td data-val="0.27" data-val2="3.71">0.27 / 3.71</td><td data-val="0.54" data-val2="7.41">0.54 / 7.41</td><td data-val="1.32" data-val2="17.95">1.32 / 17.95</td><td data-val="1.8" data-val2="24.35">1.80 / 24.35</td><td data-val="2.47" data-val2="32.86">2.47 / 32.86</td><td data-val="4.17" data-val2="53.08">4.17 / 53.08</td><td data-val="6.58" data-val2="76.67">6.58 / 76.67</td></tr><tr><td>CHGNet</td><td data-val="0.03" data-val2="1.34">0.03 / 1.34</td><td data-val="0.06" data-val2="2.68">0.06 / 2.68</td><td data-val="0.15" data-val2="6.6">0.15 / 6.60</td><td data-val="0.22" data-val2="9.17">0.22 / 9.17</td><td data-val="0.31" data-val2="12.85">0.31 / 12.85</td><td data-val="0.58" data-val2="23.88">0.58 / 23.88</td><td data-val="1.25" data-val2="46.8">1.25 / 46.80</td></tr><tr><td>M3GNet</td><td data-val="0.01" data-val2="0.81">0.01 / 0.81</td><td data-val="0.03" data-val2="1.62">0.03 / 1.62</td><td data-val="0.07" data-val2="4.06">0.07 / 4.06</td><td data-val="0.11" data-val2="5.67">0.11 / 5.67</td><td data-val="0.15" data-val2="8.06">0.15 / 8.06</td><td data-val="0.29" data-val2="15.51">0.29 / 15.51</td><td data-val="0.67" data-val2="32.58">0.67 / 32.58</td></tr><tr><td>UMA</td><td data-val="4.76" data-val2="12.97">4.76 / 12.97</td><td data-val="8.9" data-val2="24.63">8.90 / 24.63</td><td data-val="17.74" data-val2="50.73">17.74 / 50.73</td><td data-val="21.42" data-val2="62.16">21.42 / 62.16</td><td data-val="24.96" data-val2="73.49">24.96 / 73.49</td><td data-val="29.56" data-val2="88.81">29.56 / 88.81</td><td data-val="31.6" data-val2="96.18">31.60 / 96.18</td></tr><tr><td>M3GNet-MatPES</td><td data-val="0.06" data-val2="1.79">0.06 / 1.79</td><td data-val="0.12" data-val2="3.57">0.12 / 3.57</td><td data-val="0.29" data-val2="8.8">0.29 / 8.80</td><td data-val="0.41" data-val2="12.19">0.41 / 12.19</td><td data-val="0.58" data-val2="17.07">0.58 / 17.07</td><td data-val="1.08" data-val2="31.18">1.08 / 31.18</td><td data-val="2.09" data-val2="55.87">2.09 / 55.87</td></tr><tr><td>TensorNet-MatPES</td><td data-val="0.11" data-val2="2.3">0.11 / 2.30</td><td data-val="0.22" data-val2="4.6">0.22 / 4.60</td><td data-val="0.53" data-val2="11.31">0.53 / 11.31</td><td data-val="0.74" data-val2="15.57">0.74 / 15.57</td><td data-val="1.03" data-val2="21.5">1.03 / 21.50</td><td data-val="1.81" data-val2="37.28">1.81 / 37.28</td><td data-val="3.17" data-val2="61.22">3.17 / 61.22</td></tr><tr><td>MACE-MatPES</td><td data-val="0.31" data-val2="3.74">0.31 / 3.74</td><td data-val="0.61" data-val2="7.44">0.61 / 7.44</td><td data-val="1.46" data-val2="17.8">1.46 / 17.80</td><td data-val="1.96" data-val2="23.89">1.96 / 23.89</td><td data-val="2.62" data-val2="31.79">2.62 / 31.79</td><td data-val="4.15" data-val2="49.98">4.15 / 49.98</td><td data-val="6.26" data-val2="72.11">6.26 / 72.11</td></tr></tbody></table>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Large-force-error atoms</summary>
+      <div class="metric-description">Percentage of evaluated atoms with |&Delta;|F|| exceeding each threshold. Lower is better. The |F_DFT| &gt; 0.01 eV/&Aring; cutoff is applied.</div>
+      <div class="table-scroll">
+        <table class="dt err-table"><thead><tr><th>FP</th><th>&gt;0.5 eV/Å</th><th>&gt;1 eV/Å</th><th>&gt;2 eV/Å</th><th>&gt;3 eV/Å</th><th>&gt;4 eV/Å</th><th>&gt;5 eV/Å</th><th>&gt;7 eV/Å</th><th>&gt;10 eV/Å</th></tr></thead><tbody><tr><td>MACE</td><td data-val="16.115">16.115</td><td data-val="5.717">5.717</td><td data-val="1.595">1.595</td><td data-val="0.716">0.716</td><td data-val="0.407">0.407</td><td data-val="0.266">0.266</td><td data-val="0.145">0.145</td><td data-val="0.082">0.082</td></tr><tr><td>CHGNet</td><td data-val="39.447">39.447</td><td data-val="18.502">18.502</td><td data-val="6.821">6.821</td><td data-val="3.545">3.545</td><td data-val="2.17">2.170</td><td data-val="1.461">1.461</td><td data-val="0.775">0.775</td><td data-val="0.376">0.376</td></tr><tr><td>M3GNet</td><td data-val="49.977">49.977</td><td data-val="27.656">27.656</td><td data-val="10.847">10.847</td><td data-val="5.111">5.111</td><td data-val="2.736">2.736</td><td data-val="1.665">1.665</td><td data-val="0.729">0.729</td><td data-val="0.279">0.279</td></tr><tr><td>UMA</td><td data-val="1.947">1.947</td><td data-val="0.514">0.514</td><td data-val="0.121">0.121</td><td data-val="0.046">0.046</td><td data-val="0.024">0.024</td><td data-val="0.014">0.014</td><td data-val="0.007">0.007</td><td data-val="0.003">0.003</td></tr><tr><td>M3GNet-MatPES</td><td data-val="29.737">29.737</td><td data-val="12.432">12.432</td><td data-val="4.042">4.042</td><td data-val="1.927">1.927</td><td data-val="1.117">1.117</td><td data-val="0.719">0.719</td><td data-val="0.374">0.374</td><td data-val="0.191">0.191</td></tr><tr><td>TensorNet-MatPES</td><td data-val="27.063">27.063</td><td data-val="12.192">12.192</td><td data-val="4.689">4.689</td><td data-val="2.561">2.561</td><td data-val="1.615">1.615</td><td data-val="1.114">1.114</td><td data-val="0.631">0.631</td><td data-val="0.337">0.337</td></tr><tr><td>MACE-MatPES</td><td data-val="20.351">20.351</td><td data-val="8.939">8.939</td><td data-val="3.191">3.191</td><td data-val="1.582">1.582</td><td data-val="0.938">0.938</td><td data-val="0.62">0.620</td><td data-val="0.328">0.328</td><td data-val="0.172">0.172</td></tr></tbody></table>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Force errors on far-from-equilibrium (FE) atoms</summary>
+      <div class="metric-description">FE atoms are defined by |F_DFT| &gt; 1 eV/&Aring;. All four sub-tables below are restricted to this FE population.</div>
+      <div class="table-scroll" style="padding-top:0;">
+        <p style="font-size:0.82rem;color:var(--muted);margin:0.6rem 0 0.4rem;">&Delta;|F| and &Delta;&theta; MAE/RMSE on FE atoms</p>
+        <table class="dt mae-rmse-table"><thead><tr><th>FP</th><th>Δ|F| MAE/RMSE (eV/Å)</th><th>Δθ MAE/RMSE (°)</th></tr></thead><tbody><tr><td>MACE</td><td data-val="0.4">0.40 / 3.16</td><td data-val="6">6 / 9</td></tr><tr><td>CHGNet</td><td data-val="0.9">0.90 / 4.46</td><td data-val="9">9 / 15</td></tr><tr><td>M3GNet</td><td data-val="1.06">1.06 / 2.18</td><td data-val="13">13 / 21</td></tr><tr><td>UMA</td><td data-val="0.1">0.10 / 0.24</td><td data-val="2">2 / 5</td></tr><tr><td>M3GNet-MatPES</td><td data-val="0.64">0.64 / 2.43</td><td data-val="9">9 / 14</td></tr><tr><td>TensorNet-MatPES</td><td data-val="0.7">0.70 / 4.52</td><td data-val="8">8 / 12</td></tr><tr><td>MACE-MatPES</td><td data-val="0.51">0.51 / 2.51</td><td data-val="6">6 / 9</td></tr></tbody></table>
+        <p style="font-size:0.82rem;color:var(--muted);margin:1rem 0 0.4rem;">r_F = |&Delta;|F|| / |F_DFT| threshold fractions on FE atoms (%, higher is better)</p>
+        <table class="dt rf-table"><thead><tr><th>FP</th><th>&lt;0.01</th><th>&lt;0.05</th><th>&lt;0.1</th><th>&lt;0.2</th><th>&lt;0.3</th><th>&lt;0.4</th><th>&lt;0.5</th><th>&lt;1</th><th>&lt;2</th></tr></thead><tbody><tr><td>MACE</td><td data-val="9.791">9.79</td><td data-val="44.266">44.27</td><td data-val="70.763">70.76</td><td data-val="90.476">90.48</td><td data-val="96.12">96.12</td><td data-val="98.143">98.14</td><td data-val="99.029">99.03</td><td data-val="99.927">99.93</td><td data-val="99.995">100.00</td></tr><tr><td>CHGNet</td><td data-val="3.805">3.81</td><td data-val="18.72">18.72</td><td data-val="36.132">36.13</td><td data-val="63.605">63.60</td><td data-val="80.629">80.63</td><td data-val="89.883">89.88</td><td data-val="94.687">94.69</td><td data-val="99.648">99.65</td><td data-val="99.979">99.98</td></tr><tr><td>M3GNet</td><td data-val="3.038">3.04</td><td data-val="14.972">14.97</td><td data-val="29.026">29.03</td><td data-val="52.11">52.11</td><td data-val="68.165">68.17</td><td data-val="78.776">78.78</td><td data-val="85.598">85.60</td><td data-val="97.18">97.18</td><td data-val="99.701">99.70</td></tr><tr><td>UMA</td><td data-val="36.865">36.87</td><td data-val="83.785">83.78</td><td data-val="94.473">94.47</td><td data-val="98.378">98.38</td><td data-val="99.221">99.22</td><td data-val="99.566">99.57</td><td data-val="99.74">99.74</td><td data-val="99.974">99.97</td><td data-val="99.997">100.00</td></tr><tr><td>M3GNet-MatPES</td><td data-val="5.653">5.65</td><td data-val="27.052">27.05</td><td data-val="49.005">49.01</td><td data-val="75.241">75.24</td><td data-val="87.452">87.45</td><td data-val="93.57">93.57</td><td data-val="96.766">96.77</td><td data-val="99.859">99.86</td><td data-val="99.991">99.99</td></tr><tr><td>TensorNet-MatPES</td><td data-val="6.259">6.26</td><td data-val="29.943">29.94</td><td data-val="53.081">53.08</td><td data-val="78.361">78.36</td><td data-val="89.232">89.23</td><td data-val="94.424">94.42</td><td data-val="97.125">97.12</td><td data-val="99.873">99.87</td><td data-val="99.985">99.98</td></tr><tr><td>MACE-MatPES</td><td data-val="9.018">9.02</td><td data-val="40.801">40.80</td><td data-val="65.394">65.39</td><td data-val="85.61">85.61</td><td data-val="92.941">92.94</td><td data-val="96.434">96.43</td><td data-val="98.244">98.24</td><td data-val="99.97">99.97</td><td data-val="99.998">100.00</td></tr></tbody></table>
+        <p style="font-size:0.82rem;color:var(--muted);margin:1rem 0 0.4rem;">FE-only joint force magnitude-angle accuracy (&Delta;&theta;&lt;1&deg; / &Delta;&theta;&lt;20&deg;, %, higher is better)</p>
+        <table class="dt joint-table"><thead><tr><th>FP</th><th>&lt;0.01 eV/Å</th><th>&lt;0.02 eV/Å</th><th>&lt;0.05 eV/Å</th><th>&lt;0.07 eV/Å</th><th>&lt;0.1 eV/Å</th><th>&lt;0.2 eV/Å</th><th>&lt;0.5 eV/Å</th></tr></thead><tbody><tr><td>MACE</td><td data-val="0.31" data-val2="3.12">0.31 / 3.12</td><td data-val="0.63" data-val2="6.27">0.63 / 6.27</td><td data-val="1.54" data-val2="15.45">1.54 / 15.45</td><td data-val="2.1" data-val2="21.28">2.10 / 21.28</td><td data-val="2.9" data-val2="29.42">2.90 / 29.42</td><td data-val="4.99" data-val2="50.52">4.99 / 50.52</td><td data-val="7.99" data-val2="78.11">7.99 / 78.11</td></tr><tr><td>CHGNet</td><td data-val="0.03" data-val2="1.15">0.03 / 1.15</td><td data-val="0.07" data-val2="2.32">0.07 / 2.32</td><td data-val="0.17" data-val2="5.74">0.17 / 5.74</td><td data-val="0.24" data-val2="8.02">0.24 / 8.02</td><td data-val="0.35" data-val2="11.38">0.35 / 11.38</td><td data-val="0.67" data-val2="22.11">0.67 / 22.11</td><td data-val="1.49" data-val2="47.39">1.49 / 47.39</td></tr><tr><td>M3GNet</td><td data-val="0.02" data-val2="0.77">0.02 / 0.77</td><td data-val="0.04" data-val2="1.53">0.04 / 1.53</td><td data-val="0.09" data-val2="3.83">0.09 / 3.83</td><td data-val="0.12" data-val2="5.36">0.12 / 5.36</td><td data-val="0.17" data-val2="7.66">0.17 / 7.66</td><td data-val="0.34" data-val2="15.03">0.34 / 15.03</td><td data-val="0.8" data-val2="33.72">0.80 / 33.72</td></tr><tr><td>UMA</td><td data-val="5.39" data-val2="11.43">5.39 / 11.43</td><td data-val="10.22" data-val2="22.03">10.22 / 22.03</td><td data-val="20.85" data-val2="47.26">20.85 / 47.26</td><td data-val="25.36" data-val2="58.99">25.36 / 58.99</td><td data-val="29.73" data-val2="71.12">29.73 / 71.12</td><td data-val="35.45" data-val2="88.47">35.45 / 88.47</td><td data-val="37.99" data-val2="97.29">37.99 / 97.29</td></tr><tr><td>M3GNet-MatPES</td><td data-val="0.07" data-val2="1.68">0.07 / 1.68</td><td data-val="0.14" data-val2="3.36">0.14 / 3.36</td><td data-val="0.35" data-val2="8.27">0.35 / 8.27</td><td data-val="0.49" data-val2="11.5">0.49 / 11.50</td><td data-val="0.69" data-val2="16.24">0.69 / 16.24</td><td data-val="1.29" data-val2="30.6">1.29 / 30.60</td><td data-val="2.54" data-val2="58.58">2.54 / 58.58</td></tr><tr><td>TensorNet-MatPES</td><td data-val="0.12" data-val2="2.06">0.12 / 2.06</td><td data-val="0.26" data-val2="4.13">0.26 / 4.13</td><td data-val="0.63" data-val2="10.23">0.63 / 10.23</td><td data-val="0.86" data-val2="14.19">0.86 / 14.19</td><td data-val="1.21" data-val2="19.83">1.21 / 19.83</td><td data-val="2.16" data-val2="35.91">2.16 / 35.91</td><td data-val="3.85" data-val2="63.23">3.85 / 63.23</td></tr><tr><td>MACE-MatPES</td><td data-val="0.35" data-val2="3.1">0.35 / 3.10</td><td data-val="0.69" data-val2="6.2">0.69 / 6.20</td><td data-val="1.68" data-val2="15.15">1.68 / 15.15</td><td data-val="2.28" data-val2="20.69">2.28 / 20.69</td><td data-val="3.07" data-val2="28.22">3.07 / 28.22</td><td data-val="4.96" data-val2="47.07">4.96 / 47.07</td><td data-val="7.58" data-val2="72.77">7.58 / 72.77</td></tr></tbody></table>
+      </div>
+    </details>
+  </div>
+
+</section>
+
+<!-- ============== REPRODUCE ============== -->
+<section id="reproduce">
+  <h2>Reproduce &amp; Extend</h2>
+  <p>See the <a href="https://github.com/kamirian/FPBench/tree/main/Force_error" style="color:var(--accent);">Force_error README</a> for the full quick start, including the small Cartesian-force example that runs immediately and what is required to reproduce the full analysis.</p>
+  <pre><code>git clone https://github.com/kamirian/FPBench.git
+cd FPBench/Force_error
+pip install -r requirements.txt
+pip install jupyterlab
+jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
+</section>
+
+<footer>
+  <p><strong>Kiyan Amirian</strong> &amp; <strong>Yifei Mo</strong> &middot; <a href="https://github.com/kamirian/FPBench">github.com/kamirian/FPBench</a></p>
+  <p class="affil">University of Maryland &middot; MIT License</p>
+</footer>
+
+<script>
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  const CMAPS = {
+    viridis: [[68,1,84],[59,82,139],[33,145,140],[94,201,98],[253,231,37]],
+    viridis_r: [[253,231,37],[94,201,98],[33,145,140],[59,82,139],[68,1,84]],
+  };
+  function cmapRgb(name, t) {
+    const s = CMAPS[name];
+    const x = Math.max(0, Math.min(1, t)) * (s.length - 1);
+    const lo = Math.floor(x), hi = Math.min(s.length - 1, lo + 1);
+    const f = x - lo;
+    return s[lo].map((c, i) => Math.round(c + f * (s[hi][i] - c)));
+  }
+  function autoText(rgb) {
+    return (rgb[0]*299 + rgb[1]*587 + rgb[2]*114) / 1000 > 140 ? '#0d1117' : '#f0f6fc';
+  }
+
+  // Color each column independently. higherBetter=true -> high values get
+  // the strong (viridis top) color; false -> low values get the strong color.
+  function colorizeColumns(tbl, higherBetter, useVal2) {
+    const rows = Array.from(tbl.querySelectorAll('tbody tr'));
+    if (!rows.length) return;
+    const ncols = rows[0].querySelectorAll('td').length;
+    for (let c = 1; c < ncols; c++) {
+      const cells = rows.map(r => r.querySelectorAll('td')[c]);
+      const vals = cells.map(cell => parseFloat(cell.dataset.val));
+      const valid = vals.filter(v => !isNaN(v));
+      if (!valid.length) continue;
+      const mn = Math.min(...valid), mx = Math.max(...valid);
+      const cmapName = higherBetter ? 'viridis' : 'viridis_r';
+      cells.forEach((cell, i) => {
+        const v = vals[i];
+        if (isNaN(v)) return;
+        const t = mx === mn ? 0.5 : (v - mn) / (mx - mn);
+        const rgb = cmapRgb(cmapName, t);
+        cell.style.background = `rgb(${rgb})`;
+        cell.style.color = autoText(rgb);
+      });
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('table.acc-table').forEach(t => colorizeColumns(t, true));
+    document.querySelectorAll('table.joint-table').forEach(t => colorizeColumns(t, true));
+    document.querySelectorAll('table.err-table').forEach(t => colorizeColumns(t, false));
+    document.querySelectorAll('table.rf-table').forEach(t => colorizeColumns(t, true));
+    // summary-table intentionally left uncolored: its columns mix
+    // lower-is-better (MAE/RMSE) and higher-is-better (fractions) metrics.
+    document.querySelectorAll('table.mae-rmse-table').forEach(t => colorizeColumns(t, false));
+  });
+</script>
+
+</body>
+</html>

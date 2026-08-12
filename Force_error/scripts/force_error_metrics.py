@@ -271,7 +271,7 @@ def build_far_from_equilibrium_regime_panels(
     threshold=1.0,
     fdf_min=0.0,
 ):
-    """
+    r"""
     Split atoms into two regimes by |F_DFT| and compute absolute/relative
     force-error fraction tables.
 
