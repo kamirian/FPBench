@@ -4,7 +4,7 @@ The Force Prediction component of [FPBench](../README.md). Evaluates foundation 
 against DFT reference forces on three datasets: **MatPES-PBE**, **MatPES-r2SCAN**, and
 **OMat24 rattled-1000**.
 
-Results website: **https://kamirian.github.io/FPBench/force-error.html**
+Leaderboard: **https://kamirian.github.io/FPBench/force-error.html**
 
 ---
 
@@ -13,56 +13,43 @@ Results website: **https://kamirian.github.io/FPBench/force-error.html**
 FPBench evaluates FP force predictions using four metrics chosen for their direct relevance to
 atomistic simulation workflows.
 
-**Highly accurate force predictions (small-force-error atoms).** Strict force convergence
-criteria of 0.001-0.01 eV/Å are often used to relax structures for subsequent calculations such
-as defect energies, electronic structure, and NEB. Force errors comparable to these convergence
-thresholds can drive the relaxation toward a different minimum or cause it to stop before the
-correct DFT equilibrium structure is reached.
+**Highly accurate force predictions.** The fraction of atoms with a very small force-magnitude
+error is directly relevant to applications that require tight force convergence, such as
+structural relaxation, defect calculations, and transition-state searches, where typical
+convergence criteria are on the order of 0.001-0.01 eV/Å.
 
-**Joint force magnitude-angle accuracy.** Joint force magnitude-angle accuracy measures the
-fraction of atoms that simultaneously satisfy the |Δ|F|| and Δθ thresholds. This analysis shows
-whether both force magnitude and force angle are predicted accurately for the same atom and
-reveals the difficulty of achieving high accuracy in both quantities simultaneously.
+**Joint force magnitude-angle accuracy.** This metric measures whether an FP reproduces both the
+force magnitude and the force direction for the same atom. Separate magnitude and angle
+statistics, taken on their own, do not establish this joint agreement.
 
-**Large-force-error atoms.** Large force errors are highly undesired in atomistic simulations
-using FPs because even a single occurrence can lead to significant problems, such as erroneous
-atomic dynamics in MD simulations or failure of convergence in NEB calculations. The fraction of
-large-force-error atoms is therefore a key FP error metric.
+**Large-force-error atoms.** A small population of atoms with large force errors can still affect
+structural relaxation, transition-region calculations, and molecular-dynamics trajectories, even
+when the average error looks acceptable.
 
-**Force errors on far-from-equilibrium (FE) atoms.** Many computational tasks involve
-far-from-equilibrium atoms, including migrating ions, defect and disordered structures, and large
-thermal displacements in high-temperature MD simulations. Force errors on FE atoms should be
-evaluated separately; otherwise, they can be diluted by the dominant near-equilibrium population.
+**Force errors on far-from-equilibrium (FE) atoms.** Forces on high-DFT-force configurations are
+important for assessing FP behavior away from equilibrium, including migrating ions, defect and
+disordered structures, and large thermal displacements.
 
-Together, these metrics evaluate force-prediction behavior directly relevant to structural
-relaxation, MD, NEB, and other atomistic simulations.
+These metrics are complementary and should be interpreted together rather than combined into a
+single overall ranking.
 
 ---
 
 ## Notation
 
-```text
-Δ|F| = |F_FP| − |F_DFT|
-|Δ|F||
-Δθ
-e_vec = ||F_FP − F_DFT||
-r_F = |Δ|F|| / |F_DFT|
-```
+The force error was decomposed into the force-magnitude error, `Δ|F| = |F_FP| − |F_DFT|`, and the
+force-angle error, `Δθ`, defined as the angle between the FP and DFT force vectors. We also
+computed the force-vector error, `e_vec = ||F_FP − F_DFT||`, and the relative force-magnitude
+error for FE atoms, `r_F = |Δ|F|| / |F_DFT|`.
 
-`Δ|F| MAE/RMSE` is used for MAE/RMSE analyses. `|Δ|F||` is used for CDFs and threshold/fraction
-analyses.
+`Δ|F| MAE/RMSE` is used for the MAE/RMSE metric name. `|Δ|F||` is used for CDFs, thresholds, and
+fraction metrics.
 
-**Zero-force and evaluated-population wording.** Atoms with zero FP or DFT force were excluded
-from all metrics, since the force angle is undefined in these cases. Except for the all-atom
-MAE/RMSE analysis, all force metrics were evaluated only for atoms with |F_DFT| > 0.01 eV/Å,
-because for near-zero DFT forces, small absolute differences in the force components can produce
-large changes in the calculated force angle.
-
-```text
-evaluated: |F_DFT| > 0.01 eV/Å
-non-FE:    0.01 < |F_DFT| <= 1 eV/Å
-FE:        |F_DFT| > 1 eV/Å
-```
+Atoms with zero FP or DFT force were excluded from all metrics, since the force angle is
+undefined in these cases. Except for the all-atom MAE/RMSE analysis, all force metrics were
+evaluated only for atoms with `|F_DFT| > 0.01` eV/Å, because for near-zero DFT forces, small
+absolute differences in the force components can produce large changes in the calculated force
+angle. FE atoms correspond to `|F_DFT| > 1` eV/Å.
 
 ---
 
@@ -71,18 +58,21 @@ FE:        |F_DFT| > 1 eV/Å
 | Dataset | DFT functional | FPs evaluated |
 |---|---|---|
 | MatPES-PBE | PBE | 7 |
-| MatPES-r2SCAN | r2SCAN | 3 (the r2SCAN-trained FPs only) |
-| OMat24 rattled-1000 | PBE | 7 (same FPs as MatPES-PBE) |
+| MatPES-r2SCAN | r2SCAN | 3 |
+| OMat24 rattled-1000 | PBE | 7 |
 
-MatPES-r2SCAN contains only the three r2SCAN-trained FPs; no PBE-trained model is mixed in.
-OMat24 rattled-1000 is the PBE-labeled OMat24 rattled-1000 validation dataset, evaluated with the
-same seven PBE-trained FPs used on MatPES-PBE.
+The MatPES-r2SCAN analysis includes the three r2SCAN-trained FPs. The OMat24 rattled-1000 analysis
+evaluates the same seven FPs used for MatPES-PBE.
 
-Dataset-level atom counts and FE fractions are not reported here. The currently-committed
-standardized files predate the generators' dataset-wide `reference_population` field (see
-Section 7 of the generator notebooks), so a model-independent count has not been calculated.
-Per-FP evaluated-atom counts differ slightly across FPs, since each FP excludes its own zero-force
-atoms, and are not a substitute for a dataset-level count.
+Dataset-level atom counts and FE fractions are not reported here until they have been calculated
+from the generators' dataset-wide `reference_population` field (see Section 7 of the generator
+notebooks).
+
+---
+
+Exact checkpoints/versions, model sizes, and the full evaluation matrix (which FPs were run on
+which dataset, across all FPBench components) are documented once at the
+[FPBench home page](../README.md#foundation-potentials-evaluated) rather than duplicated here.
 
 ---
 
@@ -158,6 +148,13 @@ Force_error/
 
 ## Using FPBench with Another Dataset
 
+The three analysis notebooks (`analysis/force_error_analysis_matpes_pbe.ipynb`,
+`analysis/force_error_analysis_matpes_r2scan.ipynb`,
+`analysis/force_error_analysis_omat24_rattled_1000.ipynb`) and the three generator notebooks
+(`generation/matpes_PBE_run_generator.ipynb`, `generation/matpes_r2scan_run_generator.ipynb`,
+`generation/matpes_run_generator_omat24_rattled1000.ipynb`) are the same notebooks used to produce
+the results reported in the FPBench manuscript.
+
 1. **Analysis only, from paired Cartesian forces.** Call
    `build_force_results(dft_forces, fp_forces, structure_ids=None)` from `scripts/force_results.py`
    directly, see the worked example in `analysis/force_error_analysis_matpes_pbe.ipynb`.
@@ -172,6 +169,10 @@ Force_error/
    near the top of its cell. Cells raise a clear error if run before the placeholders are edited.
    We recommend a separate virtual environment per FP family, since their dependency requirements
    can conflict, and the notebooks never install packages automatically.
+5. **Adding a new FP to this benchmark.** Once you have run the steps above against MatPES-PBE,
+   MatPES-r2SCAN, or OMat24 rattled-1000 and computed the metrics with the corresponding analysis
+   notebook, open a [GitHub issue](https://github.com/kamirian/FPBench/issues) with the FP's name,
+   architecture, training data, checkpoint/version, and computed metrics.
 
 ---
 
