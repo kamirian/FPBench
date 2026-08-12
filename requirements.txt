@@ -1,0 +1,17 @@
+# Analysis notebooks (analysis/force_error_analysis_*.ipynb) and scripts/
+numpy
+pandas
+matplotlib
+scipy
+
+# Generator notebooks (generation/*.ipynb) -- only needed to run the chunker /
+# script-generation cells themselves, NOT to evaluate any FP:
+# pymatgen
+# ase
+
+# Each FP's own environment (install separately, one venv per FP family --
+# see generation/*.ipynb Section 2 POTENTIAL_REGISTRY and the README):
+#   mace-torch      # MACE / MACE-MatPES
+#   chgnet          # CHGNet
+#   matgl           # M3GNet / TensorNet / M3GNet-MatPES / TensorNet-MatPES
+#   fairchem-core   # UMA
