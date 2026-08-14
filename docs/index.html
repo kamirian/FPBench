@@ -81,6 +81,18 @@
     table.matrix .yes { color: var(--accent2); font-weight: 700; }
     table.matrix tr:last-child td { border-bottom: none; }
     .note { font-size: 0.85rem; color: var(--muted); margin-top: 0.8rem; }
+    code { background: var(--code-bg); border-radius: 4px; padding: 0.15em 0.45em; font-size: 0.85em; color: #79c0ff; font-family: "SFMono-Regular", Consolas, monospace; }
+
+    .workflow-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; }
+    .workflow-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; display: flex; flex-direction: column; }
+    .workflow-card.available { border-color: var(--accent2); }
+    .workflow-card h3 { font-size: 1.05rem; color: var(--heading); margin-bottom: 0.5rem; }
+    .workflow-card .wf-link { font-size: 0.88rem; margin-bottom: 0.9rem; }
+    .workflow-card .wf-link a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .workflow-card p { font-size: 0.87rem; color: var(--text); margin-bottom: 0.7rem; }
+    .workflow-card p strong { color: var(--heading); }
+    .workflow-card .wf-readme { margin-top: auto; padding-top: 0.6rem; font-size: 0.85rem; }
+    .workflow-card .wf-readme a { color: var(--accent); text-decoration: none; font-weight: 600; }
 
     footer { text-align: center; padding: 2.5rem 2rem; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
     footer a { color: var(--accent); text-decoration: none; }
@@ -130,6 +142,35 @@
       <h3>Ion Migration by NEB</h3>
       <p>Will include migration-barrier and migration-path analyses using the nudged elastic band (NEB) method.</p>
       <a class="btn btn-disabled" href="ion-migration-neb.html">To be added</a>
+    </div>
+  </div>
+</section>
+
+<section id="use-fpbench">
+  <h2>Use FPBench</h2>
+  <p style="text-align:center;color:var(--muted);font-size:0.92rem;max-width:680px;margin:0 auto 1.5rem;">
+    Each available component follows the same pattern: submit a new FP's results to the
+    leaderboard, or call the public analysis functions directly on your own data.
+  </p>
+  <div class="workflow-grid">
+    <div class="workflow-card available">
+      <h3>Force Prediction</h3>
+      <div class="wf-link"><a href="force-error.html">View leaderboard &rarr;</a></div>
+      <p><strong>Submit to the leaderboard.</strong> Run one of the three generator notebooks in <code>Force_error/generation/</code> against your FP, merge its results into the standardized file, run the matching analysis notebook, then open a <a href="https://github.com/mogroupumd/FPBench/issues" style="color:var(--accent);">GitHub issue</a> with your FP's name, architecture, training data, checkpoint/version, and computed metrics.</p>
+      <p><strong>Use the functions directly.</strong> Call <code>build_force_results(dft_forces, fp_forces, structure_ids=None)</code> from <code>Force_error/scripts/force_results.py</code> on your own paired Cartesian DFT/FP forces.</p>
+      <div class="wf-readme"><a href="https://github.com/mogroupumd/FPBench/tree/main/Force_error">Force_error README &rarr;</a></div>
+    </div>
+    <div class="workflow-card available">
+      <h3>Phase Stability and Elemental Ordering</h3>
+      <div class="wf-link"><a href="phase-stability-ordering.html">View leaderboard &rarr;</a></div>
+      <p><strong>Submit to the leaderboard.</strong> Use <code>Phase_stability_ordering/generation/convexhull_ordering_run_generator.ipynb</code> to generate per-FP jobs against the shipped DFT reference, run them on your cluster, merge the results, run the analysis notebook, then open a <a href="https://github.com/mogroupumd/FPBench/issues" style="color:var(--accent);">GitHub issue</a> with your results.</p>
+      <p><strong>Use the functions directly.</strong> Call <code>build_phase_stability_ordering_results(reference_data, fp_results)</code> and the table builders in <code>Phase_stability_ordering/scripts/convexhull_analysis_utils.py</code> on your own DFT reference and FP results.</p>
+      <div class="wf-readme"><a href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering">Phase_stability_ordering README &rarr;</a></div>
+    </div>
+    <div class="workflow-card">
+      <h3>Ion Migration by NEB</h3>
+      <p>Not yet available. This component will follow the same submission and direct-function-usage pattern once its code and reference data are published.</p>
+      <div class="wf-readme"><a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB">Ion_migration_NEB README &rarr;</a></div>
     </div>
   </div>
 </section>
