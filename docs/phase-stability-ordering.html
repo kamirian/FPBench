@@ -6,24 +6,138 @@
   <title>FPBench: Phase Stability and Elemental Ordering</title>
   <style>
     :root {
-      --bg: #0d1117; --surface: #161b22; --border: #30363d; --accent: #58a6ff;
-      --accent4: #d29922; --text: #c9d1d9; --muted: #8b949e; --heading: #e6edf3;
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --surface2: #1c2230;
+      --border:   #30363d;
+      --accent:   #58a6ff;
+      --accent2:  #3fb950;
+      --accent3:  #f78166;
+      --accent4:  #d29922;
+      --text:     #c9d1d9;
+      --muted:    #8b949e;
+      --heading:  #e6edf3;
+      --code-bg:  #1f2937;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.65; }
-    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
     nav .logo { font-weight: 700; font-size: 1rem; color: var(--heading); text-decoration: none; }
     nav .nav-links { display: flex; align-items: center; }
     nav a { color: var(--muted); text-decoration: none; font-size: 0.88rem; margin-left: 1.4rem; }
     nav a:hover { color: var(--accent); }
     nav a.nav-highlight { color: var(--accent); font-weight: 600; }
-    .hero { text-align: center; padding: 5rem 2rem; max-width: 700px; margin: 0 auto; }
-    .status-badge { display: inline-block; background: rgba(210,153,34,0.15); color: var(--accent4); border-radius: 5px; padding: 0.25rem 0.7rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 1rem; }
-    .hero h1 { font-size: 2rem; font-weight: 800; color: var(--heading); margin-bottom: 1rem; }
-    .hero p { color: var(--muted); font-size: 1rem; margin-bottom: 0.8rem; }
-    .hero a { color: var(--accent); text-decoration: none; }
+
+    .hero { text-align: center; padding: 4rem 2rem 2.6rem; max-width: 860px; margin: 0 auto; }
+    .hero .tag-line { font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; }
+    .hero h1 { font-size: 2.2rem; font-weight: 800; color: var(--heading); letter-spacing: -0.5px; line-height: 1.2; }
+    .hero p { margin-top: 1rem; font-size: 1.02rem; color: var(--muted); max-width: 660px; margin-left: auto; margin-right: auto; }
+    .cta { margin-top: 1.6rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-block; padding: 0.6rem 1.3rem; border-radius: 6px; font-size: 0.92rem; font-weight: 600; text-decoration: none; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--accent); color: #0d1117; }
+    .btn-outline { border: 1px solid var(--border); color: var(--heading); background: var(--surface); }
+    .btn-green  { background: var(--accent2); color: #0d1117; }
+
+    section { max-width: 1080px; margin: 0 auto; padding: 2.6rem 2rem; border-top: 1px solid var(--border); }
+    section h2 { font-size: 1.55rem; color: var(--heading); font-weight: 700; margin-bottom: 1rem; }
+    section h3 { font-size: 1.05rem; color: var(--heading); font-weight: 600; margin: 1.8rem 0 0.6rem; }
+    section p { color: var(--text); margin-bottom: 0.8rem; }
+
+    .callout { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 1rem 1.4rem; margin: 1.2rem 0; font-size: 0.95rem; color: var(--text); }
+    .callout strong { color: var(--heading); }
+
+    .metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.2rem 0; }
+    @media (max-width: 700px) { .metric-row { grid-template-columns: 1fr; } }
+    .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem 1.6rem; }
+    .metric-card h3 { margin-top: 0; font-size: 1rem; }
+    .metric-card p { font-size: 0.9rem; color: var(--text); margin-bottom: 0; }
+
+    .dataset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .dataset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem 1.6rem; }
+    .dataset-card .ds-name { font-size: 1rem; font-weight: 700; color: var(--heading); margin-bottom: 0.4rem; }
+    .dataset-card .ds-stat { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.2rem; }
+    .dataset-card .ds-stat span { color: var(--text); }
+    .dataset-card .ds-desc { font-size: 0.87rem; color: var(--text); margin-top: 0.7rem; line-height: 1.5; }
+
+    .tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; overflow-x: auto; }
+    .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-size: 0.9rem; font-weight: 600; padding: 0.7rem 1.4rem; cursor: pointer; white-space: nowrap; font-family: inherit; transition: color 0.15s, border-color 0.15s; }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .col-legend { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: 0.8rem; color: var(--muted); }
+    .col-legend .arrow-down { color: var(--accent3); }
+    .col-legend .arrow-up   { color: var(--accent2); }
+
+    details { border: 1px solid var(--border); border-radius: 8px; margin-top: 0.9rem; background: var(--surface); overflow: hidden; }
+    details summary { padding: 0.85rem 1.1rem; cursor: pointer; font-size: 0.98rem; font-weight: 700; color: var(--heading); list-style: none; }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::before { content: "\25B6 "; font-size: 0.7rem; color: var(--muted); }
+    details[open] > summary::before { content: "\25BC "; }
+    details[open] > summary { border-bottom: 1px solid var(--border); }
+    details summary:hover { color: var(--accent); }
+    .metric-description { padding: 0.8rem 1.1rem 0; font-size: 0.82rem; font-weight: 400; color: var(--muted); line-height: 1.55; }
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0.8rem 1.1rem 1.1rem; scrollbar-width: thin; }
+    .breakdown-pre { padding: 0.4rem 1.1rem 1rem; font-size: 0.78rem; color: var(--muted); white-space: pre; overflow-x: auto; font-family: "SFMono-Regular", Consolas, monospace; }
+
+    table.dt { border-collapse: collapse; font-size: 0.82rem; }
+    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 128px; }
+    table.dt th { background: var(--surface2); color: var(--muted); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.3px; cursor: pointer; user-select: none; }
+    table.dt th.no-sort { cursor: default; }
+    table.dt th:hover:not(.no-sort) { color: var(--accent); }
+    table.dt th.sorted-asc, table.dt th.sorted-desc { color: var(--accent); }
+    table.dt th.sorted-asc::after { content: " \25B2"; }
+    table.dt th.sorted-desc::after { content: " \25BC"; }
+    table.dt td { color: var(--text); font-family: "SFMono-Regular", Consolas, monospace; }
+    table.dt tr:last-child td { border-bottom: none; }
+    table.dt th:first-child, table.dt td:first-child {
+      position: sticky; left: 0; background: var(--surface); text-align: left;
+      font-family: inherit; font-weight: 600; color: var(--heading); z-index: 2;
+      min-width: 170px;
+    }
+    table.dt th:first-child { background: var(--surface2); z-index: 3; }
+    table.dt tr:hover td { filter: brightness(1.08); }
+    table.dt td.fp-name { text-align: left; }
+    table.dt td.best { color: var(--accent2) !important; font-weight: 700; }
+    table.dt td.worst { color: var(--accent3) !important; }
+
+    .split-pill { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 0.78rem; }
+    .split-sep { color: var(--muted); margin: 0 2px; }
+
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.84rem; line-height: 1.6; margin-top: 0.8rem; }
+    code { background: var(--code-bg); border-radius: 4px; padding: 0.15em 0.45em; font-size: 0.85em; color: #79c0ff; font-family: "SFMono-Regular", Consolas, monospace; }
+    pre code { background: none; padding: 0; color: var(--text); }
+
+    .submit-steps { counter-reset: step; margin-top: 1rem; }
+    .submit-step { display: flex; gap: 1.2rem; margin-bottom: 1.4rem; counter-increment: step; }
+    .submit-step .step-num { flex-shrink: 0; width: 34px; height: 34px; background: rgba(88,166,255,0.12); border: 1px solid rgba(88,166,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: var(--accent); }
+    .submit-step .step-num::before { content: counter(step); }
+    .submit-step .step-body h4 { color: var(--heading); font-size: 0.95rem; margin-bottom: 0.3rem; }
+    .submit-step .step-body p { font-size: 0.87rem; color: var(--text); margin-bottom: 0.4rem; }
+
     footer { text-align: center; padding: 2.5rem 2rem; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
     footer a { color: var(--accent); text-decoration: none; }
+    footer .affil { margin-top: 0.3rem; font-size: 0.8rem; }
   </style>
 </head>
 <body>
@@ -35,21 +149,502 @@
     <a href="force-error.html">Force Prediction</a>
     <a class="nav-highlight" href="phase-stability-ordering.html">Phase Stability &amp; Ordering</a>
     <a href="ion-migration-neb.html">Ion Migration (NEB)</a>
-    <a href="https://github.com/kamirian/FPBench">GitHub</a>
+    <a href="https://github.com/mogroupumd/FPBench">GitHub</a>
   </div>
 </nav>
 
 <div class="hero">
-  <div class="status-badge">To be added</div>
-  <h1>Phase Stability and Elemental Ordering</h1>
-  <p>This component of FPBench will evaluate foundation potentials on convex-hull construction, phase-stability prediction, and elemental/vacancy-ordering analysis.</p>
-  <p>No code, data, or results are included yet.</p>
-  <p style="margin-top:1.5rem;"><a href="index.html">&larr; Back to FPBench</a></p>
+  <div class="tag-line">FPBench &middot; Phase Stability and Elemental Ordering Component</div>
+  <h1>FPBench: Phase Stability and Elemental Ordering</h1>
+  <p>
+    Convex-hull/relative-phase-stability, elemental-ordering energy ranking, and structural-
+    relaxation (RMSD) metrics for foundation potentials (FPs), evaluated on a 22-system
+    phase-change-material (PCM) tie-line dataset.
+  </p>
+  <div class="cta">
+    <a class="btn btn-primary" href="#results">View Leaderboard</a>
+    <a class="btn btn-green"  href="#reproduce">Reproduce / Extend</a>
+    <a class="btn btn-outline" href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering">GitHub</a>
+  </div>
 </div>
 
+<!-- ============== RESULTS ============== -->
+<section id="results">
+  <h2>Results</h2>
+  <p>
+    Values below are read directly from the currently-executed
+    <code>analysis/convexhull_ordering_analysis_all_models.ipynb</code>. FPBench does not publish
+    a single overall ranking; each metric group below is a complementary, independent measurement.
+    Click any column heading to sort a table by that column; click again to reverse. Tables load in
+    a fixed, notebook-consistent order.
+  </p>
+  <div class="col-legend">
+    <span><span class="arrow-down">&#9660;</span> lower is better</span>
+    <span><span class="arrow-up">&#9650;</span> higher is better</span>
+    <span style="color:var(--accent2);font-weight:700">green = best in column</span>
+    <span style="color:var(--accent3)">red = worst in column</span>
+    <span style="color:var(--muted)">identifiers are never colored</span>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('hull',this)">Convex Hull &amp; Phase Stability</button>
+    <button class="tab-btn" onclick="switchTab('ordering',this)">Elemental Ordering</button>
+    <button class="tab-btn" onclick="switchTab('rmsd',this)">Structural Relaxation (RMSD)</button>
+  </div>
+
+  <div id="tab-hull" class="tab-panel active">
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
+      22 tie-line systems, 597 unique hull candidates (561 interior + 36 binary endpoints).
+      Ground-state agreement is pooled across systems with single-phase compositions excluded;
+      hull-minimum agreement is per tie-line system. Shown separately for full FP relaxation and
+      static evaluation on the DFT-relaxed structures.
+    </p>
+
+<h3 style="margin-top:0;">Full FP relaxation</h3>
+    <div class="table-scroll">
+      <table class="dt hulltable"><thead><tr>
+      <th>FP</th>
+      <th data-dir="low">Average energy error (meV/atom) &darr;</th>
+      <th data-dir="high">Ground-state agreement (%) &uarr;</th>
+      <th data-dir="high">Within-phase hull-minimum agreement (%) &uarr;</th>
+      <th data-dir="high">Hull-minimum agreement (%) &uarr;</th>
+    </tr></thead><tbody>
+    <tr><td class="fp-name">MACE</td><td data-val="48">48</td><td data-val="69.09">69.09</td><td data-val="61.98">61.98</td><td data-val="40.91">40.91</td></tr>
+    <tr><td class="fp-name">CHGNet</td><td data-val="241">241</td><td data-val="57.58">57.58</td><td data-val="42.15">42.15</td><td data-val="18.18">18.18</td></tr>
+    <tr><td class="fp-name">M3GNet</td><td data-val="49">49</td><td data-val="60.00">60.00</td><td data-val="47.93">47.93</td><td data-val="18.18">18.18</td></tr>
+    <tr><td class="fp-name">UMA</td><td data-val="78">78</td><td data-val="69.09">69.09</td><td data-val="60.33">60.33</td><td data-val="36.36">36.36</td></tr>
+    <tr><td class="fp-name">M3GNet-MatPES</td><td data-val="115">115</td><td data-val="48.48">48.48</td><td data-val="57.85">57.85</td><td data-val="22.73">22.73</td></tr>
+    <tr><td class="fp-name">TensorNet-MatPES</td><td data-val="86">86</td><td data-val="59.39">59.39</td><td data-val="60.33">60.33</td><td data-val="13.64">13.64</td></tr>
+    <tr><td class="fp-name">MACE-MatPES</td><td data-val="86">86</td><td data-val="54.55">54.55</td><td data-val="65.29">65.29</td><td data-val="18.18">18.18</td></tr>
+    </tbody></table>
+    </div>
+
+<h3>Static FP evaluations on the DFT-relaxed structures</h3>
+    <div class="table-scroll">
+      <table class="dt hulltable"><thead><tr>
+      <th>FP</th>
+      <th data-dir="low">Average energy error (meV/atom) &darr;</th>
+      <th data-dir="high">Ground-state agreement (%) &uarr;</th>
+      <th data-dir="high">Within-phase hull-minimum agreement (%) &uarr;</th>
+      <th data-dir="high">Hull-minimum agreement (%) &uarr;</th>
+    </tr></thead><tbody>
+    <tr><td class="fp-name">MACE</td><td data-val="14">14</td><td data-val="69.09">69.09</td><td data-val="73.55">73.55</td><td data-val="40.91">40.91</td></tr>
+    <tr><td class="fp-name">CHGNet</td><td data-val="244">244</td><td data-val="56.97">56.97</td><td data-val="45.45">45.45</td><td data-val="22.73">22.73</td></tr>
+    <tr><td class="fp-name">M3GNet</td><td data-val="34">34</td><td data-val="58.18">58.18</td><td data-val="62.81">62.81</td><td data-val="22.73">22.73</td></tr>
+    <tr><td class="fp-name">UMA</td><td data-val="43">43</td><td data-val="76.36">76.36</td><td data-val="78.51">78.51</td><td data-val="40.91">40.91</td></tr>
+    <tr><td class="fp-name">M3GNet-MatPES</td><td data-val="111">111</td><td data-val="47.88">47.88</td><td data-val="57.85">57.85</td><td data-val="22.73">22.73</td></tr>
+    <tr><td class="fp-name">TensorNet-MatPES</td><td data-val="66">66</td><td data-val="53.94">53.94</td><td data-val="66.94">66.94</td><td data-val="13.64">13.64</td></tr>
+    <tr><td class="fp-name">MACE-MatPES</td><td data-val="56">56</td><td data-val="54.55">54.55</td><td data-val="75.21">75.21</td><td data-val="18.18">18.18</td></tr>
+    </tbody></table>
+    </div>
+
+    <details>
+      <summary>Ground-state / hull-minimum agreement &mdash; numerator/denominator (Full FP relaxation)</summary>
+      <div class="metric-description">Ground-state agreement is pooled across all 22 systems with single-phase compositions excluded from both numerator and denominator (153 excluded instances, identical across every FP since exclusion depends only on the DFT composition set). Hull-minimum agreement denominator is the 22 tie-line systems.</div>
+      <div class="breakdown-pre">Ground-state agreement (numerator/denominator, excluded single-phase compositions):
+  MACE                  114/165  (excluded 153 single-phase compositions)
+  CHGNet                 95/165  (excluded 153 single-phase compositions)
+  M3GNet                 99/165  (excluded 153 single-phase compositions)
+  UMA                   114/165  (excluded 153 single-phase compositions)
+  M3GNet-MatPES          80/165  (excluded 153 single-phase compositions)
+  TensorNet-MatPES       98/165  (excluded 153 single-phase compositions)
+  MACE-MatPES            90/165  (excluded 153 single-phase compositions)
+
+Hull-minimum agreement (numerator/denominator, out of 22 systems):
+  MACE                  9/22
+  CHGNet                4/22
+  M3GNet                4/22
+  UMA                   8/22
+  M3GNet-MatPES         5/22
+  TensorNet-MatPES      3/22
+  MACE-MatPES           4/22</div>
+    </details>
+  </div>
+
+  <div id="tab-ordering" class="tab-panel">
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
+      305 ordering groups &times; 20 candidates/group = 6,100 ordering records. Every group is
+      complete (20/20 orderings) for all seven FPs in both protocols -- no incomplete groups.
+      Shown separately for full FP relaxation and static evaluation on the DFT-relaxed structures.
+    </p>
+
+<h3 style="margin-top:0;">Full FP relaxation</h3>
+    <div class="table-scroll">
+      <table class="dt orderingtable"><thead><tr>
+      <th>FP</th>
+      <th data-dir="low">Average energy error (meV/atom) &darr;</th>
+      <th data-dir="high">Top-1 accuracy (%) &uarr;</th>
+      <th data-dir="high">Recall@3 (%) &uarr;</th>
+      <th data-dir="high">Recall@10 (%) &uarr;</th>
+      <th data-dir="high">Spearman &rho; &uarr;</th>
+      <th data-dir="low">Rate of ranking errors (%) &darr;</th>
+      <th data-dir="low">Mean/max &Delta;E<sub>DFT</sub> (meV/atom) &darr;</th>
+    </tr></thead><tbody>
+    <tr><td class="fp-name">MACE</td><td data-val="43">43</td><td data-val="23.6">23.6</td><td data-val="32.8">32.8</td><td data-val="60.9">60.9</td><td data-val="0.3">0.3</td><td data-val="38.9">38.9</td><td data-val="12" data-val2="34" data-pair="1" data-fmt="int"></td></tr>
+    <tr><td class="fp-name">CHGNet</td><td data-val="272">272</td><td data-val="8.2">8.2</td><td data-val="20.1">20.1</td><td data-val="52.8">52.8</td><td data-val="0.1">0.1</td><td data-val="46.8">46.8</td><td data-val="13" data-val2="39" data-pair="1" data-fmt="int"></td></tr>
+    <tr><td class="fp-name">M3GNet</td><td data-val="56">56</td><td data-val="7.2">7.2</td><td data-val="18.6">18.6</td><td data-val="51.3">51.3</td><td data-val="0.1">0.1</td><td data-val="48.1">48.1</td><td data-val="14" data-val2="42" data-pair="1" data-fmt="int"></td></tr>
+    <tr><td class="fp-name">UMA</td><td data-val="65">65</td><td data-val="24.3">24.3</td><td data-val="34.6">34.6</td><td data-val="61.9">61.9</td><td data-val="0.3">0.3</td><td data-val="37.6">37.6</td><td data-val="12" data-val2="35" data-pair="1" data-fmt="int"></td></tr>
+    <tr><td class="fp-name">M3GNet-MatPES</td><td data-val="95">95</td><td data-val="10.2">10.2</td><td data-val="21.0">21.0</td><td data-val="54.8">54.8</td><td data-val="0.1">0.1</td><td data-val="45.7">45.7</td><td data-val="13" data-val2="39" data-pair="1" data-fmt="int"></td></tr>
+    <tr><td class="fp-name">TensorNet-MatPES</td><td data-val="69">69</td><td data-val="12.8">12.8</td><td data-val="25.4">25.4</td><td data-val="56.1">56.1</td><td data-val="0.2">0.2</td><td data-val="43.6">43.6</td><td data-val="12" data-val2="37" data-pair="1" data-fmt="int"></td></tr>
+    <tr><td class="fp-name">MACE-MatPES</td><td data-val="69">69</td><td data-val="21.3">21.3</td><td data-val="32.7">32.7</td><td data-val="60.5">60.5</td><td data-val="0.3">0.3</td><td data-val="39.1">39.1</td><td data-val="11" data-val2="35" data-pair="1" data-fmt="int"></td></tr>
+    </tbody></table>
+    </div>
+
+<h3>Static FP evaluations on the DFT-relaxed structures</h3>
+    <div class="table-scroll">
+      <table class="dt orderingtable"><thead><tr>
+      <th>FP</th>
+      <th data-dir="low">Average energy error (meV/atom) &darr;</th>
+      <th data-dir="high">Top-1 accuracy (%) &uarr;</th>
+      <th data-dir="high">Recall@3 (%) &uarr;</th>
+      <th data-dir="high">Recall@10 (%) &uarr;</th>
+      <th data-dir="high">Spearman &rho; &uarr;</th>
+      <th data-dir="low">Rate of ranking errors (%) &darr;</th>
+      <th data-dir="low">Mean/max &Delta;E<sub>DFT</sub> (meV/atom) &darr;</th>
+    </tr></thead><tbody>
+    <tr><td class="fp-name">MACE</td><td data-val="14">14</td><td data-val="46.6">46.6</td><td data-val="54.5">54.5</td><td data-val="72.7">72.7</td><td data-val="0.6">0.6</td><td data-val="26.6">26.6</td><td data-val="5" data-val2="15" data-pair="1" data-fmt="int"></td></tr>
+    <tr><td class="fp-name">CHGNet</td><td data-val="270">270</td><td data-val="20.3">20.3</td><td data-val="29.7">29.7</td><td data-val="59.0">59.0</td><td data-val="0.2">0.2</td><td data-val="40.6">40.6</td><td data-val="10" data-val2="29" data-pair="1" data-fmt="int"></td></tr>
+    <tr><td class="fp-name">M3GNet</td><td data-val="41">41</td><td data-val="22.3">22.3</td><td data-val="28.7">28.7</td><td data-val="58.7">58.7</td><td data-val="0.2">0.2</td><td data-val="41.0">41.0</td><td data-val="10" data-val2="30" data-pair="1" data-fmt="int"></td></tr>
+    <tr><td class="fp-name">UMA</td><td data-val="35">35</td><td data-val="55.7">55.7</td><td data-val="65.4">65.4</td><td data-val="79.9">79.9</td><td data-val="0.7">0.7</td><td data-val="19.7">19.7</td><td data-val="4" data-val2="10" data-pair="1" data-fmt="int"></td></tr>
+    <tr><td class="fp-name">M3GNet-MatPES</td><td data-val="94">94</td><td data-val="19.7">19.7</td><td data-val="29.8">29.8</td><td data-val="60.0">60.0</td><td data-val="0.3">0.3</td><td data-val="40.2">40.2</td><td data-val="10" data-val2="30" data-pair="1" data-fmt="int"></td></tr>
+    <tr><td class="fp-name">TensorNet-MatPES</td><td data-val="52">52</td><td data-val="27.9">27.9</td><td data-val="41.4">41.4</td><td data-val="65.3">65.3</td><td data-val="0.4">0.4</td><td data-val="34.8">34.8</td><td data-val="8" data-val2="23" data-pair="1" data-fmt="int"></td></tr>
+    <tr><td class="fp-name">MACE-MatPES</td><td data-val="43">43</td><td data-val="41.0">41.0</td><td data-val="48.0">48.0</td><td data-val="70.0">70.0</td><td data-val="0.5">0.5</td><td data-val="29.6">29.6</td><td data-val="6" data-val2="18" data-pair="1" data-fmt="int"></td></tr>
+    </tbody></table>
+    </div>
+
+    <details>
+      <summary>Group completeness</summary>
+      <div class="metric-description">Number of the 305 ordering groups with all 20 orderings present for that FP/protocol, out of 305 total.</div>
+      <div class="breakdown-pre">All seven FPs: 305/305 groups complete, 0 incomplete, in both Full FP relaxation and Static FP evaluations.</div>
+    </details>
+  </div>
+
+  <div id="tab-rmsd" class="tab-panel">
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
+      RMSD applies only to <strong style="color:var(--heading);">full FP relaxation</strong> --
+      static evaluation does not produce an FP-relaxed structure to compare against DFT. Computed
+      via pymatgen <code>StructureMatcher</code> (<code>ltol=0.5</code>, <code>stol=0.5</code>,
+      <code>angle_tol=10&deg;</code>) over all 597 unique hull candidates, converted to &Aring; via
+      the geometric-mean cell volume.
+    </p>
+
+<div class="table-scroll">
+      <table class="dt rmsdtable"><thead><tr>
+      <th>FP</th>
+      <th data-dir="high">Map success (%) &uarr;</th>
+      <th data-dir="low">Mean/max RMSD (&Aring;) &darr;</th>
+      <th data-dir="high">RMSD &lt; 0.05 &Aring; (%) &uarr;</th>
+      <th data-dir="high">RMSD &lt; 0.10 &Aring; (%) &uarr;</th>
+      <th data-dir="high">RMSD &lt; 0.20 &Aring; (%) &uarr;</th>
+    </tr></thead><tbody>
+    <tr><td class="fp-name">MACE</td><td data-val="89.95">89.95</td><td data-val="0.28" data-val2="1.92" data-pair="1"></td><td data-val="24.02">24.02</td><td data-val="44.51">44.51</td><td data-val="65.55">65.55</td></tr>
+    <tr><td class="fp-name">CHGNet</td><td data-val="87.27">87.27</td><td data-val="0.37" data-val2="2.28" data-pair="1"></td><td data-val="11.90">11.90</td><td data-val="26.49">26.49</td><td data-val="49.52">49.52</td></tr>
+    <tr><td class="fp-name">M3GNet</td><td data-val="88.78">88.78</td><td data-val="0.37" data-val2="2.02" data-pair="1"></td><td data-val="10.19">10.19</td><td data-val="21.13">21.13</td><td data-val="39.43">39.43</td></tr>
+    <tr><td class="fp-name">UMA</td><td data-val="89.95">89.95</td><td data-val="0.29" data-val2="2.69" data-pair="1"></td><td data-val="24.39">24.39</td><td data-val="45.44">45.44</td><td data-val="66.11">66.11</td></tr>
+    <tr><td class="fp-name">M3GNet-MatPES</td><td data-val="89.78">89.78</td><td data-val="0.36" data-val2="2.41" data-pair="1"></td><td data-val="12.31">12.31</td><td data-val="26.31">26.31</td><td data-val="51.31">51.31</td></tr>
+    <tr><td class="fp-name">TensorNet-MatPES</td><td data-val="89.95">89.95</td><td data-val="0.29" data-val2="2.19" data-pair="1"></td><td data-val="15.64">15.64</td><td data-val="36.69">36.69</td><td data-val="63.13">63.13</td></tr>
+    <tr><td class="fp-name">MACE-MatPES</td><td data-val="89.61">89.61</td><td data-val="0.27" data-val2="2.31" data-pair="1"></td><td data-val="23.55">23.55</td><td data-val="44.49">44.49</td><td data-val="64.49">64.49</td></tr>
+    </tbody></table>
+    </div>
+
+    <details>
+      <summary>Map success failure breakdown (Full FP relaxation)</summary>
+      <div class="metric-description">Out of 597 total candidates: <strong style="color:var(--heading);">calculation failure</strong> means the FP result itself was not <code>status: "success"</code> (no structure to compare); <strong style="color:var(--heading);">mapping failure</strong> means an FP-relaxed structure exists but <code>StructureMatcher</code> could not map it to its DFT counterpart. Mean/max RMSD and the threshold fractions above are computed only over successfully mapped structures.</div>
+      <div class="breakdown-pre">  MACE                  total=597  mapped=537  calculation failure=0  mapping failure=60
+  CHGNet                total=597  mapped=521  calculation failure=0  mapping failure=76
+  M3GNet                total=597  mapped=530  calculation failure=0  mapping failure=67
+  UMA                   total=597  mapped=537  calculation failure=0  mapping failure=60
+  M3GNet-MatPES         total=597  mapped=536  calculation failure=0  mapping failure=61
+  TensorNet-MatPES      total=597  mapped=537  calculation failure=0  mapping failure=60
+  MACE-MatPES           total=597  mapped=535  calculation failure=0  mapping failure=62</div>
+    </details>
+  </div>
+</section>
+
+<!-- ============== METRICS ============== -->
+<section id="metrics">
+  <h2>Metrics</h2>
+  <p>FPBench evaluates phase stability and elemental ordering using metrics chosen for their direct relevance to computational materials screening workflows.</p>
+
+  <div class="metric-row">
+    <div class="metric-card">
+      <h3>Convex hull and relative phase stability</h3>
+      <p>Ground-state agreement, within-phase hull-minimum agreement, and global hull-minimum agreement test whether an FP identifies the same low-energy structures DFT does, at increasing scope (composition &rarr; phase &rarr; full tie-line system) -- directly relevant to using an FP for phase-diagram or stability screening in place of DFT.</p>
+    </div>
+    <div class="metric-card">
+      <h3>Elemental-ordering energy ranking</h3>
+      <p>Top-1 accuracy, Recall@k, and Spearman &rho; test whether an FP can rank competing atomic arrangements at a fixed composition the way DFT does -- relevant to order/disorder and site-occupancy screening, where getting the relative energy ordering right matters more than the absolute energy value.</p>
+    </div>
+  </div>
+  <div class="metric-row">
+    <div class="metric-card">
+      <h3>Rate of ranking errors and misranked-pair energy gap</h3>
+      <p>A low average energy error can still hide a high rate of pairwise ranking mistakes. The mean/max DFT energy gap for misranked pairs distinguishes a near-degenerate mix-up (small gap) from a confidently wrong prediction (large gap).</p>
+    </div>
+    <div class="metric-card">
+      <h3>Structural-relaxation accuracy (RMSD)</h3>
+      <p>An FP that reproduces DFT energies well can still relax to a geometrically different structure. RMSD against the DFT-relaxed structure, plus the fraction of structures an FP fails to even map onto its DFT counterpart, is directly relevant to any downstream workflow (e.g. NEB, further static calculations) that consumes the FP-relaxed geometry itself, not just its energy.</p>
+    </div>
+  </div>
+  <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong></p>
+</section>
+
+<!-- ============== NOTATION / PROTOCOLS ============== -->
+<section id="notation">
+  <h2>Notation and Protocols</h2>
+  <p>
+    <strong style="color:var(--heading);">Full FP relaxation</strong> currently means atomic-
+    position relaxation with a <strong style="color:var(--heading);">fixed cell</strong>, using
+    ASE <code>FIRE</code>, with <code>fmax = 0.01 eV/&Aring;</code> and a maximum of 10,000 steps;
+    cell shape and volume are held fixed throughout (not a variable-cell relaxation). The FP starts
+    from the DFT <code>initial_structure</code> (the un-relaxed starting geometry) and must produce
+    both its own energy and its own relaxed structure.
+  </p>
+  <p>
+    <strong style="color:var(--heading);">Static FP evaluation</strong> means evaluating the FP's
+    energy on the corresponding DFT-relaxed structure (<code>relaxed_structure</code>) without
+    relaxing it any further -- only the FP's energy is required; no separate FP structure is
+    produced or used, and RMSD does not apply.
+  </p>
+  <div class="callout">
+    A candidate an FP has a result for is recorded with <code>status: "success"</code> and its
+    <code>energy_total</code>; one it does not is <code>"missing"</code>, <code>"failed"</code>, or
+    <code>"non_converged"</code>. Only <code>"success"</code> records are ever scored, but the
+    distinct label is preserved and reported separately by the validator -- a missing, failed, or
+    non-converged result is never silently dropped or backfilled from the DFT value.
+  </div>
+</section>
+
+<!-- ============== DATASET ============== -->
+<section id="dataset">
+  <h2>Benchmark Dataset</h2>
+  <div class="dataset-grid">
+    <div class="dataset-card">
+      <div class="ds-name">Convex hull</div>
+      <div class="ds-stat">Tie-line systems: <span>22</span></div>
+      <div class="ds-stat">Interior candidates: <span>561</span></div>
+      <div class="ds-stat">Unique binary endpoints: <span>36</span></div>
+      <div class="ds-stat">Total unique hull candidates: <span>597</span></div>
+      <div class="ds-desc">A shared endpoint bordering more than one system is the same physical structure and is computed once per FP, then distributed to every system it borders (679 per-system hull records once distributed).</div>
+    </div>
+    <div class="dataset-card">
+      <div class="ds-name">Elemental ordering</div>
+      <div class="ds-stat">Ordering groups: <span>305</span></div>
+      <div class="ds-stat">Candidates per group: <span>20</span></div>
+      <div class="ds-stat">Total ordering records: <span>6,100</span></div>
+      <div class="ds-desc">One group per tie-line composition selected for ordering analysis; every group has exactly 20 distinct atomic-ordering candidates.</div>
+    </div>
+    <div class="dataset-card">
+      <div class="ds-name">FPs evaluated</div>
+      <div class="ds-stat">Count: <span>7</span></div>
+      <div class="ds-stat">DFT functional: <span>PBE</span></div>
+      <div class="ds-desc">The seven MatPES-PBE-family FPs also evaluated in FPBench's Force Prediction component: MACE, CHGNet, M3GNet, UMA, M3GNet-MatPES, TensorNet-MatPES, MACE-MatPES.</div>
+    </div>
+  </div>
+  <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted);">
+    All DFT energies are raw, uncorrected VASP-PBE energies -- no Materials Project MP2020
+    compatibility correction is applied anywhere, for either the binary endpoints or the interior
+    tie-line structures. See the
+    <a href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering" style="color:var(--accent);">Phase_stability_ordering README</a>
+    for the full standardized-file schema.
+  </p>
+</section>
+
+<!-- ============== HOW TO CONTRIBUTE ============== -->
+<section id="contribute">
+  <h2>Adding a New FP to This Benchmark</h2>
+  <p>FPBench's Phase Stability and Elemental Ordering component is open to additional FPs. The current set (see the model table on the <a href="index.html#models" style="color:var(--accent);">FPBench home page</a>) will grow over time; existing results stay tied to the FP version they were computed with.</p>
+  <p>The generator notebook (<code>generation/convexhull_ordering_run_generator.ipynb</code>) and analysis notebook (<code>analysis/convexhull_ordering_analysis_all_models.ipynb</code>) referenced below directly produce and consume the results reported here, with no manual conversion step between them.</p>
+  <div class="submit-steps">
+    <div class="submit-step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h4>Set up your FP's environment</h4>
+        <p>Clone the repository and install your FP's own package in a separate environment, alongside <code>requirements.txt</code>. The generator notebook never installs packages automatically.</p>
+        <pre><code>git clone https://github.com/mogroupumd/FPBench.git
+cd FPBench/Phase_stability_ordering
+pip install -r requirements.txt   # then install your FP's package separately</code></pre>
+      </div>
+    </div>
+    <div class="submit-step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h4>Configure and generate jobs</h4>
+        <p>Edit <code>POTENTIAL_REGISTRY</code> for your FP (Section 2), add its key to <code>SELECTED_POTENTIALS</code>, then run Sections 5-7 to generate hull/ordering jobs and per-model/all-model submission scripts. <code>_require_configured(...)</code> raises a clear error if a placeholder path or SLURM setting is still unedited. Running these cells never submits a job by itself.</p>
+      </div>
+    </div>
+    <div class="submit-step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h4>Run jobs, then merge</h4>
+        <p>Run the generated scripts on your cluster, then merge completed chunks into a per-FP fragment (Section 8) and into the final standardized results file (Section 9 -- guarded by <code>RUN_REAL_MERGE = False</code> until you explicitly enable it and choose a merge mode).</p>
+      </div>
+    </div>
+    <div class="submit-step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h4>Compute the metrics</h4>
+        <p>Re-run <code>analysis/convexhull_ordering_analysis_all_models.ipynb</code> against the updated standardized results file to reproduce every table above with your FP included.</p>
+      </div>
+    </div>
+    <div class="submit-step">
+      <div class="step-num"></div>
+      <div class="step-body">
+        <h4>Open a GitHub issue</h4>
+        <p>Share your FP's name, architecture, training data, checkpoint/version, and computed metrics. <a href="https://github.com/mogroupumd/FPBench/issues" style="color:var(--accent);">Open an issue &rarr;</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== REPRODUCE ============== -->
+<section id="reproduce">
+  <h2>Reproduce &amp; Extend</h2>
+  <p>See the <a href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering" style="color:var(--accent);">Phase_stability_ordering README</a> for the full quick start, standardized-file schema, and how to call the public builder/validator/table functions with your own data.</p>
+  <pre><code>git clone https://github.com/mogroupumd/FPBench.git
+cd FPBench/Phase_stability_ordering
+pip install -r requirements.txt
+pip install jupyterlab
+jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
+  <p style="margin-top:0.8rem;">Both standardized data files (<code>data/phase_stability_ordering_reference.json.gz</code>, <code>data/phase_stability_ordering_results_standardized.json.gz</code>) are committed directly in the repository -- no separate download needed to reproduce every table above.</p>
+</section>
+
 <footer>
-  <p><strong>Kiyan Amirian</strong> &amp; <strong>Yifei Mo</strong> &middot; <a href="https://github.com/kamirian/FPBench">github.com/kamirian/FPBench</a></p>
+  <p><strong>Kiyan Amirian</strong> &amp; <strong>Yifei Mo</strong> &middot; <a href="https://github.com/mogroupumd/FPBench">github.com/mogroupumd/FPBench</a></p>
+  <p class="affil">University of Maryland &middot; MIT License</p>
 </footer>
+
+<script>
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  const CMAPS = {
+    blues: [[247,251,255],[198,219,239],[107,174,214],[33,113,181],[8,48,107]],
+    reds:  [[255,245,240],[252,174,145],[251,106,74],[203,24,29],[103,0,13]],
+  };
+  function cmapRgb(name, t) {
+    const s = CMAPS[name];
+    const x = Math.max(0, Math.min(1, t)) * (s.length - 1);
+    const lo = Math.floor(x), hi = Math.min(s.length - 1, lo + 1);
+    const f = x - lo;
+    return s[lo].map((c, i) => Math.round(c + f * (s[hi][i] - c)));
+  }
+  function autoText(rgb) {
+    return (rgb[0]*299 + rgb[1]*587 + rgb[2]*114) / 1000 > 140 ? '#0d1117' : '#f0f6fc';
+  }
+  function fmtNum(v, kind) {
+    if (v === null || v === undefined || isNaN(v)) return 'n/a';
+    if (kind === 'int') return v.toFixed(0);
+    return v.toFixed(2);
+  }
+
+  // Split-pair coloring for empty "A / B" cells carrying data-val (first value,
+  // e.g. mean) and data-val2 (second value, e.g. max): renders two
+  // independently-colored pills, each normalized against only its own
+  // column's values across the table. data-fmt="int" renders whole numbers
+  // (meV); otherwise 2 decimal places (Å).
+  function colorizeSplitPairs(tbl) {
+    const rows = Array.from(tbl.querySelectorAll('tbody tr')).filter(r => r.querySelector('td[data-pair]'));
+    if (!rows.length) return;
+    const ncols = rows[0].querySelectorAll('td').length;
+    for (let c = 1; c < ncols; c++) {
+      const cells = rows.map(r => r.querySelectorAll('td')[c]).filter(c => c && c.dataset.pair);
+      if (!cells.length) continue;
+      const v1s = cells.map(c => parseFloat(c.dataset.val));
+      const v2s = cells.map(c => parseFloat(c.dataset.val2));
+      const valid1 = v1s.filter(v => !isNaN(v)), valid2 = v2s.filter(v => !isNaN(v));
+      if (!valid1.length) continue;
+      const mn1 = Math.min(...valid1), mx1 = Math.max(...valid1);
+      const mn2 = Math.min(...valid2), mx2 = Math.max(...valid2);
+      cells.forEach((cell, i) => {
+        const v1 = v1s[i], v2 = v2s[i];
+        const kind = cell.dataset.fmt;
+        const t1 = mx1 === mn1 ? 0.5 : (v1 - mn1) / (mx1 - mn1);
+        const t2 = mx2 === mn2 ? 0.5 : (v2 - mn2) / (mx2 - mn2);
+        const rgb1 = cmapRgb('blues', t1), rgb2 = cmapRgb('reds', t2);
+        cell.innerHTML =
+          `<span class="split-pill" style="background:rgb(${rgb1});color:${autoText(rgb1)};">${fmtNum(v1, kind)}</span>` +
+          `<span class="split-sep">/</span>` +
+          `<span class="split-pill" style="background:rgb(${rgb2});color:${autoText(rgb2)};">${fmtNum(v2, kind)}</span>`;
+      });
+    }
+  }
+
+  // Discrete best/worst highlighting for every data column (skips only the
+  // first, FP-name column). Direction per column comes from <th data-dir>.
+  // For split-pair columns this highlights based on the first (data-val,
+  // e.g. mean) value only.
+  function highlightBestGeneric(tbl) {
+    const ths  = Array.from(tbl.querySelectorAll('thead th'));
+    const rows = Array.from(tbl.querySelectorAll('tbody tr'));
+    if (!rows.length) return;
+    const ncols = rows[0].querySelectorAll('td').length;
+    for (let c = 1; c < ncols; c++) {
+      const cells = rows.map(r => r.querySelectorAll('td')[c]);
+      const vals  = cells.map(cell => parseFloat(cell.dataset.val));
+      const valid = vals.filter(v => !isNaN(v));
+      if (!valid.length) continue;
+      const mn = Math.min(...valid), mx = Math.max(...valid);
+      const higherBetter = ths[c] && ths[c].dataset.dir === 'high';
+      cells.forEach((cell, i) => {
+        cell.classList.remove('best', 'worst');
+        const v = vals[i];
+        if (isNaN(v)) return;
+        if (higherBetter) {
+          if (v === mx) cell.classList.add('best');
+          if (v === mn) cell.classList.add('worst');
+        } else {
+          if (v === mn) cell.classList.add('best');
+          if (v === mx) cell.classList.add('worst');
+        }
+      });
+    }
+  }
+
+  // Attach click-to-sort to every sortable <th> of a table.dt. First column
+  // sorts alphabetically by FP name; other columns sort numerically on
+  // data-val (split-pair cells also carry data-val, so they sort correctly
+  // too). Rows load in the notebook-consistent order and are only reordered
+  // once a header is clicked.
+  function makeSortable(tbl) {
+    const thead = tbl.querySelector('thead');
+    const tbody = tbl.querySelector('tbody');
+    if (!thead || !tbody) return;
+    const ths = Array.from(thead.querySelectorAll('th'));
+    ths.forEach((th, idx) => {
+      if (th.classList.contains('no-sort')) return;
+      th.addEventListener('click', () => {
+        const asc = th.dataset.sortDir !== 'asc';
+        ths.forEach(h => { delete h.dataset.sortDir; h.classList.remove('sorted-asc', 'sorted-desc'); });
+        th.dataset.sortDir = asc ? 'asc' : 'desc';
+        th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+
+        const bodyRows = Array.from(tbody.querySelectorAll('tr'));
+        bodyRows.sort((a, b) => {
+          const cellA = a.querySelectorAll('td')[idx];
+          const cellB = b.querySelectorAll('td')[idx];
+          const vA = parseFloat(cellA.dataset.val);
+          const vB = parseFloat(cellB.dataset.val);
+          if (!isNaN(vA) && !isNaN(vB)) return asc ? vA - vB : vB - vA;
+          const tA = cellA.textContent.trim(), tB = cellB.textContent.trim();
+          return asc ? tA.localeCompare(tB) : tB.localeCompare(tA);
+        });
+        bodyRows.forEach(r => tbody.appendChild(r));
+        highlightBestGeneric(tbl);
+      });
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('table.orderingtable, table.rmsdtable').forEach(colorizeSplitPairs);
+    document.querySelectorAll('table.dt').forEach(makeSortable);
+    document.querySelectorAll('table.hulltable, table.orderingtable, table.rmsdtable').forEach(highlightBestGeneric);
+  });
+</script>
 
 </body>
 </html>

@@ -1,0 +1,16 @@
+# Analysis notebook (analysis/convexhull_ordering_analysis_all_models.ipynb) and scripts/
+numpy
+pandas
+matplotlib
+pymatgen
+
+# Generator notebook (generation/convexhull_ordering_run_generator.ipynb) -- only needed to run
+# the job-generation / submission-script / merge cells themselves, NOT to evaluate any FP:
+# ase
+
+# Each FP's own environment (install separately, one venv per FP family --
+# see generation/convexhull_ordering_run_generator.ipynb Section 2 POTENTIAL_REGISTRY and the README):
+#   mace-torch      # MACE / MACE-MatPES
+#   chgnet          # CHGNet
+#   matgl           # M3GNet / TensorNet / M3GNet-MatPES / TensorNet-MatPES
+#   fairchem-core   # UMA

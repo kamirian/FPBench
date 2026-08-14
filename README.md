@@ -10,15 +10,16 @@ computational materials workflows:
 Each component targets a specific computational task and evaluates FPs against metrics chosen
 for their relevance to that task, rather than a single generic accuracy score.
 
-**The current public release provides the Force Prediction component.**
-**The Phase Stability and Elemental Ordering and Ion Migration by NEB components will be added later.**
+**The current public release provides the Force Prediction and Phase Stability and Elemental
+Ordering components.**
+**The Ion Migration by NEB component will be added later.**
 
 ## Components
 
 | Component | Status | Documentation |
 |---|---|---|
 | Force Prediction | Available | [`Force_error/README.md`](Force_error/README.md) &middot; [website](https://kamirian.github.io/FPBench/force-error.html) |
-| Phase Stability and Elemental Ordering | To be added | [`Phase_stability_ordering/README.md`](Phase_stability_ordering/README.md) |
+| Phase Stability and Elemental Ordering | Available | [`Phase_stability_ordering/README.md`](Phase_stability_ordering/README.md) &middot; [website](https://kamirian.github.io/FPBench/phase-stability-ordering.html) |
 | Ion Migration by NEB | To be added | [`Ion_migration_NEB/README.md`](Ion_migration_NEB/README.md) |
 
 ## Force Prediction
@@ -31,6 +32,20 @@ large-force-error atoms, and force errors on far-from-equilibrium atoms.
 See [`Force_error/README.md`](Force_error/README.md) for the full description, notation, and
 quick start, and the [leaderboard](https://kamirian.github.io/FPBench/force-error.html) for
 the current per-dataset results.
+
+## Phase Stability and Elemental Ordering
+
+Evaluates FPs on convex-hull/relative-phase-stability prediction, elemental-ordering energy
+ranking, and structural-relaxation (RMSD) accuracy, on a 22-system phase-change-material (PCM)
+tie-line dataset (597 unique hull candidates, 305 ordering groups of 20 candidates each), using
+metrics chosen for phase-diagram/stability screening and order/disorder ranking: ground-state
+agreement, within-phase and global hull-minimum agreement, Top-1/Recall@k/Spearman ranking
+metrics, rate of ranking errors, and structure-mapping RMSD against the DFT-relaxed structure.
+
+See [`Phase_stability_ordering/README.md`](Phase_stability_ordering/README.md) for the full
+description, standardized-file schema, and quick start, and the
+[leaderboard](https://kamirian.github.io/FPBench/phase-stability-ordering.html) for the current
+results.
 
 ## Foundation Potentials Evaluated
 
@@ -81,10 +96,10 @@ of an OOD base model onto that dataset (`fine-tuned`).
 The three r2SCAN-trained FPs (M3GNet-MatPES-r2SCAN, TensorNet-MatPES-r2SCAN, MACE-MatPES-r2SCAN)
 are evaluated on the MatPES-r2SCAN dataset (training), in addition to the models listed above.
 
-The "Phase Stability/Ordering & Ion Migration (NEB)" column reflects evaluation in the manuscript
-only. **A checkmark in that column does not mean public code or results are available yet.** See
-[Phase_stability_ordering/README.md](Phase_stability_ordering/README.md) and
-[Ion_migration_NEB/README.md](Ion_migration_NEB/README.md), both still placeholders.
+The "Phase Stability/Ordering & Ion Migration (NEB)" column reflects evaluation in the manuscript.
+**Public code and results for Phase Stability/Ordering are now available** -- see
+[Phase_stability_ordering/README.md](Phase_stability_ordering/README.md). Ion Migration (NEB) is
+still a placeholder -- see [Ion_migration_NEB/README.md](Ion_migration_NEB/README.md).
 
 ---
 
@@ -102,8 +117,14 @@ FPBench/
 │   ├── data/
 │   ├── examples/
 │   └── requirements.txt
-├── Phase_stability_ordering/        # to be added
-│   └── README.md
+├── Phase_stability_ordering/         # Phase Stability and Elemental Ordering component (available)
+│   ├── README.md
+│   ├── analysis/
+│   ├── generation/
+│   ├── scripts/
+│   ├── data/
+│   ├── examples/
+│   └── requirements.txt
 ├── Ion_migration_NEB/                # to be added
 │   └── README.md
 └── docs/                             # leaderboard website (GitHub Pages)
