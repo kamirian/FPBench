@@ -163,7 +163,7 @@
   </p>
   <div class="cta">
     <a class="btn btn-primary" href="#results">View Leaderboard</a>
-    <a class="btn btn-green"  href="#reproduce">Reproduce / Extend</a>
+    <a class="btn btn-green"  href="#use-fpbench">Use FPBench</a>
     <a class="btn btn-outline" href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering">GitHub</a>
   </div>
 </div>
@@ -194,10 +194,8 @@
 
   <div id="tab-hull" class="tab-panel active">
     <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
-      22 tie-line systems, 597 unique hull candidates (561 interior + 36 binary endpoints).
-      Ground-state agreement is pooled across systems with single-phase compositions excluded;
-      hull-minimum agreement is per tie-line system. Shown separately for full FP relaxation and
-      static evaluation on the DFT-relaxed structures.
+      Convex-hull metrics across 22 ternary chalcogenide tie-line systems, shown separately for
+      full FP relaxation and static evaluation on the DFT-relaxed structures.
     </p>
 
 <h3 style="margin-top:0;">Full FP relaxation</h3>
@@ -238,34 +236,12 @@
     </tbody></table>
     </div>
 
-    <details>
-      <summary>Ground-state / hull-minimum agreement &mdash; numerator/denominator (Full FP relaxation)</summary>
-      <div class="metric-description">Ground-state agreement is pooled across all 22 systems with single-phase compositions excluded from both numerator and denominator (153 excluded instances, identical across every FP since exclusion depends only on the DFT composition set). Hull-minimum agreement denominator is the 22 tie-line systems.</div>
-      <div class="breakdown-pre">Ground-state agreement (numerator/denominator, excluded single-phase compositions):
-  MACE                  114/165  (excluded 153 single-phase compositions)
-  CHGNet                 95/165  (excluded 153 single-phase compositions)
-  M3GNet                 99/165  (excluded 153 single-phase compositions)
-  UMA                   114/165  (excluded 153 single-phase compositions)
-  M3GNet-MatPES          80/165  (excluded 153 single-phase compositions)
-  TensorNet-MatPES       98/165  (excluded 153 single-phase compositions)
-  MACE-MatPES            90/165  (excluded 153 single-phase compositions)
-
-Hull-minimum agreement (numerator/denominator, out of 22 systems):
-  MACE                  9/22
-  CHGNet                4/22
-  M3GNet                4/22
-  UMA                   8/22
-  M3GNet-MatPES         5/22
-  TensorNet-MatPES      3/22
-  MACE-MatPES           4/22</div>
-    </details>
   </div>
 
   <div id="tab-ordering" class="tab-panel">
     <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
-      305 ordering groups &times; 20 candidates/group = 6,100 ordering records. Every group is
-      complete (20/20 orderings) for all seven FPs in both protocols -- no incomplete groups.
-      Shown separately for full FP relaxation and static evaluation on the DFT-relaxed structures.
+      Energy-ranking metrics for elemental orderings at fixed composition and phase, shown
+      separately for full FP relaxation and static evaluation on the DFT-relaxed structures.
     </p>
 
 <h3 style="margin-top:0;">Full FP relaxation</h3>
@@ -312,20 +288,14 @@ Hull-minimum agreement (numerator/denominator, out of 22 systems):
     </tbody></table>
     </div>
 
-    <details>
-      <summary>Group completeness</summary>
-      <div class="metric-description">Number of the 305 ordering groups with all 20 orderings present for that FP/protocol, out of 305 total.</div>
-      <div class="breakdown-pre">All seven FPs: 305/305 groups complete, 0 incomplete, in both Full FP relaxation and Static FP evaluations.</div>
-    </details>
   </div>
 
   <div id="tab-rmsd" class="tab-panel">
     <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
       RMSD applies only to <strong style="color:var(--heading);">full FP relaxation</strong> --
       static evaluation does not produce an FP-relaxed structure to compare against DFT. Computed
-      via pymatgen <code>StructureMatcher</code> (<code>ltol=0.5</code>, <code>stol=0.5</code>,
-      <code>angle_tol=10&deg;</code>) over all 597 unique hull candidates, converted to &Aring; via
-      the geometric-mean cell volume.
+      via pymatgen <code>StructureMatcher</code>, converted to &Aring; via the geometric-mean cell
+      volume.
     </p>
 
 <div class="table-scroll">
@@ -347,72 +317,24 @@ Hull-minimum agreement (numerator/denominator, out of 22 systems):
     </tbody></table>
     </div>
 
-    <details>
-      <summary>Map success failure breakdown (Full FP relaxation)</summary>
-      <div class="metric-description">Out of 597 total candidates: <strong style="color:var(--heading);">calculation failure</strong> means the FP result itself was not <code>status: "success"</code> (no structure to compare); <strong style="color:var(--heading);">mapping failure</strong> means an FP-relaxed structure exists but <code>StructureMatcher</code> could not map it to its DFT counterpart. Mean/max RMSD and the threshold fractions above are computed only over successfully mapped structures.</div>
-      <div class="breakdown-pre">  MACE                  total=597  mapped=537  calculation failure=0  mapping failure=60
-  CHGNet                total=597  mapped=521  calculation failure=0  mapping failure=76
-  M3GNet                total=597  mapped=530  calculation failure=0  mapping failure=67
-  UMA                   total=597  mapped=537  calculation failure=0  mapping failure=60
-  M3GNet-MatPES         total=597  mapped=536  calculation failure=0  mapping failure=61
-  TensorNet-MatPES      total=597  mapped=537  calculation failure=0  mapping failure=60
-  MACE-MatPES           total=597  mapped=535  calculation failure=0  mapping failure=62</div>
-    </details>
   </div>
 </section>
 
 <!-- ============== METRICS ============== -->
 <section id="metrics">
   <h2>Metrics</h2>
-  <p>FPBench evaluates phase stability and elemental ordering using metrics chosen for their direct relevance to computational materials screening workflows.</p>
+  <p>Evaluated for both full FP relaxation and static FP evaluation on the DFT-relaxed structure. See the paper and Methods Sections 4.6.1-4.6.3 for complete methodological details.</p>
 
-  <div class="metric-row">
-    <div class="metric-card">
-      <h3>Convex hull and relative phase stability</h3>
-      <p>Ground-state agreement, within-phase hull-minimum agreement, and global hull-minimum agreement test whether an FP identifies the same low-energy structures DFT does, at increasing scope (composition &rarr; phase &rarr; full tie-line system) -- directly relevant to using an FP for phase-diagram or stability screening in place of DFT.</p>
-    </div>
-    <div class="metric-card">
-      <h3>Elemental-ordering energy ranking</h3>
-      <p>Top-1 accuracy, Recall@k, and Spearman &rho; test whether an FP can rank competing atomic arrangements at a fixed composition the way DFT does -- relevant to order/disorder and site-occupancy screening, where getting the relative energy ordering right matters more than the absolute energy value.</p>
-    </div>
-  </div>
-  <div class="metric-row">
-    <div class="metric-card">
-      <h3>Rate of ranking errors and misranked-pair energy gap</h3>
-      <p>A low average energy error can still hide a high rate of pairwise ranking mistakes. The mean/max DFT energy gap for misranked pairs distinguishes a near-degenerate mix-up (small gap) from a confidently wrong prediction (large gap).</p>
-    </div>
-    <div class="metric-card">
-      <h3>Structural-relaxation accuracy (RMSD)</h3>
-      <p>An FP that reproduces DFT energies well can still relax to a geometrically different structure. RMSD against the DFT-relaxed structure, plus the fraction of structures an FP fails to even map onto its DFT counterpart, is directly relevant to any downstream workflow (e.g. NEB, further static calculations) that consumes the FP-relaxed geometry itself, not just its energy.</p>
-    </div>
-  </div>
+  <h3 style="margin-top:1.4rem;">Convex hull and relative phase stability</h3>
+  <p>Average energy error (MAE/RMSE) is computed by aggregating all structures across all tie-line systems. Ground-state agreement quantifies the fraction of compositions for which the FP and DFT predict the same lowest-energy phase. Within-phase hull-minimum agreement evaluates whether the minimum-energy composition within each competing phase is correctly identified. Hull-minimum agreement requires correct identification of both the phase and composition corresponding to the global convex-hull minimum.</p>
+
+  <h3>Energy rankings of elemental orderings</h3>
+  <p>Top-1 accuracy and Recall@k quantify recovery of the lowest-energy DFT structure and low-energy subsets, while Spearman's &rho; measures rank correlation between FP and DFT orderings. The rate of ranking errors reports the fraction of pairwise ordering disagreements. Energy accuracy (MAE/RMSE) is reported alongside the DFT energy spread &Delta;E<sub>DFT</sub>, defined as the DFT energy difference between misranked configuration pairs; the mean and maximum &Delta;E<sub>DFT</sub> quantify the severity of ranking errors.</p>
+
+  <h3>Structural-relaxation effects</h3>
+  <p>Structure relaxation error reports structural agreement metrics between FP-relaxed and DFT-relaxed structures for the same dataset used in the convex-hull energy analysis. Mean and maximum RMSD (&Aring;) quantify geometric deviation after alignment. Map success denotes the fraction of cases where FP and DFT structures remain sufficiently similar for meaningful RMSD evaluation; failures correspond to large structural deviation. RMSD thresholds provide increasingly strict measures of fidelity.</p>
+
   <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong></p>
-</section>
-
-<!-- ============== NOTATION / PROTOCOLS ============== -->
-<section id="notation">
-  <h2>Notation and Protocols</h2>
-  <p>
-    <strong style="color:var(--heading);">Full FP relaxation</strong> currently means atomic-
-    position relaxation with a <strong style="color:var(--heading);">fixed cell</strong>, using
-    ASE <code>FIRE</code>, with <code>fmax = 0.01 eV/&Aring;</code> and a maximum of 10,000 steps;
-    cell shape and volume are held fixed throughout (not a variable-cell relaxation). The FP starts
-    from the DFT <code>initial_structure</code> (the un-relaxed starting geometry) and must produce
-    both its own energy and its own relaxed structure.
-  </p>
-  <p>
-    <strong style="color:var(--heading);">Static FP evaluation</strong> means evaluating the FP's
-    energy on the corresponding DFT-relaxed structure (<code>relaxed_structure</code>) without
-    relaxing it any further -- only the FP's energy is required; no separate FP structure is
-    produced or used, and RMSD does not apply.
-  </p>
-  <div class="callout">
-    A candidate an FP has a result for is recorded with <code>status: "success"</code> and its
-    <code>energy_total</code>; one it does not is <code>"missing"</code>, <code>"failed"</code>, or
-    <code>"non_converged"</code>. Only <code>"success"</code> records are ever scored, but the
-    distinct label is preserved and reported separately by the validator -- a missing, failed, or
-    non-converged result is never silently dropped or backfilled from the DFT value.
-  </div>
 </section>
 
 <!-- ============== DATASET ============== -->
@@ -422,91 +344,45 @@ Hull-minimum agreement (numerator/denominator, out of 22 systems):
     <div class="dataset-card">
       <div class="ds-name">Convex hull</div>
       <div class="ds-stat">Tie-line systems: <span>22</span></div>
-      <div class="ds-stat">Interior candidates: <span>561</span></div>
-      <div class="ds-stat">Unique binary endpoints: <span>36</span></div>
-      <div class="ds-stat">Total unique hull candidates: <span>597</span></div>
-      <div class="ds-desc">A shared endpoint bordering more than one system is the same physical structure and is computed once per FP, then distributed to every system it borders (679 per-system hull records once distributed).</div>
+      <div class="ds-desc">22 ternary chalcogenide tie-line systems relevant to phase-change materials (PCMs), composed of Ge, Sn, Sb, Bi, Si, Ga, In, and Ti combined with Se or Te.</div>
     </div>
     <div class="dataset-card">
       <div class="ds-name">Elemental ordering</div>
       <div class="ds-stat">Ordering groups: <span>305</span></div>
       <div class="ds-stat">Candidates per group: <span>20</span></div>
-      <div class="ds-stat">Total ordering records: <span>6,100</span></div>
       <div class="ds-desc">One group per tie-line composition selected for ordering analysis; every group has exactly 20 distinct atomic-ordering candidates.</div>
-    </div>
-    <div class="dataset-card">
-      <div class="ds-name">FPs evaluated</div>
-      <div class="ds-stat">Count: <span>7</span></div>
-      <div class="ds-stat">DFT functional: <span>PBE</span></div>
-      <div class="ds-desc">The seven MatPES-PBE-family FPs also evaluated in FPBench's Force Prediction component: MACE, CHGNet, M3GNet, UMA, M3GNet-MatPES, TensorNet-MatPES, MACE-MatPES.</div>
     </div>
   </div>
   <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted);">
     All DFT energies are raw, uncorrected VASP-PBE energies -- no Materials Project MP2020
-    compatibility correction is applied anywhere, for either the binary endpoints or the interior
-    tie-line structures. See the
+    compatibility correction is applied anywhere. Model versions and official sources for the
+    seven FPs evaluated here are documented once on the
+    <a href="index.html#models" style="color:var(--accent);">FPBench home page</a>. See the
     <a href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering" style="color:var(--accent);">Phase_stability_ordering README</a>
     for the full standardized-file schema.
   </p>
 </section>
 
-<!-- ============== HOW TO CONTRIBUTE ============== -->
-<section id="contribute">
-  <h2>Adding a New FP to This Benchmark</h2>
-  <p>FPBench's Phase Stability and Elemental Ordering component is open to additional FPs. The current set (see the model table on the <a href="index.html#models" style="color:var(--accent);">FPBench home page</a>) will grow over time; existing results stay tied to the FP version they were computed with.</p>
-  <p>The generator notebook (<code>generation/convexhull_ordering_run_generator.ipynb</code>) and analysis notebook (<code>analysis/convexhull_ordering_analysis_all_models.ipynb</code>) referenced below directly produce and consume the results reported here, with no manual conversion step between them.</p>
-  <div class="submit-steps">
-    <div class="submit-step">
-      <div class="step-num"></div>
-      <div class="step-body">
-        <h4>Set up your FP's environment</h4>
-        <p>Clone the repository and install your FP's own package in a separate environment, alongside <code>requirements.txt</code>. The generator notebook never installs packages automatically.</p>
-        <pre><code>git clone https://github.com/mogroupumd/FPBench.git
-cd FPBench/Phase_stability_ordering
-pip install -r requirements.txt   # then install your FP's package separately</code></pre>
-      </div>
-    </div>
-    <div class="submit-step">
-      <div class="step-num"></div>
-      <div class="step-body">
-        <h4>Configure and generate jobs</h4>
-        <p>Edit <code>POTENTIAL_REGISTRY</code> for your FP (Section 2), add its key to <code>SELECTED_POTENTIALS</code>, then run Sections 5-7 to generate hull/ordering jobs and per-model/all-model submission scripts. <code>_require_configured(...)</code> raises a clear error if a placeholder path or SLURM setting is still unedited. Running these cells never submits a job by itself.</p>
-      </div>
-    </div>
-    <div class="submit-step">
-      <div class="step-num"></div>
-      <div class="step-body">
-        <h4>Run jobs, then merge</h4>
-        <p>Run the generated scripts on your cluster, then merge completed chunks into a per-FP fragment (Section 8) and into the final standardized results file (Section 9 -- guarded by <code>RUN_REAL_MERGE = False</code> until you explicitly enable it and choose a merge mode).</p>
-      </div>
-    </div>
-    <div class="submit-step">
-      <div class="step-num"></div>
-      <div class="step-body">
-        <h4>Compute the metrics</h4>
-        <p>Re-run <code>analysis/convexhull_ordering_analysis_all_models.ipynb</code> against the updated standardized results file to reproduce every table above with your FP included.</p>
-      </div>
-    </div>
-    <div class="submit-step">
-      <div class="step-num"></div>
-      <div class="step-body">
-        <h4>Open a GitHub issue</h4>
-        <p>Share your FP's name, architecture, training data, checkpoint/version, and computed metrics. <a href="https://github.com/mogroupumd/FPBench/issues" style="color:var(--accent);">Open an issue &rarr;</a></p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============== REPRODUCE ============== -->
-<section id="reproduce">
-  <h2>Reproduce &amp; Extend</h2>
-  <p>See the <a href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering" style="color:var(--accent);">Phase_stability_ordering README</a> for the full quick start, standardized-file schema, and how to call the public builder/validator/table functions with your own data.</p>
+<!-- ============== USE FPBENCH ============== -->
+<section id="use-fpbench">
+  <h2>Use FPBench</h2>
+  <pre><code>Provided FPBench reference + new FP calculations
+                         or
+User DFT reference + user FP results
+                          &darr;
+           standardized reference/results
+                          &darr;
+                validation and analysis
+                          &darr;
+          hull, ordering, and RMSD tables</code></pre>
+  <p style="margin-top:1rem;"><strong style="color:var(--heading);">Evaluate a new FP on the provided benchmark.</strong> Use <code>generation/convexhull_ordering_run_generator.ipynb</code> to generate per-FP jobs and submission scripts against the shipped DFT reference, run them on your cluster, merge the results, then load the merged file directly in the analysis notebook -- your FP appears in every table above.</p>
+  <p><strong style="color:var(--heading);">Apply the analysis functions to another dataset.</strong> Call <code>build_phase_stability_ordering_results(...)</code> and the table builders in <code>scripts/convexhull_analysis_utils.py</code> directly with your own DFT reference and FP results.</p>
   <pre><code>git clone https://github.com/mogroupumd/FPBench.git
 cd FPBench/Phase_stability_ordering
 pip install -r requirements.txt
 pip install jupyterlab
 jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
-  <p style="margin-top:0.8rem;">Both standardized data files (<code>data/phase_stability_ordering_reference.json.gz</code>, <code>data/phase_stability_ordering_results_standardized.json.gz</code>) are committed directly in the repository -- no separate download needed to reproduce every table above.</p>
+  <p style="margin-top:0.8rem;">See the <a href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering" style="color:var(--accent);">Phase_stability_ordering README</a> for the full quick start, the generator and analysis notebooks for complete operational detail, and <a href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering/examples" style="color:var(--accent);">examples/</a> for a small runnable slice of real data.</p>
 </section>
 
 <footer>

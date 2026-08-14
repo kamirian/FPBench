@@ -19,7 +19,7 @@ shipped.
 `../generation/convexhull_ordering_run_generator.ipynb`'s Sections 5-9 (generate jobs -> run on
 your cluster -> merge chunks into per-FP fragments -> merge fragments into this file), against the
 unchanged `phase_stability_ordering_reference.json.gz`. See the main
-[README](../README.md#workflow-generator--submission--merge--analysis) for the full pipeline.
+[README](../README.md#generator-workflow) for the pipeline overview.
 Regenerating is not required just to explore the analysis code or reproduce the published tables:
 both files are already here, and the small example in `../examples/` lets you run
 `build_phase_stability_ordering_results(...)` and inspect its output immediately, with no
@@ -27,6 +27,76 @@ download or cluster access.
 
 ## Schema
 
-See the main [README](../README.md#standardized-output-schema) for the full standardized schema
-(`schema_version`, `component`, `dataset_name`, `units`, `reference_metadata` /
-`generation_metadata`, `reference_data` / `models`).
+**`phase_stability_ordering_reference.json.gz`** -- the shared DFT reference (hull + ordering,
+endpoints and interior candidates together under each system):
+
+```json
+{
+  "schema_version": "1.0",
+  "component": "phase_stability_ordering",
+  "dataset_name": "PCM-phase-stability-ordering",
+  "units": {"energy": "eV"},
+  "reference_metadata": {"reference_population": {"...": "..."}, "...": "..."},
+  "reference_data": {
+    "hull": {
+      "<tie_line_system>": {
+        "<candidate_id>": {
+          "role": "interior | endpoint", "phase_id": "...", "composition": "...",
+          "energy_total": 0.0, "relaxed_structure": {"...": "pymatgen Structure.as_dict()"},
+          "initial_structure": {"...": "..."}, "endpoint_side": "left | right"
+        }
+      }
+    },
+    "ordering": {
+      "<ordering_group_id>": {
+        "system": "...", "phase_id": "...", "composition": "...",
+        "orderings": {
+          "<ordering_candidate_id>": {
+            "energy_total": 0.0, "relaxed_structure": {"...": "..."}, "initial_structure": {"...": "..."}
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+**`phase_stability_ordering_results_standardized.json.gz`** -- all seven FPs' results, keyed by
+stable model key:
+
+```json
+{
+  "schema_version": "1.0",
+  "component": "phase_stability_ordering",
+  "dataset_name": "PCM-phase-stability-ordering",
+  "units": {"energy": "eV"},
+  "reference": {"sha256": "..."},
+  "generation_metadata": {"...": "..."},
+  "models": {
+    "<model_key>": {
+      "metadata": {"registry_key": "...", "mlip_name": "...", "model_path": "...", "protocol": {"...": "..."}, "counts": {"...": "..."}},
+      "hull": {"relax": {"<system>": {"<candidate_id>": {"status": "success|missing|failed|non_converged", "energy_total": 0.0, "relaxed_structure": {"...": "..."}}}}, "static": {"...": "same shape, no relaxed_structure"}},
+      "ordering": {"relax": {"<ordering_group_id>": {"<ordering_candidate_id>": {"status": "...", "energy_total": 0.0, "relaxed_structure": {"...": "..."}}}}, "static": {"...": "same shape, no relaxed_structure"}}
+    }
+  }
+}
+```
+
+`reference.sha256` records the sha256 of the exact `phase_stability_ordering_reference.json.gz`
+this results file was merged against; the analysis notebook verifies this before trusting the pair
+(Section 1). Model keys, in canonical order: `mace`, `chgnet`, `m3gnet_mp`, `uma`,
+`m3gnet_matpes_pbe`, `tensornet_pbe`, `mace_matpes_pbe`.
+
+**Natural identifiers** (never invented, all present in the files above): tie-line system name,
+candidate identifier (unique within its own system for interior candidates, unique among all
+endpoints for endpoints), phase identifier, composition identifier, endpoint role and side,
+ordering-group identifier, ordering-candidate identifier, and calculation protocol
+(`relax` / `static`).
+
+**Status values** (`status` field, both `hull` and `ordering`, both `relax` and `static`):
+`"success"` (scored, carries `energy_total` and, for `relax`, `relaxed_structure`), `"missing"`,
+`"failed"`, or `"non_converged"` (not scored, but the distinct label is preserved end to end and
+reported separately by `validate_phase_stability_ordering_results(...)` rather than being
+silently dropped or backfilled from the DFT value). See `build_phase_stability_ordering_results(...)`'s
+docstring in `../scripts/convexhull_analysis_utils.py` (Section S) for the complete field-level
+contract, including every optional field.
