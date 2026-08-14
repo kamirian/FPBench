@@ -3,7 +3,7 @@
 The Force Prediction component of [FPBench](../README.md): force-magnitude and force-angle error
 metrics for foundation potentials (FPs) against DFT reference forces.
 
-Leaderboard: **https://kamirian.github.io/FPBench/force-error.html**
+Leaderboard: **https://mogroupumd.github.io/FPBench/force-error.html**
 
 ---
 
@@ -60,7 +60,7 @@ contract, and the worked example in `analysis/force_error_analysis_matpes_pbe.ip
 ## Quick start
 
 ```bash
-git clone https://github.com/kamirian/FPBench.git
+git clone https://github.com/mogroupumd/FPBench.git
 cd FPBench/Force_error
 pip install -r requirements.txt
 ```
@@ -171,7 +171,7 @@ every result reported in the paper. See [`data/README.md`](data/README.md) for h
 regenerate them, and the `generation/` notebooks to evaluate a new FP -- each is a template that
 writes SLURM job/submission scripts for your own cluster; running its cells never submits a job.
 Once you have results for MatPES-PBE, MatPES-r2SCAN, or OMat24 rattled-1000, open a
-[GitHub issue](https://github.com/kamirian/FPBench/issues) with the FP's name, architecture,
+[GitHub issue](https://github.com/mogroupumd/FPBench/issues) with the FP's name, architecture,
 training data, checkpoint/version, and computed metrics.
 
 Model versions and official sources for the evaluated FPs are documented once on the
@@ -189,7 +189,7 @@ be added here once it is. In the meantime:
   author = {Kiyan Amirian and Yifei Mo},
   title  = {FPBench: Foundation Potential Force-Error Analysis},
   year   = {2026},
-  url    = {https://github.com/kamirian/FPBench}
+  url    = {https://github.com/mogroupumd/FPBench}
 }
 ```
 

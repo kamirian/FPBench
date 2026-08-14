@@ -4,7 +4,7 @@ The Phase Stability and Elemental Ordering component of [FPBench](../README.md):
 relative-phase-stability, elemental-ordering energy ranking, and structural-relaxation (RMSD)
 metrics for foundation potentials (FPs).
 
-Leaderboard: **https://kamirian.github.io/FPBench/phase-stability-ordering.html**
+Leaderboard: **https://mogroupumd.github.io/FPBench/phase-stability-ordering.html**
 
 ---
 

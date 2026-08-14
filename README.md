@@ -18,8 +18,8 @@ Ordering components.**
 
 | Component | Status | Documentation |
 |---|---|---|
-| Force Prediction | Available | [`Force_error/README.md`](Force_error/README.md) &middot; [website](https://kamirian.github.io/FPBench/force-error.html) |
-| Phase Stability and Elemental Ordering | Available | [`Phase_stability_ordering/README.md`](Phase_stability_ordering/README.md) &middot; [website](https://kamirian.github.io/FPBench/phase-stability-ordering.html) |
+| Force Prediction | Available | [`Force_error/README.md`](Force_error/README.md) &middot; [website](https://mogroupumd.github.io/FPBench/force-error.html) |
+| Phase Stability and Elemental Ordering | Available | [`Phase_stability_ordering/README.md`](Phase_stability_ordering/README.md) &middot; [website](https://mogroupumd.github.io/FPBench/phase-stability-ordering.html) |
 | Ion Migration by NEB | To be added | [`Ion_migration_NEB/README.md`](Ion_migration_NEB/README.md) |
 
 ## Force Prediction
@@ -30,7 +30,7 @@ calculations: highly accurate force predictions, joint force magnitude-angle acc
 large-force-error atoms, and force errors on far-from-equilibrium atoms.
 
 See [`Force_error/README.md`](Force_error/README.md) for the full description, notation, and
-quick start, and the [leaderboard](https://kamirian.github.io/FPBench/force-error.html) for
+quick start, and the [leaderboard](https://mogroupumd.github.io/FPBench/force-error.html) for
 the current per-dataset results.
 
 ## Phase Stability and Elemental Ordering
@@ -44,7 +44,7 @@ metrics, rate of ranking errors, and structure-mapping RMSD against the DFT-rela
 
 See [`Phase_stability_ordering/README.md`](Phase_stability_ordering/README.md) for the full
 description, standardized-file schema, and quick start, and the
-[leaderboard](https://kamirian.github.io/FPBench/phase-stability-ordering.html) for the current
+[leaderboard](https://mogroupumd.github.io/FPBench/phase-stability-ordering.html) for the current
 results.
 
 ## Foundation Potentials Evaluated
@@ -136,7 +136,7 @@ FPBench/
 
 ## Website
 
-https://kamirian.github.io/FPBench/
+https://mogroupumd.github.io/FPBench/
 
 ## License
 
