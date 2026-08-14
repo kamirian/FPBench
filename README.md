@@ -22,45 +22,6 @@ Ordering components.**
 | Phase Stability and Elemental Ordering | Available | [`Phase_stability_ordering/README.md`](Phase_stability_ordering/README.md) &middot; [website](https://kamirian.github.io/FPBench/phase-stability-ordering.html) |
 | Ion Migration by NEB | To be added | [`Ion_migration_NEB/README.md`](Ion_migration_NEB/README.md) |
 
-## Use FPBench
-
-Each available component follows the same pattern: submit a new FP's results to the leaderboard,
-or call the public analysis functions directly on your own data.
-
-### Force Prediction
-
-Leaderboard: https://kamirian.github.io/FPBench/force-error.html
-
-- **Submit to the leaderboard.** Run one of the three generator notebooks in
-  `Force_error/generation/` against your FP, merge its results into the standardized file, run the
-  matching analysis notebook, then open a [GitHub issue](https://github.com/mogroupumd/FPBench/issues)
-  with your FP's name, architecture, training data, checkpoint/version, and computed metrics.
-- **Use the functions directly.** Call `build_force_results(dft_forces, fp_forces,
-  structure_ids=None)` from `Force_error/scripts/force_results.py` on your own paired Cartesian
-  DFT/FP forces. See [`Force_error/README.md`](Force_error/README.md) for the full quick start.
-
-### Phase Stability and Elemental Ordering
-
-Leaderboard: https://kamirian.github.io/FPBench/phase-stability-ordering.html
-
-- **Submit to the leaderboard.** Use
-  `Phase_stability_ordering/generation/convexhull_ordering_run_generator.ipynb` to generate per-FP
-  jobs against the shipped DFT reference, run them on your cluster, merge the results, run the
-  analysis notebook, then open a [GitHub issue](https://github.com/mogroupumd/FPBench/issues) with
-  your results.
-- **Use the functions directly.** Call `build_phase_stability_ordering_results(reference_data,
-  fp_results)` and the table builders in `Phase_stability_ordering/scripts/convexhull_analysis_utils.py`
-  on your own DFT reference and FP results. See
-  [`Phase_stability_ordering/README.md`](Phase_stability_ordering/README.md) for the full quick start.
-
-### Ion Migration by NEB
-
-Not yet available -- see [`Ion_migration_NEB/README.md`](Ion_migration_NEB/README.md). This
-component will follow the same submission and direct-function-usage pattern once its code and
-reference data are published.
-
----
-
 ## Force Prediction
 
 Evaluates FPs against DFT reference forces on MatPES-PBE, MatPES-r2SCAN, and OMat24 rattled-1000,
