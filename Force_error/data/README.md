@@ -34,6 +34,38 @@ a cluster.
 
 ## Schema
 
-See the main [README](../README.md#standardized-output-schema) for the full standardized schema
-(`schema_version`, `dataset_name`, `units`, `generation_metadata`, `reference_population`,
-`models`).
+Each standardized file has this structure:
+
+```json
+{
+  "schema_version": "1.0",
+  "dataset_name": "...",
+  "units": {"force": "eV/Å", "angle": "degree"},
+  "generation_metadata": {...},
+  "reference_population": {...},
+  "models": {
+    "<fp_name>": {
+      "dft_force_magnitude":   [...],
+      "fp_force_magnitude":    [...],
+      "force_magnitude_error": [...],
+      "force_angle_error":     [...],
+      "force_vector_error":    [...],
+      "structure_id":          [...],
+      "atom_index":            [...]
+    }
+  }
+}
+```
+
+`reference_population` is built once from the raw, unfiltered DFT-only data. It is independent of
+any one FP's zero-force exclusions and is what a dataset-level force distribution or FE fraction
+should be computed from, not a model-specific filtered array. Each entry under `models` contains
+only that FP's own metric-valid atoms, plus `structure_id`/`atom_index` provenance.
+
+Raw, per-structure Cartesian forces (both DFT and FP) are not in the standardized file. They
+remain in the generator's per-chunk `results_*.json` checkpoints, together with every atom
+(including the ones excluded from the standardized file's metric arrays) and a `null` angle
+wherever it is undefined.
+
+See the main [README](../README.md#standardized-data) for how analyses consume this object
+(`force_results[model]`, the same shape `build_force_results(...)` returns).

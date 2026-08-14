@@ -1,220 +1,185 @@
 # Force Prediction
 
-The Force Prediction component of [FPBench](../README.md). Evaluates foundation potentials (FPs)
-against DFT reference forces on three datasets: **MatPES-PBE**, **MatPES-r2SCAN**, and
-**OMat24 rattled-1000**.
+The Force Prediction component of [FPBench](../README.md): force-magnitude and force-angle error
+metrics for foundation potentials (FPs) against DFT reference forces.
 
 Leaderboard: **https://kamirian.github.io/FPBench/force-error.html**
 
 ---
 
-## Application-Oriented Force Metrics
+## Using FPBench
 
-FPBench evaluates FP force predictions using four metrics chosen for their direct relevance to
-atomistic simulation workflows.
-
-**Highly accurate force predictions.** The fraction of atoms with a very small force-magnitude
-error is directly relevant to applications that require tight force convergence, such as
-structural relaxation, defect calculations, and transition-state searches, where typical
-convergence criteria are on the order of 0.001-0.01 eV/Å.
-
-**Joint force magnitude-angle accuracy.** This metric measures whether an FP reproduces both the
-force magnitude and the force direction for the same atom. Separate magnitude and angle
-statistics, taken on their own, do not establish this joint agreement.
-
-**Large-force-error atoms.** A small population of atoms with large force errors can still affect
-structural relaxation, transition-region calculations, and molecular-dynamics trajectories, even
-when the average error looks acceptable.
-
-**Force errors on far-from-equilibrium (FE) atoms.** Forces on high-DFT-force configurations are
-important for assessing FP behavior away from equilibrium, including migrating ions, defect and
-disordered structures, and large thermal displacements.
-
-These metrics are complementary and should be interpreted together rather than combined into a
-single overall ranking.
-
----
-
-## Notation
-
-The force error was decomposed into the force-magnitude error, &Delta;|<i>F</i>| = |<i>F</i><sub>FP</sub>|
-&minus; |<i>F</i><sub>DFT</sub>|, and the force-angle error, &Delta;<i>&theta;</i>, defined as the
-angle between the FP and DFT force vectors. We also computed the force-vector error,
-<i>e</i><sub>vec</sub> = ||<i>F</i><sub>FP</sub> &minus; <i>F</i><sub>DFT</sub>||, and the relative
-force-magnitude error for FE atoms, <i>r</i><sub><i>F</i></sub> = |&Delta;|<i>F</i>|| / |<i>F</i><sub>DFT</sub>|.
-
-&Delta;|<i>F</i>| MAE/RMSE is used for the MAE/RMSE metric name. |&Delta;|<i>F</i>|| is used for CDFs,
-thresholds, and fraction metrics.
-
-Atoms with zero FP or DFT force were excluded from all metrics, since the force angle is
-undefined in these cases. Except for the all-atom MAE/RMSE analysis, all force metrics were
-evaluated only for atoms with |<i>F</i><sub>DFT</sub>| &gt; 0.01 eV/&Aring;, because for near-zero DFT
-forces, small absolute differences in the force components can produce large changes in the
-calculated force angle. FE atoms correspond to |<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;.
-
----
-
-## Datasets
-
-| Dataset | DFT functional | FPs evaluated |
-|---|---|---|
-| MatPES-PBE | PBE | 7 |
-| MatPES-r2SCAN | r2SCAN | 3 |
-| OMat24 rattled-1000 | PBE | 7 |
-
-The MatPES-r2SCAN analysis includes the three r2SCAN-trained FPs. The OMat24 rattled-1000 analysis
-evaluates the same seven FPs used for MatPES-PBE.
-
-Dataset-level atom counts and FE fractions are not reported here until they have been calculated
-from the generators' dataset-wide `reference_population` field (see Section 7 of the generator
-notebooks).
-
----
-
-Exact checkpoints/versions, model sizes, and the full evaluation matrix (which FPs were run on
-which dataset, across all FPBench components) are documented once at the
-[FPBench home page](../README.md#foundation-potentials-evaluated) rather than duplicated here.
-
----
-
-## Standardized Output Schema
-
-Each dataset has one standardized results file:
+There are two ways to use this component:
 
 ```text
-matpes_pbe_force_results_standardized.json
-matpes_r2scan_force_results_standardized.json
-omat24_rattled_1000_force_results_standardized.json
+Paired Cartesian DFT and FP forces
+                  or
+Full generator calculations on a dataset
+                   ↓
+        standardized force_results
+                   ↓
+          validation and analysis
+                   ↓
+       FPBench force-error tables
 ```
 
-```json
-{
-  "schema_version": "1.0",
-  "dataset_name": "...",
-  "units": {"force": "eV/Å", "angle": "degree"},
-  "generation_metadata": {...},
-  "reference_population": {...},
-  "models": {
-    "<fp_name>": {
-      "dft_force_magnitude":   [...],
-      "fp_force_magnitude":    [...],
-      "force_magnitude_error": [...],
-      "force_angle_error":     [...],
-      "force_vector_error":    [...],
-      "structure_id":          [...],
-      "atom_index":            [...]
-    }
-  }
-}
-```
+- **Build standardized force results directly from paired Cartesian DFT and FP forces.** Call
+  `build_force_results(dft_forces, fp_forces, structure_ids=None)` from `scripts/force_results.py`
+  -- see [Required inputs and outputs](#required-inputs-and-outputs) and the quick start below.
+- **Use a generator notebook as a template for full dataset/cluster generation**, then run the
+  matching analysis notebook. Each generator notebook writes SLURM job and submission scripts; it
+  does not submit jobs merely by running the generation cells -- submission is always an explicit
+  step on your own cluster. See [Files and scripts](#files-and-scripts).
 
-`reference_population` is built once from the raw, unfiltered DFT-only data. It is independent of
-any one FP's zero-force exclusions and is what a dataset-level force distribution or FE fraction
-should be computed from, not a model-specific filtered array. Each entry under `models` contains
-only that FP's own metric-valid atoms, plus `structure_id`/`atom_index` provenance.
-
-Raw, per-structure Cartesian forces (both DFT and FP) are not in the standardized file. They
-remain in the generator's per-chunk `results_*.json` checkpoints, together with every atom
-(including the ones excluded from the standardized file's metric arrays) and a `null` angle
-wherever it is undefined.
+Both routes produce the same standardized `force_results` object that every analysis function
+consumes -- nothing about the metrics or analysis code differs between them.
 
 ---
 
-## Repository Structure
+## Required inputs and outputs
 
-```text
-Force_error/
-├── README.md
-├── analysis/
-│   ├── force_error_analysis_matpes_pbe.ipynb
-│   ├── force_error_analysis_matpes_r2scan.ipynb
-│   └── force_error_analysis_omat24_rattled_1000.ipynb
-├── generation/
-│   ├── matpes_PBE_run_generator.ipynb
-│   ├── matpes_r2scan_run_generator.ipynb
-│   └── matpes_run_generator_omat24_rattled1000.ipynb
-├── scripts/
-│   ├── force_results.py
-│   ├── force_error_metrics.py
-│   ├── fp_cdf_density_plots.py
-│   └── heatmap_table.py
-├── examples/
-│   └── mace_matpes_cartesian_force_example.json
-├── data/
-│   └── README.md
-└── requirements.txt
-```
+`build_force_results(dft_forces, fp_forces, structure_ids=None)` is the entry point for the
+paired-forces route:
+
+- **`dft_forces`**: one Cartesian DFT force array per structure, shape `(N_i, 3)`, in eV/Å.
+- **`fp_forces`**: `dict[str, sequence of array-like]` -- one entry per FP model; each value is a
+  per-structure list of Cartesian FP force arrays, matching `dft_forces` in structure count, atom
+  count, and atom ordering per structure.
+- **`structure_ids`** (optional): one identifier per structure. When given, the returned dicts
+  carry `structure_id`/`atom_index` provenance; core analyses do not require it.
+- **Returns** `force_results[model]`, each with `dft_force_magnitude`, `fp_force_magnitude`,
+  `force_magnitude_error`, `force_angle_error`, `force_vector_error` (and `structure_id`/
+  `atom_index` when provided) -- the exact shape the analysis functions in
+  `scripts/force_error_metrics.py` and `scripts/fp_cdf_density_plots.py` expect.
+
+See that function's full docstring in `scripts/force_results.py` for the complete field-level
+contract, and the worked example in `analysis/force_error_analysis_matpes_pbe.ipynb`.
 
 ---
 
-## Using FPBench with Another Dataset
-
-The three analysis notebooks (`analysis/force_error_analysis_matpes_pbe.ipynb`,
-`analysis/force_error_analysis_matpes_r2scan.ipynb`,
-`analysis/force_error_analysis_omat24_rattled_1000.ipynb`) and the three generator notebooks
-(`generation/matpes_PBE_run_generator.ipynb`, `generation/matpes_r2scan_run_generator.ipynb`,
-`generation/matpes_run_generator_omat24_rattled1000.ipynb`) are the same notebooks used to produce
-the results reported in the FPBench manuscript.
-
-1. **Analysis only, from paired Cartesian forces.** Call
-   `build_force_results(dft_forces, fp_forces, structure_ids=None)` from `scripts/force_results.py`
-   directly, see the worked example in `analysis/force_error_analysis_matpes_pbe.ipynb`.
-2. **Full dataset generation.** Use one of the three notebooks in `generation/` as a template. Each
-   generator notebook writes SLURM job and submission scripts; it does not automatically submit
-   jobs merely by running the generation cells. Submission still requires an explicit step on your
-   cluster.
-3. **`structure_id`/`atom_index` are preserved throughout** the generation workflow, from the raw
-   chunk through the per-structure checkpoint into the final standardized file, so any atom can be
-   traced back to its source structure and position within it.
-4. **Configuration.** Every dataset/cluster/checkpoint path is a plain, clearly marked variable
-   near the top of its cell. Cells raise a clear error if run before the placeholders are edited.
-   We recommend a separate virtual environment per FP family, since their dependency requirements
-   can conflict, and the notebooks never install packages automatically.
-5. **Adding a new FP to this benchmark.** Once you have run the steps above against MatPES-PBE,
-   MatPES-r2SCAN, or OMat24 rattled-1000 and computed the metrics with the corresponding analysis
-   notebook, open a [GitHub issue](https://github.com/kamirian/FPBench/issues) with the FP's name,
-   architecture, training data, checkpoint/version, and computed metrics.
-
----
-
-## Python Modules (`scripts/`)
-
-- **`force_results.py`**: `build_force_results(...)`, the canonical standardization function.
-  The generator notebooks embed a checksummed, byte-identical reimplementation of its
-  per-structure math so cluster jobs do not need this module installed.
-- **`force_error_metrics.py`**: fraction tables, MAE/RMSE, regime panels, heatmaps, and
-  `get_bad_atom_indices` querying.
-- **`fp_cdf_density_plots.py`**: CDF computation and 2-D density plotting.
-- **`heatmap_table.py`**: low-level heatmap drawing primitives.
-
----
-
-## Quick Start
+## Quick start
 
 ```bash
 git clone https://github.com/kamirian/FPBench.git
 cd FPBench/Force_error
 pip install -r requirements.txt
+```
+
+Minimal public-function example, runnable from the `Force_error/` directory on the real included
+example (every name below is verified against `scripts/force_results.py`):
+
+```python
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path("scripts").resolve()))
+
+from force_results import build_force_results
+
+with open("examples/mace_matpes_cartesian_force_example.json") as f:
+    example = json.load(f)
+
+dft_forces = example["dft_forces"]
+fp_forces = {"mace": example["fp_forces"]}
+structure_ids = example["structure_ids"]
+
+force_results = build_force_results(dft_forces, fp_forces, structure_ids=structure_ids)
+
+print("Models:", list(force_results))
+print("Fields:", list(force_results["mace"]))
+```
+
+To explore the full leaderboard tables and figures, install `jupyterlab` and open one of the
+analysis notebooks:
+
+```bash
 pip install jupyterlab
 jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb
 ```
 
-- The small Cartesian-force example (`examples/mace_matpes_cartesian_force_example.json`) is
-  available immediately and demonstrates `build_force_results(...)` without any additional
-  download.
-- Reproducing the full analysis requires the large standardized JSON files (see
-  [`data/README.md`](data/README.md)). These are not committed to Git. Their public deposition
-  links will be added here when available.
-- The `generation/` notebooks can reproduce the standardized files given the raw datasets, FP
-  checkpoints, separate per-FP environments, and cluster resources. They are not required to
-  explore the analysis code.
-
-Not every result on the website is reproducible immediately from a clone of this repository;
-full reproduction depends on the standardized files described above.
+Reproducing the full analysis requires the large standardized JSON files (see
+[`data/README.md`](data/README.md)); these are not committed to Git. The small Cartesian-force
+example above needs no download.
 
 ---
 
-## Citation
+## Files and scripts
+
+| File | What it does |
+|---|---|
+| `analysis/force_error_analysis_matpes_pbe.ipynb` | Loads the standardized MatPES-PBE results and computes every MatPES-PBE table/figure on the leaderboard. Also has the worked `build_force_results(...)` demonstration. |
+| `analysis/force_error_analysis_matpes_r2scan.ipynb` | Same, for the MatPES-r2SCAN dataset (3 r2SCAN-trained FPs). |
+| `analysis/force_error_analysis_omat24_rattled_1000.ipynb` | Same, for the OMat24 rattled-1000 validation split. |
+| `generation/matpes_PBE_run_generator.ipynb` | Generates per-FP job/submission scripts against the raw MatPES-PBE dataset, and merges completed results into the standardized file. Use as a template to evaluate a new FP on MatPES-PBE. |
+| `generation/matpes_r2scan_run_generator.ipynb` | Same, for MatPES-r2SCAN. |
+| `generation/matpes_run_generator_omat24_rattled1000.ipynb` | Same, for OMat24 rattled-1000. |
+| `scripts/force_results.py` | `build_force_results(...)`, the canonical standardization function -- the module both notebooks and this README's quick start import. |
+| `scripts/force_error_metrics.py` | Fraction tables, MAE/RMSE, regime panels, heatmaps, and `get_bad_atom_indices` querying, built from a standardized `force_results` object. |
+| `scripts/fp_cdf_density_plots.py` | CDF computation and 2-D density plotting. |
+| `scripts/heatmap_table.py` | Low-level heatmap drawing primitives. |
+| `examples/mace_matpes_cartesian_force_example.json` | A small, genuine 5-structure slice (real MatPES-PBE DFT forces and real MACE forces) used for the runnable quick start above -- no download needed. |
+| `data/*_force_results_standardized.json` | The standardized, merged results for each dataset. Not committed to Git (see [`data/README.md`](data/README.md)). |
+
+The generator notebooks embed a checksummed, byte-identical reimplementation of
+`build_force_results(...)`'s per-structure math so cluster jobs do not need `scripts/` installed;
+`structure_id`/`atom_index` are preserved throughout, from the raw chunk through the per-structure
+checkpoint into the final standardized file, so any atom can be traced back to its source
+structure and position within it.
+
+---
+
+## Standardized data
+
+Each dataset has one standardized results file under `data/` (see
+[`data/README.md`](data/README.md) for exact filenames, sizes, and how to obtain or regenerate
+them). Loading one gives a plain Python dict; analyses consume `data["models"]`, a
+`force_results[model]` dict per FP in the schema documented above and in `scripts/force_results.py`.
+
+Raw, per-structure Cartesian forces (both DFT and FP) are not in the standardized file -- they
+remain in the generator's per-chunk checkpoints, together with every atom (including ones excluded
+from the standardized file's metric arrays).
+
+---
+
+## Metrics
+
+Evaluated for atoms with `|F_DFT| > 0.01 eV/Å` (except the all-atom average-error analysis, which
+uses every atom); far-from-equilibrium (FE) atoms are `|F_DFT| > 1 eV/Å`. See the paper for
+complete methodological detail.
+
+| Name | Metrics |
+|---|---|
+| Average error | MAE/RMSE of all atoms. |
+| Cumulative distribution functions of force errors | CDFs of force-magnitude error \|Δ\|F\|\| and angle error \|Δθ\| for all evaluated FPs. |
+| Highly accurate magnitude predictions | % of atoms, MAE/RMSE within this subset. Evaluates the proportion of predictions which have very small errors (\|ΔF\| < 0.01 eV/Å). |
+| Large force-magnitude errors | % of atoms, MAE/RMSE within this subset. Identifies predictions with extreme errors (\|ΔF\| > 0.5 eV/Å), with increasingly severe cases at higher thresholds (up to \|ΔF\| > 10 eV/Å). |
+| Far from equilibrium regime (FE atoms) | MAE/RMSE within this subset. Evaluates FP performance for far-from-equilibrium atoms (\|F_DFT\| > 1 eV/Å). |
+| Joint magnitude-angle accuracy | % of atoms. Evaluates the fraction of predictions with simultaneously low force magnitude and angle error (\|ΔF\| < 0.01 eV/Å and angle-error thresholds of 1° (strict) and 20° (looser)). |
+
+Notation: Δ|F| = |F<sub>FP</sub>| − |F<sub>DFT</sub>| (force-magnitude error); |Δ|F|| for CDFs,
+thresholds, and fraction metrics; Δθ, the angle between the FP and DFT force vectors;
+e<sub>vec</sub> = ||F<sub>FP</sub> − F<sub>DFT</sub>|| (force-vector error); r<sub>F</sub> =
+|Δ|F|| / |F<sub>DFT</sub>| (relative force-magnitude error, FE atoms only).
+
+---
+
+## Reproducing the provided benchmark
+
+The standardized results files under `data/` and the three analysis notebooks together reproduce
+every result reported in the paper. See [`data/README.md`](data/README.md) for how to obtain or
+regenerate them, and the `generation/` notebooks to evaluate a new FP -- each is a template that
+writes SLURM job/submission scripts for your own cluster; running its cells never submits a job.
+Once you have results for MatPES-PBE, MatPES-r2SCAN, or OMat24 rattled-1000, open a
+[GitHub issue](https://github.com/kamirian/FPBench/issues) with the FP's name, architecture,
+training data, checkpoint/version, and computed metrics.
+
+Model versions and official sources for the evaluated FPs are documented once on the
+[FPBench home page](../README.md#foundation-potentials-evaluated) rather than duplicated here.
+
+---
+
+## Citation and license
 
 The manuscript this work supports is not yet publicly available. Final citation information will
 be added here once it is. In the meantime:
@@ -228,8 +193,4 @@ be added here once it is. In the meantime:
 }
 ```
 
----
-
-## License
-
-MIT. See the [repository-level LICENSE](../LICENSE).
+MIT license. See the [repository-level LICENSE](../LICENSE).

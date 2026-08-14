@@ -132,6 +132,12 @@
     .split-pill { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 0.78rem; }
     .split-sep { color: var(--muted); margin: 0 2px; }
 
+    .table-scroll-plain { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table.gen { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-top: 0.8rem; }
+    table.gen th { background: var(--surface); color: var(--muted); text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    table.gen td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.83rem; }
+    table.gen tr:last-child td { border-bottom: none; }
+
     pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.84rem; line-height: 1.6; margin-top: 0.8rem; }
     code { background: var(--code-bg); border-radius: 4px; padding: 0.15em 0.45em; font-size: 0.85em; color: #79c0ff; font-family: "SFMono-Regular", Consolas, monospace; }
     pre code { background: none; padding: 0; color: var(--text); }
@@ -170,7 +176,7 @@
   </p>
   <div class="cta">
     <a class="btn btn-primary" href="#results">View Leaderboard</a>
-    <a class="btn btn-green"  href="#reproduce">Reproduce / Extend</a>
+    <a class="btn btn-green"  href="#use-fpbench">Use FPBench</a>
     <a class="btn btn-outline" href="https://github.com/mogroupumd/FPBench/tree/main/Force_error">GitHub</a>
   </div>
 </div>
@@ -604,53 +610,31 @@
   </div>
 </section>
 
-<!-- ============== APPLICATION-ORIENTED METRICS ============== -->
+<!-- ============== METRICS ============== -->
 <section id="metrics">
-  <h2>Application-Oriented Force Metrics</h2>
-  <p>FPBench evaluates FP force predictions using four metrics chosen for their direct relevance to atomistic simulation workflows.</p>
+  <h2>Metrics</h2>
+  <p>Evaluated for atoms with |<i>F</i><sub>DFT</sub>| &gt; 0.01 eV/&Aring; (except the all-atom average-error analysis, which uses every atom); far-from-equilibrium (FE) atoms are |<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;. See the paper for complete methodological detail.</p>
 
-  <div class="metric-row">
-    <div class="metric-card">
-      <h3>Highly accurate force predictions</h3>
-      <p>The fraction of atoms with a very small force-magnitude error is directly relevant to applications that require tight force convergence, such as structural relaxation, defect calculations, and transition-state searches, where typical convergence criteria are on the order of 0.001-0.01 eV/&Aring;.</p>
-    </div>
-    <div class="metric-card">
-      <h3>Joint force magnitude-angle accuracy</h3>
-      <p>This metric measures whether an FP reproduces both the force magnitude and the force direction for the same atom. Separate magnitude and angle statistics, taken on their own, do not establish this joint agreement.</p>
-    </div>
+  <div class="table-scroll-plain"><table class="gen">
+    <tr><th>Name</th><th>Metrics</th></tr>
+    <tr><td>Average error</td><td>MAE/RMSE of all atoms.</td></tr>
+    <tr><td>Cumulative distribution functions of force errors</td><td>CDFs of force-magnitude error |&Delta;|<i>F</i>|| and angle error |&Delta;<i>&theta;</i>| for all evaluated FPs.</td></tr>
+    <tr><td>Highly accurate magnitude predictions</td><td>% of atoms, MAE/RMSE within this subset. Evaluates the proportion of predictions which have very small errors (|&Delta;<i>F</i>| &lt; 0.01 eV/&Aring;).</td></tr>
+    <tr><td>Large force-magnitude errors</td><td>% of atoms, MAE/RMSE within this subset. Identifies predictions with extreme errors (|&Delta;<i>F</i>| &gt; 0.5 eV/&Aring;), with increasingly severe cases at higher thresholds (up to |&Delta;<i>F</i>| &gt; 10 eV/&Aring;).</td></tr>
+    <tr><td>Far from equilibrium regime (FE atoms)</td><td>MAE/RMSE within this subset. Evaluates FP performance for far-from-equilibrium atoms (|<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;).</td></tr>
+    <tr><td>Joint magnitude-angle accuracy</td><td>% of atoms. Evaluates the fraction of predictions with simultaneously low force magnitude and angle error (|&Delta;<i>F</i>| &lt; 0.01 eV/&Aring; and angle-error thresholds of 1&deg; (strict) and 20&deg; (looser)).</td></tr>
+  </table></div>
+
+  <div class="callout" style="margin-top:1.2rem;">
+    Notation: &Delta;|<i>F</i>| = |<i>F</i><sub>FP</sub>| &minus; |<i>F</i><sub>DFT</sub>| (force-magnitude
+    error); |&Delta;|<i>F</i>|| for CDFs, thresholds, and fraction metrics; &Delta;<i>&theta;</i>, the angle
+    between the FP and DFT force vectors; <i>e</i><sub>vec</sub> = ||<i>F</i><sub>FP</sub> &minus;
+    <i>F</i><sub>DFT</sub>|| (force-vector error); <i>r</i><sub><i>F</i></sub> = |&Delta;|<i>F</i>|| /
+    |<i>F</i><sub>DFT</sub>| (relative force-magnitude error, FE atoms only). Atoms with zero FP or DFT
+    force are excluded from every metric, since the force angle is undefined in that case.
   </div>
-  <div class="metric-row">
-    <div class="metric-card">
-      <h3>Large-force-error atoms</h3>
-      <p>A small population of atoms with large force errors can still affect structural relaxation, transition-region calculations, and molecular-dynamics trajectories, even when the average error looks acceptable.</p>
-    </div>
-    <div class="metric-card">
-      <h3>Force errors on far-from-equilibrium (FE) atoms</h3>
-      <p>Forces on high-DFT-force configurations are important for assessing FP behavior away from equilibrium, including migrating ions, defect and disordered structures, and large thermal displacements.</p>
-    </div>
-  </div>
+
   <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong></p>
-</section>
-
-<!-- ============== NOTATION ============== -->
-<section id="notation">
-  <h2>Notation</h2>
-  <p>
-    The force error was decomposed into the force-magnitude error, &Delta;|<i>F</i>| = |<i>F</i><sub>FP</sub>|
-    &minus; |<i>F</i><sub>DFT</sub>|, and the force-angle error, &Delta;<i>&theta;</i>, defined as the angle
-    between the FP and DFT force vectors. We also computed the force-vector error,
-    <i>e</i><sub>vec</sub> = ||<i>F</i><sub>FP</sub> &minus; <i>F</i><sub>DFT</sub>||, and the relative
-    force-magnitude error for FE atoms, <i>r</i><sub><i>F</i></sub> = |&Delta;|<i>F</i>|| / |<i>F</i><sub>DFT</sub>|.
-  </p>
-  <p>&Delta;|<i>F</i>| MAE/RMSE is used for the MAE/RMSE metric name. |&Delta;|<i>F</i>|| is used for CDFs, thresholds, and fraction metrics.</p>
-
-  <div class="callout" style="margin-top:1rem;">
-    Atoms with zero FP or DFT force were excluded from all metrics, since the force angle is
-    undefined in these cases. Except for the all-atom MAE/RMSE analysis, all force metrics were
-    evaluated only for atoms with |<i>F</i><sub>DFT</sub>| &gt; 0.01 eV/&Aring;, because for near-zero DFT
-    forces, small absolute differences in the force components can produce large changes in the
-    calculated force angle. FE atoms correspond to |<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;.
-  </div>
 </section>
 
 <!-- ============== DATASETS ============== -->
@@ -660,85 +644,45 @@
     <div class="dataset-card">
       <div class="ds-name">MatPES-PBE</div>
       <div class="ds-stat">DFT functional: <span>PBE</span></div>
-      <div class="ds-stat">FPs evaluated: <span>7</span></div>
-      <div class="ds-desc">Main PBE benchmark dataset: diverse inorganic crystals released as part of MatPES.</div>
+      <div class="ds-desc">Equilibrium and off-equilibrium structures selected from finite-temperature MD trajectories, augmented with Materials Project ground-state structures.</div>
     </div>
     <div class="dataset-card">
       <div class="ds-name">MatPES-r2SCAN</div>
       <div class="ds-stat">DFT functional: <span>r2SCAN</span></div>
-      <div class="ds-stat">FPs evaluated: <span>3</span></div>
-      <div class="ds-desc">The MatPES-r2SCAN analysis includes the three r2SCAN-trained FPs, evaluated on the MatPES-r2SCAN release.</div>
+      <div class="ds-desc">The r2SCAN release of MatPES, evaluated against the three r2SCAN-trained FPs.</div>
     </div>
     <div class="dataset-card">
       <div class="ds-name">OMat24 rattled-1000</div>
       <div class="ds-stat">DFT functional: <span>PBE</span></div>
-      <div class="ds-stat">FPs evaluated: <span>7</span></div>
-      <div class="ds-desc">The OMat24 rattled-1000 validation split (1,000 randomly-displaced structures); evaluates the same seven FPs used for MatPES-PBE.</div>
+      <div class="ds-desc">The OMat24 rattled-1000 validation subset (approximately 117,000 structures rattled at a sampling temperature of 1000 K), evaluated against the same seven FPs used for MatPES-PBE.</div>
     </div>
   </div>
   <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted);">
-    Dataset-level atom counts and FE fractions are not shown until they have been calculated from
-    the generators' dataset-wide <code>reference_population</code> field (see
-    <a href="https://github.com/mogroupumd/FPBench/tree/main/Force_error" style="color:var(--accent);">Force_error README</a>).
+    Model versions and official sources for the evaluated FPs are documented once on the
+    <a href="index.html#models" style="color:var(--accent);">FPBench home page</a>.
   </p>
 </section>
 
-<!-- ============== HOW TO CONTRIBUTE ============== -->
-<section id="contribute">
-  <h2>Adding a New FP to This Benchmark</h2>
-  <p>FPBench's Force Prediction component is open to additional FPs. The current set (see the model table on the <a href="index.html#models" style="color:var(--accent);">FPBench home page</a>) will grow over time; existing results stay tied to the FP version they were computed with.</p>
-  <p>The generation notebooks (<code>generation/matpes_PBE_run_generator.ipynb</code>, <code>generation/matpes_r2scan_run_generator.ipynb</code>, <code>generation/matpes_run_generator_omat24_rattled1000.ipynb</code>) and analysis notebooks (<code>analysis/force_error_analysis_matpes_pbe.ipynb</code>, <code>analysis/force_error_analysis_matpes_r2scan.ipynb</code>, <code>analysis/force_error_analysis_omat24_rattled_1000.ipynb</code>) referenced below are the same notebooks used to produce the results reported in the FPBench manuscript.</p>
-  <div class="submit-steps">
-    <div class="submit-step">
-      <div class="step-num"></div>
-      <div class="step-body">
-        <h4>Set up your FP's environment</h4>
-        <p>Clone the repository and install your FP's own package in a separate environment, alongside <code>requirements.txt</code>. The notebooks never install packages automatically.</p>
-        <pre><code>git clone https://github.com/mogroupumd/FPBench.git
-cd FPBench/Force_error
-pip install -r requirements.txt   # then install your FP's package separately</code></pre>
-      </div>
-    </div>
-    <div class="submit-step">
-      <div class="step-num"></div>
-      <div class="step-body">
-        <h4>Generate force predictions</h4>
-        <p>Use one of the three generator notebooks above as a template, registering your FP's checkpoint and calculator setup in its <code>POTENTIAL_REGISTRY</code>. Each generator notebook writes SLURM job and submission scripts; running its cells does not submit jobs by itself.</p>
-      </div>
-    </div>
-    <div class="submit-step">
-      <div class="step-num"></div>
-      <div class="step-body">
-        <h4>Standardize and merge</h4>
-        <p><code>build_force_results(...)</code> (in <code>scripts/force_results.py</code>) produces the per-atom <code>dft_force_magnitude</code> / <code>fp_force_magnitude</code> / <code>force_magnitude_error</code> / <code>force_angle_error</code> / <code>force_vector_error</code> arrays used by every table on this page.</p>
-      </div>
-    </div>
-    <div class="submit-step">
-      <div class="step-num"></div>
-      <div class="step-body">
-        <h4>Compute the metrics</h4>
-        <p>Run the corresponding one of the three analysis notebooks above with your FP included in <code>all_results_filtered</code> to reproduce the leaderboard columns and detail-panel tables above using <code>force_error_metrics.py</code>.</p>
-      </div>
-    </div>
-    <div class="submit-step">
-      <div class="step-num"></div>
-      <div class="step-body">
-        <h4>Open a GitHub issue</h4>
-        <p>Share your FP's name, architecture, training data, checkpoint/version, and computed metrics. <a href="https://github.com/mogroupumd/FPBench/issues" style="color:var(--accent);">Open an issue &rarr;</a></p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============== REPRODUCE ============== -->
-<section id="reproduce">
-  <h2>Reproduce &amp; Extend</h2>
-  <p>See the <a href="https://github.com/mogroupumd/FPBench/tree/main/Force_error" style="color:var(--accent);">Force_error README</a> for the full quick start, including the small Cartesian-force example that runs immediately and what is required to reproduce the full analysis.</p>
+<!-- ============== USE FPBENCH ============== -->
+<section id="use-fpbench">
+  <h2>Use FPBench</h2>
+  <pre><code>Paired Cartesian DFT and FP forces
+                  or
+Full generator calculations on a dataset
+                   &darr;
+        standardized force_results
+                   &darr;
+          validation and analysis
+                   &darr;
+       FPBench force-error tables</code></pre>
+  <p style="margin-top:1rem;"><strong style="color:var(--heading);">Build standardized force results directly from paired Cartesian DFT and FP forces.</strong> Call <code>build_force_results(dft_forces, fp_forces, structure_ids=None)</code> from <code>scripts/force_results.py</code> with your own data.</p>
+  <p><strong style="color:var(--heading);">Use a generator notebook as a template for full dataset/cluster generation.</strong> Register your FP's checkpoint and calculator setup in one of the three generator notebooks' <code>POTENTIAL_REGISTRY</code>, run the jobs on your cluster (the notebooks never submit jobs by themselves), then run the matching analysis notebook -- your FP appears in every table above.</p>
   <pre><code>git clone https://github.com/mogroupumd/FPBench.git
 cd FPBench/Force_error
 pip install -r requirements.txt
 pip install jupyterlab
 jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
+  <p style="margin-top:0.8rem;">See the <a href="https://github.com/mogroupumd/FPBench/tree/main/Force_error" style="color:var(--accent);">Force_error README</a> for the full quick start, the generator and analysis notebooks for complete operational detail, and the included Cartesian-force example for a small runnable slice of real data. To add results for a new FP, open a <a href="https://github.com/mogroupumd/FPBench/issues" style="color:var(--accent);">GitHub issue</a> with the FP's name, architecture, training data, checkpoint/version, and computed metrics.</p>
 </section>
 
 <footer>

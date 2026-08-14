@@ -72,10 +72,16 @@ pip install jupyterlab
 jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb
 ```
 
-Minimal public-function example (every name below is verified against
-`scripts/convexhull_analysis_utils.py`):
+Minimal public-function example, runnable from the `Phase_stability_ordering/` directory on the
+real demo data (every name below is verified against `scripts/convexhull_analysis_utils.py`):
 
 ```python
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path("scripts").resolve()))
+
 from convexhull_analysis_utils import (
     build_phase_stability_ordering_results,
     validate_phase_stability_ordering_results,
@@ -84,9 +90,17 @@ from convexhull_analysis_utils import (
     build_rmsd_table,
 )
 
+with open("examples/phase_stability_ordering_demo_data.json") as f:
+    demo_input = json.load(f)
+
+reference_data = demo_input["reference_data"]
+fp_results = demo_input["fp_results"]
+fps = list(fp_results)
+model_names = {"mace": "MACE"}
+
 benchmark_results = build_phase_stability_ordering_results(
-    reference_data=reference_data,   # your own hull/ordering DFT reference
-    fp_results=fp_results,           # your own FP relax/static results
+    reference_data=reference_data,
+    fp_results=fp_results,
 )
 dft_hull, fp_hull = benchmark_results["dft_hull"], benchmark_results["fp_hull"]
 dft_ordering, fp_ordering = benchmark_results["dft_ordering"], benchmark_results["fp_ordering"]
@@ -94,17 +108,18 @@ dft_ordering, fp_ordering = benchmark_results["dft_ordering"], benchmark_results
 validation_report = validate_phase_stability_ordering_results(
     dft_hull=dft_hull, fp_hull_by_fp=fp_hull,
     dft_ordering=dft_ordering, fp_ordering_by_fp=fp_ordering,
-    fps=list(fp_results),
+    fps=fps,
 )
 
-hull_table, hull_details = build_combined_hull_table(dft_hull, fp_hull, list(fp_results), model_names)
-ordering_table, ordering_summaries = build_combined_ordering_table(dft_ordering, fp_ordering, list(fp_results), model_names)
-rmsd_table, rmsd_dfs, rmsd_summaries = build_rmsd_table(dft_hull, fp_hull, list(fp_results), model_names)
+hull_table, hull_details = build_combined_hull_table(dft_hull, fp_hull, fps, model_names)
+ordering_table, ordering_summaries = build_combined_ordering_table(dft_ordering, fp_ordering, fps, model_names)
+rmsd_table, rmsd_dfs, rmsd_summaries = build_rmsd_table(dft_hull, fp_hull, fps, model_names)
 ```
 
-The small demo (`examples/phase_stability_ordering_demo_data.json`, loaded right after Section 0
-of the analysis notebook) runs this exact workflow on one real tie-line system and one real
-ordering group, so you can see it work on genuine numbers with no download.
+This is the exact same workflow the analysis notebook runs on this same demo data right after its
+Section 0 -- one real tie-line system and one real ordering group, no download required. Replace
+`reference_data`/`fp_results`/`fps`/`model_names` with your own to run this against another
+dataset.
 
 ---
 
@@ -168,35 +183,35 @@ See [`data/README.md`](data/README.md) for the full field-level schema, checksum
 
 ### Convex hull and relative phase stability
 
-| Metric | Direction | Description |
-|---|---|---|
-| Average energy error (meV/atom) | lower is better | MAE of the FP energy vs. DFT, over all structures in the dataset. |
-| Ground-state agreement (%) | higher is better | For each composition, whether the FP-predicted lowest-energy phase agrees with DFT. Pooled across all systems; single-phase compositions (no real choice to get right) are excluded from both numerator and denominator. |
-| Within-phase hull-minimum agreement (%) | higher is better | For each phase, whether the FP-predicted minimum-energy composition agrees with DFT (tie-line-normalized energies); single-composition phases excluded. |
-| Hull-minimum agreement (%) | higher is better | For each tie-line system, whether the FP-predicted global convex-hull minimum agrees with DFT. |
+| Name | Metrics |
+|---|---|
+| Average energy error | MAE (eV/atom), computed by aggregating all structures across all tie-line systems. |
+| Ground-state agreement | Fraction of compositions for which the FP and DFT predict the same lowest-energy phase. |
+| Within-phase minimum agreement | Whether the minimum-energy composition within each competing phase is correctly identified. |
+| Hull-minimum agreement | Correct identification of both the phase and composition corresponding to the global convex-hull minimum. |
 
 ### Energy rankings of elemental orderings
 
-| Metric | Direction | Description |
-|---|---|---|
-| Average energy error (meV/atom) | lower is better | MAE of the FP energy vs. DFT, averaged over ordering groups. |
-| Top-1 accuracy (%) | higher is better | Fraction of groups where the FP's lowest-energy ordering matches DFT's. |
-| Recall@3, Recall@10 (%) | higher is better | Fraction of groups where DFT's ground-truth ordering appears in the FP's top-3 / top-10 by predicted energy. |
-| Spearman ρ | higher is better | Rank correlation between FP and DFT energies within each group, averaged. |
-| Rate of ranking errors (%) | lower is better | Fraction of pairwise orderings within a group that the FP gets backwards relative to DFT. |
-| Mean/max ΔE_DFT of misranked pairs (meV/atom) | lower is better | DFT energy gap for the pairs the FP got backwards -- a large gap misranked is a worse failure than a near-degenerate one. |
+| Name | Metrics |
+|---|---|
+| Average energy error | MAE (eV/atom), pooled over all structures in the ordering benchmark. |
+| Top-1 accuracy | Recovery of the lowest-energy DFT structure, averaged over ordering groups. |
+| Recall@k | Fraction of the k lowest-energy DFT orderings retained among the top k FP-ranked orderings within each ordering group, averaged over ordering groups. |
+| Spearman's ρ | Rank correlation between FP and DFT orderings, averaged over ordering groups. |
+| Rate of ranking errors | Fraction of pairwise ordering disagreements. |
+| DFT energy difference of misranked pairs (ΔE_DFT) | DFT energy difference between misranked configuration pairs; the mean and maximum quantify the severity of ranking errors and indicate the likelihood of producing qualitatively incorrect elemental orderings. |
 
-### Structural-relaxation effects (RMSD)
+### Structural-relaxation effects
 
 Applies to full FP relaxation only (static evaluation does not produce an FP-relaxed structure to
-compare). Compares each FP-relaxed structure against its DFT-relaxed counterpart via pymatgen's
-`StructureMatcher`.
+compare).
 
-| Metric | Direction | Description |
-|---|---|---|
-| Map success (%) | higher is better | Fraction of candidates with an FP result that `StructureMatcher` could successfully map to its DFT counterpart. |
-| Mean/max RMSD (Å) | lower is better | RMSD between mapped FP- and DFT-relaxed structures, converted to Å via the geometric mean cell volume. |
-| RMSD < 0.05 / 0.10 / 0.20 Å (%) | higher is better | Fraction of mapped candidates below each threshold. |
+| Name | Metrics |
+|---|---|
+| Structure relaxation error | Structural agreement metrics between FP-relaxed and DFT-relaxed structures for the same dataset used in the convex-hull energy analysis, via pymatgen's `StructureMatcher`. |
+| Mean/max RMSD | Geometric deviation after alignment (Å). |
+| Map success | Fraction of cases where FP and DFT structures remain sufficiently similar for meaningful RMSD evaluation; failures correspond to large structural deviation. |
+| RMSD thresholds | Increasingly strict measures of fidelity. |
 
 No overall ranking is published across these three metric groups, or within a group across
 unrelated columns; they are complementary, independent measurements. See the paper and Methods

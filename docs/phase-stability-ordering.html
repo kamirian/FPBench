@@ -124,6 +124,11 @@
     .split-pill { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 0.78rem; }
     .split-sep { color: var(--muted); margin: 0 2px; }
 
+    table.gen { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-top: 0.8rem; }
+    table.gen th { background: var(--surface); color: var(--muted); text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    table.gen td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.83rem; }
+    table.gen tr:last-child td { border-bottom: none; }
+
     pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.84rem; line-height: 1.6; margin-top: 0.8rem; }
     code { background: var(--code-bg); border-radius: 4px; padding: 0.15em 0.45em; font-size: 0.85em; color: #79c0ff; font-family: "SFMono-Regular", Consolas, monospace; }
     pre code { background: none; padding: 0; color: var(--text); }
@@ -326,13 +331,34 @@
   <p>Evaluated for both full FP relaxation and static FP evaluation on the DFT-relaxed structure. See the paper and Methods Sections 4.6.1-4.6.3 for complete methodological details.</p>
 
   <h3 style="margin-top:1.4rem;">Convex hull and relative phase stability</h3>
-  <p>Average energy error (MAE/RMSE) is computed by aggregating all structures across all tie-line systems. Ground-state agreement quantifies the fraction of compositions for which the FP and DFT predict the same lowest-energy phase. Within-phase hull-minimum agreement evaluates whether the minimum-energy composition within each competing phase is correctly identified. Hull-minimum agreement requires correct identification of both the phase and composition corresponding to the global convex-hull minimum.</p>
+  <div class="table-scroll-plain"><table class="gen">
+    <tr><th>Name</th><th>Metrics</th></tr>
+    <tr><td>Average energy error</td><td>MAE (eV/atom), computed by aggregating all structures across all tie-line systems.</td></tr>
+    <tr><td>Ground-state agreement</td><td>Fraction of compositions for which the FP and DFT predict the same lowest-energy phase.</td></tr>
+    <tr><td>Within-phase minimum agreement</td><td>Whether the minimum-energy composition within each competing phase is correctly identified.</td></tr>
+    <tr><td>Hull-minimum agreement</td><td>Correct identification of both the phase and composition corresponding to the global convex-hull minimum.</td></tr>
+  </table></div>
 
   <h3>Energy rankings of elemental orderings</h3>
-  <p>Top-1 accuracy and Recall@k quantify recovery of the lowest-energy DFT structure and low-energy subsets, while Spearman's &rho; measures rank correlation between FP and DFT orderings. The rate of ranking errors reports the fraction of pairwise ordering disagreements. Energy accuracy (MAE/RMSE) is reported alongside the DFT energy spread &Delta;E<sub>DFT</sub>, defined as the DFT energy difference between misranked configuration pairs; the mean and maximum &Delta;E<sub>DFT</sub> quantify the severity of ranking errors.</p>
+  <div class="table-scroll-plain"><table class="gen">
+    <tr><th>Name</th><th>Metrics</th></tr>
+    <tr><td>Average energy error</td><td>MAE (eV/atom), pooled over all structures in the ordering benchmark.</td></tr>
+    <tr><td>Top-1 accuracy</td><td>Recovery of the lowest-energy DFT structure, averaged over ordering groups.</td></tr>
+    <tr><td>Recall@k</td><td>Fraction of the k lowest-energy DFT orderings retained among the top k FP-ranked orderings within each ordering group, averaged over ordering groups.</td></tr>
+    <tr><td>Spearman's &rho;</td><td>Rank correlation between FP and DFT orderings, averaged over ordering groups.</td></tr>
+    <tr><td>Rate of ranking errors</td><td>Fraction of pairwise ordering disagreements.</td></tr>
+    <tr><td>DFT energy difference of misranked pairs (&Delta;E<sub>DFT</sub>)</td><td>DFT energy difference between misranked configuration pairs; the mean and maximum quantify the severity of ranking errors and indicate the likelihood of producing qualitatively incorrect elemental orderings.</td></tr>
+  </table></div>
 
   <h3>Structural-relaxation effects</h3>
-  <p>Structure relaxation error reports structural agreement metrics between FP-relaxed and DFT-relaxed structures for the same dataset used in the convex-hull energy analysis. Mean and maximum RMSD (&Aring;) quantify geometric deviation after alignment. Map success denotes the fraction of cases where FP and DFT structures remain sufficiently similar for meaningful RMSD evaluation; failures correspond to large structural deviation. RMSD thresholds provide increasingly strict measures of fidelity.</p>
+  <p style="font-size:0.85rem;color:var(--muted);">Applies to full FP relaxation only (static evaluation does not produce an FP-relaxed structure to compare).</p>
+  <div class="table-scroll-plain"><table class="gen">
+    <tr><th>Name</th><th>Metrics</th></tr>
+    <tr><td>Structure relaxation error</td><td>Structural agreement metrics between FP-relaxed and DFT-relaxed structures for the same dataset used in the convex-hull energy analysis, via pymatgen's <code>StructureMatcher</code>.</td></tr>
+    <tr><td>Mean/max RMSD</td><td>Geometric deviation after alignment (&Aring;).</td></tr>
+    <tr><td>Map success</td><td>Fraction of cases where FP and DFT structures remain sufficiently similar for meaningful RMSD evaluation; failures correspond to large structural deviation.</td></tr>
+    <tr><td>RMSD thresholds</td><td>Increasingly strict measures of fidelity.</td></tr>
+  </table></div>
 
   <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong></p>
 </section>
