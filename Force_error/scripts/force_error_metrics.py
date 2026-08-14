@@ -2357,9 +2357,15 @@ def get_bad_atom_indices(all_results, model,
     Return flat atom-level indices and the original structure indices of
     structures that contain at least one matching atom.
 
-    Uses the legacy "forces_mlip" field (per-structure FP forces, where present)
-    to reconstruct which atoms belong to which structure, then maps back via
-    original_indices — no results_*.json needed.
+    Structure-level mapping prefers direct per-atom provenance, checked in
+    this order:
+      1. d["structure_id"] (standardized-schema field name, one entry per
+         metric-valid atom, same length/order as the dF/dtheta/fdft arrays).
+      2. d["all_structure_ids"] (merge_one_potential() per-potential merged
+         output field name) — same shape/meaning as (1), different name.
+      3. Falls back to the legacy "forces_mlip" per-structure reconstruction
+         (counts atoms per structure from forces_mlip, maps back via
+         original_indices) for data that predates per-atom provenance.
 
     Parameters
     ----------
@@ -2389,18 +2395,26 @@ def get_bad_atom_indices(all_results, model,
 
     atom_indices = np.where(mask)[0]
 
-    # Map flat atom indices → structure original_indices via forces_mlip atom counts
-    orig_idxs      = d.get("original_indices", [])
-    forces_mlip    = d.get("forces_mlip", [])
+    # Preferred path: direct per-atom structure_id, same flat indexing as
+    # dF/dth/fdft above — no atom-counting/boundary reconstruction needed.
+    per_atom_structure_id = d.get("structure_id", d.get("all_structure_ids", []))
     structure_indices = []
-    if orig_idxs and forces_mlip:
-        atom_counts  = np.array([len(f) for f in forces_mlip])
-        struct_start = np.concatenate([[0], np.cumsum(atom_counts[:-1])])
-        struct_end   = np.cumsum(atom_counts)
-        bad_set      = set(atom_indices.tolist())
-        for i, (s, e) in enumerate(zip(struct_start, struct_end)):
-            if any(a in bad_set for a in range(s, e)):
-                structure_indices.append(orig_idxs[i])
+    if len(per_atom_structure_id) == len(dF):
+        sid_arr = np.asarray(per_atom_structure_id)
+        structure_indices = sorted(set(sid_arr[atom_indices].tolist()))
+    else:
+        # Fallback: map flat atom indices → structure original_indices via
+        # forces_mlip atom counts (data that predates per-atom provenance).
+        orig_idxs   = d.get("original_indices", [])
+        forces_mlip = d.get("forces_mlip", [])
+        if orig_idxs and forces_mlip:
+            atom_counts  = np.array([len(f) for f in forces_mlip])
+            struct_start = np.concatenate([[0], np.cumsum(atom_counts[:-1])])
+            struct_end   = np.cumsum(atom_counts)
+            bad_set      = set(atom_indices.tolist())
+            for i, (s, e) in enumerate(zip(struct_start, struct_end)):
+                if any(a in bad_set for a in range(s, e)):
+                    structure_indices.append(orig_idxs[i])
 
     return atom_indices, structure_indices
 
