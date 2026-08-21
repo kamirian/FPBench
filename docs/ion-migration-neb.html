@@ -343,6 +343,7 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
     if (v === null || v === undefined || isNaN(v)) return 'n/a';
     if (kind === 'int') return v.toFixed(0);
     if (kind === 'dec4') return v.toFixed(4);
+    if (kind === 'dec2') return v.toFixed(2);
     return v.toFixed(2);
   }
 
@@ -550,7 +551,7 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
       tdRmsd.dataset.val = String(m.endpoint_rmsd_mean_angstrom);
       tdRmsd.dataset.val2 = String(m.endpoint_rmsd_max_angstrom);
       tdRmsd.dataset.pair = '1';
-      tdRmsd.dataset.fmt = 'dec4';
+      tdRmsd.dataset.fmt = 'dec2';
       tr.appendChild(tdRmsd);
 
       ['endpoint_rmsd_lt_0_05_pct', 'endpoint_rmsd_lt_0_10_pct', 'endpoint_rmsd_lt_0_20_pct'].forEach(k => {
