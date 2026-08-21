@@ -39,18 +39,20 @@ MODEL_NUMERIC_FIELDS = [
     "endpoint_energy_diff_mae_eV", "endpoint_energy_diff_rmse_eV",
     "endpoint_ranking_agreement_pct", "energy_profile_shape_agreement_pct",
 ]
-# All 5 fields must exist in the JSON record; only the 3 the table actually
-# renders as columns (map success, mean RMSD, max RMSD) need to appear in the
-# page's JavaScript. endpoint_rmsd_n_converged_paths/n_endpoint_attempts are
-# population-context fields kept in the JSON for anyone inspecting it
-# directly, deliberately not rendered as their own table columns (the user's
-# request was specifically "match success rate plus mean and max").
+# All 8 fields must exist in the JSON record; only the 6 the table actually
+# renders as columns (map success, mean RMSD, max RMSD, and the 3 RMSD
+# thresholds) need to appear in the page's JavaScript.
+# endpoint_rmsd_n_converged_paths/n_endpoint_attempts are population-context
+# fields kept in the JSON for anyone inspecting it directly, deliberately not
+# rendered as their own table columns.
 ENDPOINT_RMSD_FIELDS = [
     "endpoint_rmsd_n_converged_paths", "endpoint_rmsd_n_endpoint_attempts",
     "endpoint_rmsd_map_success_pct", "endpoint_rmsd_mean_angstrom", "endpoint_rmsd_max_angstrom",
+    "endpoint_rmsd_lt_0_05_pct", "endpoint_rmsd_lt_0_10_pct", "endpoint_rmsd_lt_0_20_pct",
 ]
 ENDPOINT_RMSD_RENDERED_FIELDS = [
     "endpoint_rmsd_map_success_pct", "endpoint_rmsd_mean_angstrom", "endpoint_rmsd_max_angstrom",
+    "endpoint_rmsd_lt_0_05_pct", "endpoint_rmsd_lt_0_10_pct", "endpoint_rmsd_lt_0_20_pct",
 ]
 
 results = []
@@ -104,9 +106,9 @@ if COMPONENT_JSON.exists() and DOCS_JSON.exists():
             all(field in m for field in ENDPOINT_RMSD_FIELDS)
             for m in component_data.get("models", [])
         )
-        check("5b. every model record has all 5 endpoint-RMSD fields the RMSD table's JS reads",
-              rmsd_fields_present)
-        check("5b. endpoint_rmsd_metric_columns is present and describes all 5 fields",
+        check("5b. every model record has all 8 endpoint-RMSD fields (6 rendered columns + 2 "
+              "population-context fields) the RMSD table's JS reads", rmsd_fields_present)
+        check("5b. endpoint_rmsd_metric_columns is present and describes all 8 fields",
               set(component_data.get("endpoint_rmsd_metric_columns", {}).keys()) == set(ENDPOINT_RMSD_FIELDS))
         # The primary leaderboard's original 10 fields must be untouched by
         # this addition -- confirmed by their continued presence with no
@@ -166,8 +168,21 @@ if HTML_PAGE.exists():
     rmsd_thead = re.search(r'<table class="dt nebrmsdtable">.*?</thead>', html, re.S)
     check("8. table.nebtable still has exactly 6 <th data-dir=...> headers",
           neb_thead is not None and len(re.findall(r'<th data-dir="(?:low|high)"', neb_thead.group(0))) == 6)
-    check("8b. table.nebrmsdtable has exactly 2 <th data-dir=...> headers (map success, mean/max RMSD)",
-          rmsd_thead is not None and len(re.findall(r'<th data-dir="(?:low|high)"', rmsd_thead.group(0))) == 2)
+    check("8b. table.nebrmsdtable has exactly 5 <th data-dir=...> headers (map success, mean/max "
+          "RMSD, and 3 RMSD thresholds)",
+          rmsd_thead is not None and len(re.findall(r'<th data-dir="(?:low|high)"', rmsd_thead.group(0))) == 5)
+
+    # -- 8c. endpoint-RMSD section is a collapsible <details>, closed by default -
+    rmsd_details = re.search(
+        r'<details>\s*<summary>Endpoint structure relaxation error</summary>.*?</details>', html, re.S)
+    check("8c. endpoint-RMSD section is wrapped in a <details><summary> collapsible, closed by "
+          "default (no 'open' attribute)", rmsd_details is not None)
+    check("8c. the <details> block contains table.nebrmsdtable (table lives inside the collapsible)",
+          rmsd_details is not None and 'class="dt nebrmsdtable"' in rmsd_details.group(0))
+    check("8c. caption inside the collapsible is the short one-liner, not the old long paragraph",
+          rmsd_details is not None
+          and "Restricted to full FP-NEB converged paths." in rmsd_details.group(0)
+          and "neb_status.neb_converged == true" not in rmsd_details.group(0))
 
     # -- 9. error handling: a visible error path exists, not a silent fallback --
     check("9. page defines a visible error-display path for a failed fetch",

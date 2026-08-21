@@ -25,7 +25,10 @@
     "endpoint_rmsd_n_endpoint_attempts": "Number of individual endpoint-structure comparisons attempted (2 per converged path: the initial and final endpoint), the population map_success_pct/mean/max are computed or filtered from.",
     "endpoint_rmsd_map_success_pct": "Map success (%): fraction of endpoint-structure comparisons, over the converged full FP-NEB population, for which pymatgen's StructureMatcher.get_rms_dist found a valid structural mapping between the FP-relaxed and DFT-relaxed endpoint structure (ltol=0.5, stol=0.5, angle_tol=10.0, unchanged from neb_analysis.py). A failed mapping is excluded from the mean/max RMSD below, not counted as RMSD=0.",
     "endpoint_rmsd_mean_angstrom": "Mean RMSD (angstrom) between FP-relaxed and DFT-relaxed endpoint structures, pooling the initial and final endpoints, over the converged full FP-NEB population, restricted to endpoint-structure comparisons with a successful StructureMatcher mapping.",
-    "endpoint_rmsd_max_angstrom": "Maximum RMSD (angstrom) over the same population as endpoint_rmsd_mean_angstrom."
+    "endpoint_rmsd_max_angstrom": "Maximum RMSD (angstrom) over the same population as endpoint_rmsd_mean_angstrom.",
+    "endpoint_rmsd_lt_0_05_pct": "Fraction (%) of successfully-mapped endpoint-structure comparisons with RMSD < 0.05 angstrom, over the same population as endpoint_rmsd_mean_angstrom. Same threshold and denominator convention as Phase Stability's own RMSD < 0.05 A column.",
+    "endpoint_rmsd_lt_0_10_pct": "Fraction (%) of successfully-mapped endpoint-structure comparisons with RMSD < 0.10 angstrom, over the same population as endpoint_rmsd_mean_angstrom. Same threshold and denominator convention as Phase Stability's own RMSD < 0.10 A column.",
+    "endpoint_rmsd_lt_0_20_pct": "Fraction (%) of successfully-mapped endpoint-structure comparisons with RMSD < 0.20 angstrom, over the same population as endpoint_rmsd_mean_angstrom. Same threshold and denominator convention as Phase Stability's own RMSD < 0.20 A column."
   },
   "fp_order": [
     "MACE-MP0_medium",
@@ -54,7 +57,10 @@
       "endpoint_rmsd_n_endpoint_attempts": 306,
       "endpoint_rmsd_map_success_pct": 100.0,
       "endpoint_rmsd_mean_angstrom": 0.0593,
-      "endpoint_rmsd_max_angstrom": 0.7278
+      "endpoint_rmsd_max_angstrom": 0.7278,
+      "endpoint_rmsd_lt_0_05_pct": 72.549,
+      "endpoint_rmsd_lt_0_10_pct": 86.6013,
+      "endpoint_rmsd_lt_0_20_pct": 94.1176
     },
     {
       "fp_key": "CHGNET",
@@ -73,7 +79,10 @@
       "endpoint_rmsd_n_endpoint_attempts": 304,
       "endpoint_rmsd_map_success_pct": 100.0,
       "endpoint_rmsd_mean_angstrom": 0.0783,
-      "endpoint_rmsd_max_angstrom": 0.6584
+      "endpoint_rmsd_max_angstrom": 0.6584,
+      "endpoint_rmsd_lt_0_05_pct": 54.6053,
+      "endpoint_rmsd_lt_0_10_pct": 78.2895,
+      "endpoint_rmsd_lt_0_20_pct": 91.4474
     },
     {
       "fp_key": "M3GNET_pes",
@@ -92,7 +101,10 @@
       "endpoint_rmsd_n_endpoint_attempts": 306,
       "endpoint_rmsd_map_success_pct": 100.0,
       "endpoint_rmsd_mean_angstrom": 0.1305,
-      "endpoint_rmsd_max_angstrom": 0.6594
+      "endpoint_rmsd_max_angstrom": 0.6594,
+      "endpoint_rmsd_lt_0_05_pct": 37.9085,
+      "endpoint_rmsd_lt_0_10_pct": 61.4379,
+      "endpoint_rmsd_lt_0_20_pct": 78.1046
     },
     {
       "fp_key": "UMA_s1_p1",
@@ -111,7 +123,10 @@
       "endpoint_rmsd_n_endpoint_attempts": 302,
       "endpoint_rmsd_map_success_pct": 100.0,
       "endpoint_rmsd_mean_angstrom": 0.0495,
-      "endpoint_rmsd_max_angstrom": 0.6189
+      "endpoint_rmsd_max_angstrom": 0.6189,
+      "endpoint_rmsd_lt_0_05_pct": 76.8212,
+      "endpoint_rmsd_lt_0_10_pct": 87.4172,
+      "endpoint_rmsd_lt_0_20_pct": 96.6887
     },
     {
       "fp_key": "M3GNET_matpes_PBE",
@@ -130,7 +145,10 @@
       "endpoint_rmsd_n_endpoint_attempts": 306,
       "endpoint_rmsd_map_success_pct": 99.6732,
       "endpoint_rmsd_mean_angstrom": 0.1614,
-      "endpoint_rmsd_max_angstrom": 0.8274
+      "endpoint_rmsd_max_angstrom": 0.8274,
+      "endpoint_rmsd_lt_0_05_pct": 27.8689,
+      "endpoint_rmsd_lt_0_10_pct": 50.4918,
+      "endpoint_rmsd_lt_0_20_pct": 73.7705
     },
     {
       "fp_key": "TensorNET_matpes_PBE",
@@ -149,7 +167,10 @@
       "endpoint_rmsd_n_endpoint_attempts": 308,
       "endpoint_rmsd_map_success_pct": 100.0,
       "endpoint_rmsd_mean_angstrom": 0.0803,
-      "endpoint_rmsd_max_angstrom": 0.9561
+      "endpoint_rmsd_max_angstrom": 0.9561,
+      "endpoint_rmsd_lt_0_05_pct": 53.8961,
+      "endpoint_rmsd_lt_0_10_pct": 79.2208,
+      "endpoint_rmsd_lt_0_20_pct": 94.1558
     },
     {
       "fp_key": "MACE_matpes_pbe",
@@ -168,12 +189,15 @@
       "endpoint_rmsd_n_endpoint_attempts": 300,
       "endpoint_rmsd_map_success_pct": 100.0,
       "endpoint_rmsd_mean_angstrom": 0.0626,
-      "endpoint_rmsd_max_angstrom": 0.83
+      "endpoint_rmsd_max_angstrom": 0.83,
+      "endpoint_rmsd_lt_0_05_pct": 68.0,
+      "endpoint_rmsd_lt_0_10_pct": 85.6667,
+      "endpoint_rmsd_lt_0_20_pct": 94.6667
     }
   ],
   "generation_metadata": {
     "generated_by": "Ion_migration_NEB/scripts/export_neb_leaderboard.py, from neb_analysis.py's build_neb_analysis_results/compute_key_neb_metrics_summary (same functions and rounding order as the analysis notebook)",
-    "generation_timestamp_utc": "2026-08-21T16:17:59.132104+00:00",
+    "generation_timestamp_utc": "2026-08-21T16:43:32.769384+00:00",
     "source_reference_file": "ion_migration_neb_reference.json",
     "source_reference_sha256": "f673135dd05b42371f23de1f89e3cd14729605c5ddd2f3672376785d8c88b4bf",
     "source_results_file": "ion_migration_neb_results.json",

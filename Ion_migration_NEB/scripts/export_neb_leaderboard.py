@@ -38,9 +38,14 @@ and final (img_last) endpoint comparisons into one distribution per FP since
 the table is one row per FP. "Map success" mirrors the Phase Stability
 component's own concept exactly: a successful StructureMatcher mapping
 (non-NaN RMSD) versus a failed one (NaN) -- no new tolerance or matching
-algorithm. No RMSD-threshold-fraction columns are added: `neb_analysis.py`
-does not compute per-threshold RMSD fractions for NEB endpoints, and adding
-them would be a new definition, not a reuse of an existing one.
+algorithm. The three RMSD-threshold-fraction columns (<0.05/<0.10/<0.20 A)
+mirror Phase Stability's own thresholds and its own denominator convention
+verbatim (`Phase_stability_ordering/scripts/convexhull_analysis_utils.py`,
+`summarize_structure_rmsd`: fraction of *mapped* comparisons under each
+cutoff, not a fraction of every attempt) -- `neb_analysis.py` itself still
+computes no threshold fractions; this export script only counts what
+fraction of its own already-real, already-computed RMSD values fall under
+each cutoff, exactly as Phase Stability's own export layer does.
 
 No scientific value is hardcoded anywhere in this script: every number in
 the output comes from `neb_analysis.py`.
@@ -156,12 +161,25 @@ def compute_endpoint_rmsd_leaderboard_fields(analysis, na, fp_order):
         n_attempted = len(attempted)
         n_matched = len(matched)
 
+        def pct_under(threshold, matched=matched, n_matched=n_matched):
+            # Same convention as Phase Stability's summarize_structure_rmsd
+            # (convexhull_analysis_utils.py): denominator is n_matched (the
+            # successfully-mapped comparisons), not n_attempted -- a failed
+            # mapping is excluded from every threshold fraction, not counted
+            # as a failure against it.
+            if not n_matched:
+                return None
+            return r(100.0 * sum(1 for v in matched if v < threshold) / n_matched)
+
         fields_by_fp[fp_key] = {
             "endpoint_rmsd_n_converged_paths": n_converged_paths,
             "endpoint_rmsd_n_endpoint_attempts": n_attempted,
             "endpoint_rmsd_map_success_pct": r(100.0 * n_matched / n_attempted) if n_attempted else None,
             "endpoint_rmsd_mean_angstrom": r(float(na.np.mean(matched))) if matched else None,
             "endpoint_rmsd_max_angstrom": r(float(na.np.max(matched))) if matched else None,
+            "endpoint_rmsd_lt_0_05_pct": pct_under(0.05),
+            "endpoint_rmsd_lt_0_10_pct": pct_under(0.10),
+            "endpoint_rmsd_lt_0_20_pct": pct_under(0.20),
         }
     return fields_by_fp
 
@@ -303,6 +321,9 @@ def build_leaderboard(reference_path, results_path, na, area_between_curves, sim
             "endpoint_rmsd_map_success_pct": "Map success (%): fraction of endpoint-structure comparisons, over the converged full FP-NEB population, for which pymatgen's StructureMatcher.get_rms_dist found a valid structural mapping between the FP-relaxed and DFT-relaxed endpoint structure (ltol=0.5, stol=0.5, angle_tol=10.0, unchanged from neb_analysis.py). A failed mapping is excluded from the mean/max RMSD below, not counted as RMSD=0.",
             "endpoint_rmsd_mean_angstrom": "Mean RMSD (angstrom) between FP-relaxed and DFT-relaxed endpoint structures, pooling the initial and final endpoints, over the converged full FP-NEB population, restricted to endpoint-structure comparisons with a successful StructureMatcher mapping.",
             "endpoint_rmsd_max_angstrom": "Maximum RMSD (angstrom) over the same population as endpoint_rmsd_mean_angstrom.",
+            "endpoint_rmsd_lt_0_05_pct": "Fraction (%) of successfully-mapped endpoint-structure comparisons with RMSD < 0.05 angstrom, over the same population as endpoint_rmsd_mean_angstrom. Same threshold and denominator convention as Phase Stability's own RMSD < 0.05 A column.",
+            "endpoint_rmsd_lt_0_10_pct": "Fraction (%) of successfully-mapped endpoint-structure comparisons with RMSD < 0.10 angstrom, over the same population as endpoint_rmsd_mean_angstrom. Same threshold and denominator convention as Phase Stability's own RMSD < 0.10 A column.",
+            "endpoint_rmsd_lt_0_20_pct": "Fraction (%) of successfully-mapped endpoint-structure comparisons with RMSD < 0.20 angstrom, over the same population as endpoint_rmsd_mean_angstrom. Same threshold and denominator convention as Phase Stability's own RMSD < 0.20 A column.",
         },
         "fp_order": fp_order,
         "models": records,

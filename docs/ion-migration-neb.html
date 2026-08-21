@@ -90,6 +90,15 @@
 
     .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0.2rem 0 1.1rem; scrollbar-width: thin; }
 
+    details { border: 1px solid var(--border); border-radius: 8px; margin-top: 0.9rem; background: var(--surface); overflow: hidden; }
+    details summary { padding: 0.85rem 1.1rem; cursor: pointer; font-size: 0.98rem; font-weight: 700; color: var(--heading); list-style: none; }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::before { content: "▶ "; font-size: 0.7rem; color: var(--muted); }
+    details[open] > summary::before { content: "▼ "; }
+    details[open] > summary { border-bottom: 1px solid var(--border); }
+    details summary:hover { color: var(--accent); }
+    .metric-description { padding: 0.8rem 1.1rem 0; font-size: 0.82rem; font-weight: 400; color: var(--muted); line-height: 1.55; }
+
     table.dt { border-collapse: collapse; font-size: 0.82rem; }
     table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 148px; }
     table.dt th { background: var(--surface2); color: var(--muted); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.3px; cursor: pointer; user-select: none; }
@@ -200,30 +209,24 @@
   </tbody></table>
   </div>
 
-  <h3>Endpoint structure relaxation error</h3>
-  <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">
-    Applies only to the <strong style="color:var(--heading);">full FP-NEB workflow</strong> -- the
-    static FP evaluation on DFT-NEB images does not produce a separately FP-relaxed endpoint
-    structure to compare against DFT. Restricted to full FP-NEB paths with
-    <code>neb_status.neb_converged == true</code> (the same convergence source used by the barrier
-    error and endpoint-energy metrics above), pooling the initial and final endpoint structures of
-    each path into one distribution per FP. Computed via pymatgen
-    <code>StructureMatcher</code> (unchanged from <code>neb_analysis.py</code>: ltol=0.5, stol=0.5,
-    angle_tol=10.0). "Map success" is the fraction of endpoint-structure comparisons for which
-    StructureMatcher found a valid mapping; mean/max RMSD are computed only over successfully
-    mapped comparisons.
-  </p>
+  <details>
+    <summary>Endpoint structure relaxation error</summary>
+    <div class="metric-description">Restricted to full FP-NEB converged paths.</div>
 
-  <div id="rmsd-leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
+    <div id="rmsd-leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin:0.8rem 1.1rem 0;"></div>
 
-  <div class="table-scroll">
-    <table class="dt nebrmsdtable"><thead><tr>
-    <th class="no-sort">FP</th>
-    <th data-dir="high">Map success (%) &uarr;</th>
-    <th data-dir="low">Mean/max RMSD (&Aring;) &darr;</th>
-  </tr></thead><tbody>
-  </tbody></table>
-  </div>
+    <div class="table-scroll">
+      <table class="dt nebrmsdtable"><thead><tr>
+      <th class="no-sort">FP</th>
+      <th data-dir="high">Map success (%) &uarr;</th>
+      <th data-dir="low">Mean/max RMSD (&Aring;) &darr;</th>
+      <th data-dir="high">RMSD &lt;0.05 &Aring; (%) &uarr;</th>
+      <th data-dir="high">RMSD &lt;0.10 &Aring; (%) &uarr;</th>
+      <th data-dir="high">RMSD &lt;0.20 &Aring; (%) &uarr;</th>
+    </tr></thead><tbody>
+    </tbody></table>
+    </div>
+  </details>
 </section>
 
 <!-- ============== METRIC DESCRIPTIONS ============== -->
@@ -498,6 +501,13 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
   // endpoint_rmsd_* fields (Table 9, converged full FP-NEB population only,
   // pooled initial+final endpoints per FP) -- same data.fp_order, same
   // one-row-per-FP structure as the primary leaderboard table above.
+  // One decimal place for endpoint-RMSD percentage columns (map success and
+  // the three RMSD-threshold fractions), matching Phase Stability's own
+  // displayed precision for the same kind of column.
+  function pct1(v) {
+    return (v === null || v === undefined || isNaN(v)) ? 'n/a' : Number(v).toFixed(1);
+  }
+
   function buildEndpointRmsdRows(tbl, data) {
     const tbody = tbl.querySelector('tbody');
     tbody.innerHTML = '';
@@ -519,7 +529,7 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
 
       const tdMapSuccess = document.createElement('td');
       tdMapSuccess.dataset.val = String(m.endpoint_rmsd_map_success_pct);
-      tdMapSuccess.textContent = fmtNum(m.endpoint_rmsd_map_success_pct);
+      tdMapSuccess.textContent = pct1(m.endpoint_rmsd_map_success_pct);
       tr.appendChild(tdMapSuccess);
 
       const tdRmsd = document.createElement('td');
@@ -528,6 +538,13 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
       tdRmsd.dataset.pair = '1';
       tdRmsd.dataset.fmt = 'dec4';
       tr.appendChild(tdRmsd);
+
+      ['endpoint_rmsd_lt_0_05_pct', 'endpoint_rmsd_lt_0_10_pct', 'endpoint_rmsd_lt_0_20_pct'].forEach(k => {
+        const td = document.createElement('td');
+        td.dataset.val = String(m[k]);
+        td.textContent = pct1(m[k]);
+        tr.appendChild(td);
+      });
 
       tbody.appendChild(tr);
     });
