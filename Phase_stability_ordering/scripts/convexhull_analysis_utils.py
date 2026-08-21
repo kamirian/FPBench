@@ -3547,7 +3547,7 @@ def _hull_metrics_row(dft_hull, fp_hull_one_fp, mode):
 
 
 def build_combined_hull_table(dft_hull, fp_hull, fps, model_names,
-                               decimal_places=2, mev_fmt="{:.0f}"):
+                               decimal_places=1, mev_fmt="{:.0f}"):
     """
     Combined Full-FP-relaxation + Static hull results table, formatted for
     display. Returns (combined_table, rows_by_mode) -- rows_by_mode carries
@@ -3620,22 +3620,26 @@ def build_combined_ordering_table(dft_ordering, fp_ordering, fps, model_names,
     return combined, summaries
 
 
-def build_rmsd_table(dft_hull, fp_hull, fps, model_names, mode="relax", decimal_places=2):
+def build_rmsd_table(dft_hull, fp_hull, fps, model_names, mode="relax",
+                      decimal_places=2, pct_decimal_places=1):
     """Combined RMSD results table (relax only -- matches the manuscript,
-    which reports RMSD for full FP relaxation, not static). Returns
+    which reports RMSD for full FP relaxation, not static). `decimal_places`
+    controls the Mean/max RMSD (Å) column; `pct_decimal_places` controls the
+    Map success and RMSD-threshold percentage columns. Returns
     (table, rmsd_dfs, summaries)."""
     fmt = f"{{:.{decimal_places}f}}"
+    fmt_pct = f"{{:.{pct_decimal_places}f}}"
     rmsd_dfs = {fp: compute_structure_rmsd(dft_hull, fp_hull[fp], mode) for fp in fps}
     summaries = {fp: summarize_structure_rmsd(rmsd_dfs[fp]) for fp in fps}
 
     table = pd.DataFrame(index=[model_names.get(fp, fp) for fp in fps])
-    table["Map success (%)"] = [fmt.format(summaries[fp]["map_success_pct"]) for fp in fps]
+    table["Map success (%)"] = [fmt_pct.format(summaries[fp]["map_success_pct"]) for fp in fps]
     table["Mean/max RMSD (Å)"] = [
         f"{fmt.format(summaries[fp]['avg_rmsd_ang'])} / {fmt.format(summaries[fp]['max_rmsd_ang'])}" for fp in fps
     ]
-    table["RMSD < 0.05 Å (%)"] = [fmt.format(summaries[fp]["rmsd_lt_0.05_pct"]) for fp in fps]
-    table["RMSD < 0.10 Å (%)"] = [fmt.format(summaries[fp]["rmsd_lt_0.10_pct"]) for fp in fps]
-    table["RMSD < 0.20 Å (%)"] = [fmt.format(summaries[fp]["rmsd_lt_0.20_pct"]) for fp in fps]
+    table["RMSD < 0.05 Å (%)"] = [fmt_pct.format(summaries[fp]["rmsd_lt_0.05_pct"]) for fp in fps]
+    table["RMSD < 0.10 Å (%)"] = [fmt_pct.format(summaries[fp]["rmsd_lt_0.10_pct"]) for fp in fps]
+    table["RMSD < 0.20 Å (%)"] = [fmt_pct.format(summaries[fp]["rmsd_lt_0.20_pct"]) for fp in fps]
     table.index.name = "FP"
     return table, rmsd_dfs, summaries
 
