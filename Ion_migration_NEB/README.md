@@ -8,27 +8,6 @@ Leaderboard: **https://mogroupumd.github.io/FPBench/ion-migration-neb.html**
 
 ---
 
-## What this component evaluates
-
-FPBench evaluates FPs on 154 real Li- and Na-ion migration pathways (a subset of the
-ion-migration dataset of Saravanan et al., 110 unique structures, 7 finalized DFT-NEB
-images per pathway), using three separate, never-mixed protocols:
-
-| Workflow | Structural input | Results branch |
-|---|---|---|
-| Full FP-NEB workflow | Unrelaxed source endpoint structures | `full_fp_neb` |
-| Static FP evaluations on the DFT-NEB image structures | Finalized DFT-NEB image structures | `fp_static_on_dft_neb` |
-| DFT static diagnostics on the final FP-NEB image structures | Final full FP-NEB image structures | `dft_static_on_fp_neb` |
-
-Rather than migration-barrier error alone, the metrics also capture whether FP-NEB
-calculations converge and produce a physically meaningful (Normal-Hill) energy profile,
-whether the FP preserves the correct relative endpoint energies, and -- by comparing the
-full FP-NEB workflow against static FP evaluations on the same DFT potential-energy
-surface -- whether barrier errors originate from intrinsic FP inaccuracy, endpoint
-relaxation error, or along-path force error during NEB optimization.
-
----
-
 ## Using FPBench
 
 There are two ways to use this component:
@@ -60,6 +39,27 @@ User DFT reference + user FP results
 
 Both routes converge on the same standardized data structures, validator, and metric
 functions -- nothing about the metrics or analysis code differs between them.
+
+---
+
+## What this component evaluates
+
+FPBench evaluates FPs on 154 Li- and Na-ion migration pathways across 109 unique ICSD
+structures (a subset of the ion-migration dataset of Saravanan et al., 7 finalized
+DFT-NEB images per pathway), using three separate, never-mixed protocols:
+
+| Workflow | Structural input | Results branch |
+|---|---|---|
+| Full FP-NEB workflow | Unrelaxed source endpoint structures | `full_fp_neb` |
+| Static FP evaluations on the DFT-NEB image structures | Finalized DFT-NEB image structures | `fp_static_on_dft_neb` |
+| DFT static diagnostics on the final FP-NEB image structures | Final full FP-NEB image structures | `dft_static_on_fp_neb` |
+
+Rather than migration-barrier error alone, the metrics also capture whether FP-NEB
+calculations converge and produce a physically meaningful (Normal-Hill) energy profile,
+and whether the FP preserves the correct relative endpoint energies. Comparing the full
+FP-NEB workflow against static FP evaluations on the DFT-NEB image structures separates
+errors observed from static FP evaluations on those images from additional differences
+associated with FP endpoint relaxation and FP-NEB pathway optimization.
 
 ---
 
@@ -149,6 +149,7 @@ dataset.
 | `generation/dft_static_on_fp_neb.ipynb` | Generates DFT static (VASP, no relaxation) calculations on the final full FP-NEB image structures, and merges parsed results into the `dft_static_on_fp_neb` branch. |
 | `scripts/neb_analysis.py` | The module both the analysis notebook and generator notebooks' validation logic build on: loaders, validator, canonical table/metric functions. See [Public entry points](#public-entry-points-scriptsneb_analysispy) below. |
 | `scripts/neb_plots.py`, `scripts/heatmap_table.py` | Plotting helpers used by the analysis notebook. |
+| `scripts/export_neb_leaderboard.py` | Regenerates `data/ion_migration_neb_leaderboard_summary.json` and its GitHub Pages copy (`../docs/data/...`) from a reference/results file pair, using the same `neb_analysis.py` functions the analysis notebook uses. Run this after regenerating results to keep the leaderboard website in sync. |
 | `data/ion_migration_neb_reference.json.gz` | The standardized DFT-NEB reference (154 pathways). See [Standardized data](#standardized-data). |
 | `data/ion_migration_neb_leaderboard_summary.json` | The compact per-FP summary the leaderboard website reads directly -- generated deterministically from the same functions as the analysis notebook, never hand-transcribed. |
 | `data/ion_migration_neb_results_standardized.json` (not committed) | The standardized, merged results for all seven FPs. See [Standardized data](#standardized-data). |
@@ -211,19 +212,22 @@ Table 8 in the manuscript; implementation details in the Methods.
 
 | Name | Metrics |
 |---|---|
-| Non-converged paths | Fraction of full FP-NEB calculations that do not satisfy the NEB convergence criterion before reaching the maximum number of optimization steps. |
-| Barrier error | The forward and backward barrier errors, referenced to the lower- and higher-energy endpoint respectively, computed relative to DFT for each path. MAE/RMSE over all converged paths. |
-| Endpoint energy ranking agreement | Fraction of converged paths for which the FP and DFT identify the same lower-energy endpoint, or both classify the two endpoints as equal in energy. |
-| Endpoint energy-difference error | For each converged path, the error (eV, not per atom) in the endpoint energy difference relative to DFT. MAE/RMSE over all converged paths. |
-| Energy-profile shape agreement | Fraction of converged paths for which the FP reproduces the DFT Normal-Hill energy profile. |
-| Integrated energy-profile difference | For each converged path, the integrated absolute energy difference between FP and DFT-NEB energy profiles along the normalized reaction coordinate. MAE/RMSE over converged paths. |
-| Endpoint structure relaxation error | RMSD between FP-relaxed and DFT-relaxed endpoint structures, for converged paths. Mean/maximum over all endpoint structures. |
+| Non-converged paths | Fraction of eligible full FP-NEB calculations that do not satisfy the NEB convergence criterion before reaching the maximum number of optimization steps. |
+| Barrier error, full FP-NEB | The forward and backward barrier errors, referenced to the lower- and higher-energy endpoint respectively, computed relative to DFT for each path over the converged full FP-NEB population. MAE/RMSE. |
+| Barrier error, static FP on DFT-NEB | The same forward/backward barrier errors, computed over valid static FP evaluations on the finalized DFT-NEB image structures. Static evaluations are single-point calculations and are not filtered by full FP-NEB convergence. MAE/RMSE. |
+| Endpoint energy ranking agreement | Fraction of the converged full FP-NEB population for which the FP and DFT identify the same lower-energy endpoint, or both classify the two endpoints as equal in energy. |
+| Endpoint energy-difference error | For each path in the converged full FP-NEB population, the error (eV, not per atom) in the endpoint energy difference relative to DFT. MAE/RMSE. |
+| Energy-profile shape agreement | Fraction of the converged full FP-NEB population for which the FP reproduces the DFT Normal-Hill energy profile. |
+| Integrated energy-profile difference | For each path in the converged full FP-NEB population, the integrated absolute energy difference between FP and DFT-NEB energy profiles along the normalized reaction coordinate. MAE/RMSE. |
+| Endpoint structure relaxation error | RMSD between FP-relaxed and DFT-relaxed endpoint structures, for the converged full FP-NEB population. Mean/maximum over all endpoint structures. |
 | Force errors on the FP-NEB path | Mean force-magnitude error and force-angle error, averaged over all atoms, for each image of the final FP-NEB path (protocol `dft_static_on_fp_neb`). |
 | Force errors on the DFT-NEB path | Mean force-magnitude error and force-angle error, averaged over all atoms, for each image of the final DFT-NEB path (protocol `fp_static_on_dft_neb`). |
 
-No overall ranking is published across these metrics; they are complementary,
-independent measurements. See the paper and Methods Section 4.7 for complete
-methodological details.
+The exact denominators (`n_total`/`n_nonconverged`, and which population feeds each MAE/RMSE
+pair) are those implemented in `scripts/neb_analysis.py`'s `compute_barrier_error_summaries`
+and `compute_profile_summaries` -- not redefined here. No overall ranking is published across
+these metrics; they are complementary, independent measurements. See the paper and Methods
+Section 4.7 for complete methodological details.
 
 ---
 

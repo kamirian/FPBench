@@ -76,6 +76,12 @@
     .col-legend .arrow-down { color: var(--accent3); }
     .col-legend .arrow-up   { color: var(--accent2); }
 
+    .pill-legend { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.2rem; padding: 0.9rem 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+    .pill-legend-item { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.82rem; color: var(--text); line-height: 1.5; }
+    .pill-swatch { flex-shrink: 0; display: inline-block; width: 64px; height: 14px; border-radius: 4px; margin-top: 0.15rem; }
+    .pill-swatch-blue { background: linear-gradient(90deg, rgb(247,251,255), rgb(8,48,107)); }
+    .pill-swatch-red  { background: linear-gradient(90deg, rgb(255,245,240), rgb(103,0,13)); }
+
     .protocol-table-wrap { overflow-x: auto; margin: 1rem 0 1.4rem; }
     table.gen { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-top: 0.8rem; }
     table.gen th { background: var(--surface); color: var(--muted); text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -149,102 +155,62 @@
 <section id="results">
   <h2>Results</h2>
   <p>
-    Values below are read directly from <code>data/ion_migration_neb_leaderboard_summary.json</code>,
-    generated deterministically from the same <code>neb_analysis.py</code> functions the analysis
-    notebook itself uses (<code>build_neb_analysis_results</code>,
-    <code>compute_key_neb_metrics_summary</code>), cross-checked against the notebook's own
-    <code>key_neb_metrics_summary_df</code> before export. FPBench does not publish a single overall
+    Values below are fetched at page load directly from
+    <code>data/ion_migration_neb_leaderboard_summary.json</code>, generated deterministically from
+    the same <code>neb_analysis.py</code> functions the analysis notebook itself uses
+    (<code>build_neb_analysis_results</code>, <code>compute_key_neb_metrics_summary</code>),
+    cross-checked against the notebook's own <code>key_neb_metrics_summary_df</code> before export.
+    Nothing in the table below is hand-transcribed. FPBench does not publish a single overall
     ranking; each column below is a complementary, independent measurement. Click any column heading
-    to sort by that column; click again to reverse. Rows load in a fixed, notebook-consistent order.
+    to sort by that column (paired MAE/RMSE columns sort by MAE); click again to reverse. Rows load
+    in a fixed, notebook-consistent order.
   </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
     <span><span class="arrow-up">&#9650;</span> higher is better</span>
-    <span style="color:var(--accent2);font-weight:700">green = best in column</span>
-    <span style="color:var(--accent3)">red = worst in column</span>
+    <span style="color:var(--accent2);font-weight:700">green text = best in column</span>
+    <span style="color:var(--accent3)">salmon text = worst in column</span>
     <span style="color:var(--muted)">identifiers are never colored</span>
+  </div>
+  <div class="pill-legend">
+    <div class="pill-legend-item">
+      <span class="pill-swatch pill-swatch-blue"></span>
+      <span><strong style="color:var(--heading);">Blue pill (left value): MAE.</strong> Darker blue = larger MAE for that metric.</span>
+    </div>
+    <div class="pill-legend-item">
+      <span class="pill-swatch pill-swatch-red"></span>
+      <span><strong style="color:var(--heading);">Red pill (right value): RMSE.</strong> Darker red = larger RMSE for that metric.</span>
+    </div>
+    <div class="pill-legend-item">
+      <span style="color:var(--muted);">MAE and RMSE shades are normalized independently within each metric column; do not compare shade intensity across different columns. This pill shading is separate from the green/salmon text used for single-valued columns (e.g. "Endpoint energy rank. agr."). Red is used for both RMSE pills and worst-value text, but never on the same cell.</span>
+    </div>
   </div>
 
   <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">
-    154 active pathways (0 excluded pathways shown -- see
-    <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB/data" style="color:var(--accent);">data/README.md</a>).
-    "Non-conv. paths" and all barrier/endpoint metrics are computed over converged full FP-NEB paths only,
-    per FP.
+    Results are reported for 154 active pathways. The excluded pathway is documented in the
+    <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB/data" style="color:var(--accent);">data README</a>
+    and is not included in the table. "Non-conv. paths" is reported over eligible full FP-NEB
+    calculations for each FP. Full FP-NEB barrier, endpoint, and profile metrics use the converged
+    full FP-NEB population; static FP barrier errors use valid static FP evaluations on the
+    finalized DFT-NEB image structures and are not filtered by full FP-NEB convergence. Exact
+    denominators are those implemented in <code>neb_analysis.py</code>.
   </p>
+  <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">
+    Scroll horizontally to view all metrics.
+  </p>
+
+  <div id="leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
 
   <div class="table-scroll">
     <table class="dt nebtable"><thead><tr>
     <th class="no-sort">FP</th>
-    <th data-dir="low">Non-conv. paths (n/total) &darr;</th>
-    <th data-dir="low">Barrier error (eV), full FP-NEB (MAE / RMSE) &darr;</th>
-    <th data-dir="low">Barrier error (eV), static FP on DFT-NEB (MAE / RMSE) &darr;</th>
-    <th data-dir="low">Endpoint energy-diff. error (eV), full (MAE / RMSE) &darr;</th>
-    <th data-dir="high">Endpoint energy rank. agr. (%), full &uarr;</th>
-    <th data-dir="high">Energy-profile shape agr. (%), full &uarr;</th>
+    <th data-dir="low">Non-conv. paths<br>(n/total) &darr;</th>
+    <th data-dir="low">Barrier error (eV)<br>full FP-NEB (MAE / RMSE) &darr;</th>
+    <th data-dir="low">Barrier error (eV)<br>static FP on DFT-NEB (MAE / RMSE) &darr;</th>
+    <th data-dir="low">Endpoint energy-diff.<br>error (eV), full (MAE / RMSE) &darr;</th>
+    <th data-dir="high">Endpoint energy<br>rank. agr. (%), full &uarr;</th>
+    <th data-dir="high">Energy-profile<br>shape agr. (%), full &uarr;</th>
   </tr></thead><tbody>
-  <tr>
-    <td class="fp-name">MACE</td>
-    <td data-val="0.0064935">1/154</td>
-    <td data-val="0.065" data-val2="0.1204" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.07" data-val2="0.13" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.0275" data-val2="0.0606" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="85.6209">85.62</td>
-    <td data-val="92.8105">92.81</td>
-  </tr>
-  <tr>
-    <td class="fp-name">CHGNet</td>
-    <td data-val="0.0129870">2/154</td>
-    <td data-val="0.115" data-val2="0.1557" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.115" data-val2="0.1503" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.0358" data-val2="0.0690" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="78.2895">78.29</td>
-    <td data-val="93.4211">93.42</td>
-  </tr>
-  <tr>
-    <td class="fp-name">M3GNet</td>
-    <td data-val="0.0064935">1/154</td>
-    <td data-val="0.155" data-val2="0.2155" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.16" data-val2="0.2251" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.0439" data-val2="0.0797" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="77.1242">77.12</td>
-    <td data-val="93.4641">93.46</td>
-  </tr>
-  <tr>
-    <td class="fp-name">UMA</td>
-    <td data-val="0.0194805">3/154</td>
-    <td data-val="0.05" data-val2="0.0906" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.06" data-val2="0.1005" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.0258" data-val2="0.0627" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="88.0795">88.08</td>
-    <td data-val="95.3642">95.36</td>
-  </tr>
-  <tr>
-    <td class="fp-name">M3GNet-MatPES</td>
-    <td data-val="0.0064935">1/154</td>
-    <td data-val="0.175" data-val2="0.2402" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.18" data-val2="0.2451" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.0412" data-val2="0.0758" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="73.2026">73.20</td>
-    <td data-val="89.5425">89.54</td>
-  </tr>
-  <tr>
-    <td class="fp-name">TensorNet-MatPES</td>
-    <td data-val="0">0/154</td>
-    <td data-val="0.1" data-val2="0.1551" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.11" data-val2="0.1651" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.0386" data-val2="0.0819" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="80.5195">80.52</td>
-    <td data-val="90.2597">90.26</td>
-  </tr>
-  <tr>
-    <td class="fp-name">MACE-MatPES</td>
-    <td data-val="0.0259740">4/154</td>
-    <td data-val="0.11" data-val2="0.1503" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.115" data-val2="0.1603" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="0.0329" data-val2="0.0699" data-pair="1" data-fmt="dec4"></td>
-    <td data-val="79.3333">79.33</td>
-    <td data-val="93.3333">93.33</td>
-  </tr>
   </tbody></table>
   </div>
 </section>
@@ -255,17 +221,18 @@
   <p>Table 8 in the manuscript; full methodological details in Methods Section 4.7.</p>
   <div class="protocol-table-wrap"><table class="gen">
     <tr><th>Name</th><th>Metrics</th></tr>
-    <tr><td>Non-converged paths</td><td>Fraction of full FP-NEB calculations that do not satisfy the NEB convergence criterion before reaching the maximum number of optimization steps.</td></tr>
-    <tr><td>Barrier error</td><td>The forward and backward barrier errors, referenced to the lower- and higher-energy endpoint respectively, computed relative to DFT for each path. MAE/RMSE over all converged paths.</td></tr>
-    <tr><td>Endpoint energy ranking agreement</td><td>Fraction of converged paths for which FP and DFT identify the same lower-energy endpoint between the two endpoints of the migration path, or both classify the two endpoints as equal in energy.</td></tr>
-    <tr><td>Endpoint energy-difference error</td><td>For each converged path, the error in the endpoint energy difference (eV, not per atom) computed relative to DFT. MAE/RMSE over all converged paths.</td></tr>
-    <tr><td>Energy-profile shape agreement</td><td>Fraction of converged paths for which the FP reproduces the Normal-Hill energy profile, as in DFT-NEBs.</td></tr>
-    <tr><td>Integrated energy-profile difference</td><td>For each converged path, the integrated absolute energy difference between FP and DFT-NEB energy profiles along the normalized reaction coordinate. MAE/RMSE over all converged paths.</td></tr>
-    <tr><td>Endpoint structure relaxation error</td><td>For each endpoint structure, the RMSD between FP-relaxed and DFT-relaxed endpoint structures. Mean/maximum over all endpoint structures of converged paths.</td></tr>
+    <tr><td>Non-converged paths</td><td>Fraction of eligible full FP-NEB calculations that do not satisfy the NEB convergence criterion before reaching the maximum number of optimization steps.</td></tr>
+    <tr><td>Barrier error, full FP-NEB</td><td>The forward and backward barrier errors, referenced to the lower- and higher-energy endpoint respectively, computed relative to DFT for each path over the converged full FP-NEB population. MAE/RMSE.</td></tr>
+    <tr><td>Barrier error, static FP on DFT-NEB</td><td>The same forward/backward barrier errors, computed over valid static FP evaluations on the finalized DFT-NEB image structures. Static evaluations are single-point calculations and are not filtered by full FP-NEB convergence. MAE/RMSE.</td></tr>
+    <tr><td>Endpoint energy ranking agreement</td><td>Fraction of the converged full FP-NEB population for which FP and DFT identify the same lower-energy endpoint between the two endpoints of the migration path, or both classify the two endpoints as equal in energy.</td></tr>
+    <tr><td>Endpoint energy-difference error</td><td>For each path in the converged full FP-NEB population, the error in the endpoint energy difference (eV, not per atom) computed relative to DFT. MAE/RMSE.</td></tr>
+    <tr><td>Energy-profile shape agreement</td><td>Fraction of the converged full FP-NEB population for which the FP reproduces the Normal-Hill energy profile, as in DFT-NEBs.</td></tr>
+    <tr><td>Integrated energy-profile difference</td><td>For each path in the converged full FP-NEB population, the integrated absolute energy difference between FP and DFT-NEB energy profiles along the normalized reaction coordinate. MAE/RMSE.</td></tr>
+    <tr><td>Endpoint structure relaxation error</td><td>For each endpoint structure, the RMSD between FP-relaxed and DFT-relaxed endpoint structures, for the converged full FP-NEB population. Mean/maximum over all endpoint structures.</td></tr>
     <tr><td>Force errors on the FP-NEB path</td><td>Mean force-magnitude error and force-angle error across all atoms for each image structure of the final FP-NEB path (protocol <code>dft_static_on_fp_neb</code>).</td></tr>
     <tr><td>Force errors on the DFT-NEB path</td><td>Mean force-magnitude error and force-angle error across all atoms for each image structure of the final DFT-NEB path (protocol <code>fp_static_on_dft_neb</code>).</td></tr>
   </table></div>
-  <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong> Full FP-NEB and static FP-on-DFT-NEB results are separate protocols; force errors on the FP-NEB path and force errors on the DFT-NEB path are separate diagnostics -- comparing the two protocols' barrier errors (both shown in the table above) helps distinguish intrinsic FP inaccuracy from errors introduced during FP endpoint relaxation and NEB path optimization.</p>
+  <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong> Full FP-NEB and static FP-on-DFT-NEB results are separate protocols; force errors on the FP-NEB path and force errors on the DFT-NEB path are separate diagnostics. Comparing the two protocols' barrier errors (both shown in the table above) separates errors observed from static FP evaluations on the DFT-NEB image structures from additional differences associated with FP endpoint relaxation and FP-NEB pathway optimization.</p>
 </section>
 
 <!-- ============== PROTOCOLS ============== -->
@@ -287,8 +254,8 @@
       <div class="ds-name">Ion-migration pathways</div>
       <div class="ds-stat">Active pathways: <span>154</span></div>
       <div class="ds-stat">DFT-NEB images per pathway: <span>7</span></div>
-      <div class="ds-stat">Unique structures: <span>110</span></div>
-      <div class="ds-desc">A subset of 154 Li- and Na-ion migration pathways from the ion-migration dataset of Saravanan et al., spanning oxides, sulfides, halides, and multi-anion compounds. DFT-NEB reference calculations were performed for this work.</div>
+      <div class="ds-stat">Unique ICSD structures: <span>109</span></div>
+      <div class="ds-desc">154 Li- and Na-ion migration pathways across 109 unique ICSD structures, from the ion-migration dataset of Saravanan et al., spanning oxides, sulfides, halides, and multi-anion compounds. DFT-NEB reference calculations were performed for this work.</div>
     </div>
   </div>
   <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted);">
@@ -313,7 +280,7 @@ User DFT reference + user FP results
                 validation and analysis
                           &darr;
      barrier, profile, RMSD, and force-error tables</code></pre>
-  <p style="margin-top:1rem;"><strong style="color:var(--heading);">Evaluate a new FP on the provided benchmark.</strong> Use <code>generation/fp_neb_generation_and_run.ipynb</code> to generate <code>full_fp_neb</code> and <code>fp_static_on_dft_neb</code> jobs and submission scripts against the shipped DFT reference, run them on your cluster, merge the results, then load the merged file directly in the analysis notebook -- your FP appears in every table above.</p>
+  <p style="margin-top:1rem;"><strong style="color:var(--heading);">Evaluate a new FP on the provided benchmark.</strong> Use <code>generation/fp_neb_generation_and_run.ipynb</code> to generate <code>full_fp_neb</code> and <code>fp_static_on_dft_neb</code> jobs and submission scripts against the shipped DFT reference, run them on your cluster, merge the results, then load the merged file directly in the analysis notebook. Your FP appears in every table above.</p>
   <p><strong style="color:var(--heading);">Apply the analysis functions to another dataset.</strong> Call <code>build_neb_analysis_results(...)</code> and the table/metric functions in <code>scripts/neb_analysis.py</code> directly with your own DFT reference and FP results.</p>
   <pre><code>git clone https://github.com/mogroupumd/FPBench.git
 cd FPBench/Ion_migration_NEB
@@ -452,10 +419,89 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
     });
   }
 
-  window.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('table.nebtable').forEach(colorizeSplitPairs);
-    document.querySelectorAll('table.dt').forEach(makeSortable);
-    document.querySelectorAll('table.nebtable').forEach(highlightBestGeneric);
+  // Fetches the leaderboard summary JSON and builds every <tr> in
+  // table.nebtable's <tbody> from it -- no scientific value is hardcoded in
+  // this page. Rows are built in data.fp_order's order (the same order the
+  // analysis notebook uses), one row per FP, and every displayed field maps
+  // 1:1 to a field in that FP's record.
+  async function loadLeaderboardData() {
+    const resp = await fetch('data/ion_migration_neb_leaderboard_summary.json', { cache: 'no-store' });
+    if (!resp.ok) {
+      throw new Error(`could not fetch leaderboard data (HTTP ${resp.status})`);
+    }
+    return resp.json();
+  }
+
+  function buildLeaderboardRows(tbl, data) {
+    const tbody = tbl.querySelector('tbody');
+    tbody.innerHTML = '';
+    const byKey = {};
+    (data.models || []).forEach(m => { byKey[m.fp_key] = m; });
+    const order = data.fp_order || [];
+    if (order.length !== 7 || (data.models || []).length !== 7) {
+      throw new Error(`expected 7 FP records, found fp_order=${order.length}, models=${(data.models || []).length}`);
+    }
+    order.forEach(fpKey => {
+      const m = byKey[fpKey];
+      if (!m) throw new Error(`fp_order lists '${fpKey}' but no matching record was found in models`);
+      const nonconvFrac = m.n_total ? m.n_nonconverged / m.n_total : NaN;
+      const tr = document.createElement('tr');
+
+      const tdName = document.createElement('td');
+      tdName.className = 'fp-name';
+      tdName.textContent = m.display_name;
+      tr.appendChild(tdName);
+
+      const tdNonconv = document.createElement('td');
+      tdNonconv.dataset.val = String(nonconvFrac);
+      tdNonconv.textContent = `${m.n_nonconverged}/${m.n_total}`;
+      tr.appendChild(tdNonconv);
+
+      const pairCols = [
+        ['barrier_mae_full_eV', 'barrier_rmse_full_eV'],
+        ['barrier_mae_static_eV', 'barrier_rmse_static_eV'],
+        ['endpoint_energy_diff_mae_eV', 'endpoint_energy_diff_rmse_eV'],
+      ];
+      pairCols.forEach(([k1, k2]) => {
+        const td = document.createElement('td');
+        td.dataset.val = String(m[k1]);
+        td.dataset.val2 = String(m[k2]);
+        td.dataset.pair = '1';
+        td.dataset.fmt = 'dec4';
+        tr.appendChild(td);
+      });
+
+      [['endpoint_ranking_agreement_pct', 2], ['energy_profile_shape_agreement_pct', 2]].forEach(([k, dec]) => {
+        const td = document.createElement('td');
+        td.dataset.val = String(m[k]);
+        td.textContent = Number(m[k]).toFixed(dec);
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function showLeaderboardError(message) {
+    const statusEl = document.getElementById('leaderboard-status');
+    statusEl.textContent = 'Could not load the leaderboard: ' + message + '. Showing no data rather than stale or invented values.';
+    statusEl.style.display = 'block';
+    document.querySelectorAll('table.nebtable').forEach(tbl => {
+      const wrap = tbl.closest('.table-scroll');
+      if (wrap) wrap.style.display = 'none';
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const data = await loadLeaderboardData();
+      document.querySelectorAll('table.nebtable').forEach(tbl => buildLeaderboardRows(tbl, data));
+      document.querySelectorAll('table.nebtable').forEach(colorizeSplitPairs);
+      document.querySelectorAll('table.dt').forEach(makeSortable);
+      document.querySelectorAll('table.nebtable').forEach(highlightBestGeneric);
+    } catch (err) {
+      showLeaderboardError(err.message);
+    }
   });
 </script>
 

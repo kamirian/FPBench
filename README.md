@@ -48,13 +48,14 @@ results.
 
 ## Ion Migration by NEB
 
-Evaluates FPs on 154 real Li- and Na-ion migration pathways using the nudged elastic band (NEB)
-method, with metrics chosen for their relevance to migration-barrier prediction: fraction of
-non-converged FP-NEB calculations, forward/backward barrier error, endpoint energy-ranking
-agreement, endpoint energy-difference error, energy-profile shape agreement, endpoint-structure
-relaxation error, and force errors on both the FP-NEB and DFT-NEB paths -- together isolating
-whether barrier errors originate from intrinsic FP inaccuracy, endpoint relaxation, or along-path
-force error during NEB optimization.
+Evaluates FPs on 154 real Li- and Na-ion migration pathways across 109 unique ICSD structures
+using the nudged elastic band (NEB) method, with metrics chosen for their relevance to
+migration-barrier prediction: fraction of non-converged FP-NEB calculations, forward/backward
+barrier error, endpoint energy-ranking agreement, endpoint energy-difference error, energy-profile
+shape agreement, endpoint-structure relaxation error, and force errors on both the FP-NEB and
+DFT-NEB paths. Comparing the full FP-NEB workflow against static FP evaluations on the DFT-NEB
+image structures separates errors observed from static FP evaluations on those images from
+additional differences associated with FP endpoint relaxation and FP-NEB pathway optimization.
 
 See [`Ion_migration_NEB/README.md`](Ion_migration_NEB/README.md) for the full description,
 standardized-file schema, and quick start, and the
