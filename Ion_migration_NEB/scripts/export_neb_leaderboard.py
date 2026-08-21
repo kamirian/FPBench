@@ -26,6 +26,22 @@ plain .json or gzip-compressed .json.gz), this script:
      with *different* content, unless `--force` is given (a no-op rewrite of
      byte-identical content is always allowed).
 
+Also computes and adds endpoint-structure relaxation error fields (Table 9;
+mirrors the presentation the Phase Stability component uses for its own
+structural-relaxation RMSD table) to each FP's record: reuses
+`neb_analysis.py`'s own `compute_endpoint_rmsd` output verbatim (StructureMatcher
+ltol=0.5/stol=0.5/angle_tol=10.0, unchanged), restricted at this export layer
+-- not inside `neb_analysis.py` -- to the converged full FP-NEB population
+(the same `neb_converged` lookup and default-True-if-missing convention
+`compute_barrier_error_summaries` already uses), pooling the initial (img0)
+and final (img_last) endpoint comparisons into one distribution per FP since
+the table is one row per FP. "Map success" mirrors the Phase Stability
+component's own concept exactly: a successful StructureMatcher mapping
+(non-NaN RMSD) versus a failed one (NaN) -- no new tolerance or matching
+algorithm. No RMSD-threshold-fraction columns are added: `neb_analysis.py`
+does not compute per-threshold RMSD fractions for NEB endpoints, and adding
+them would be a new definition, not a reuse of an existing one.
+
 No scientific value is hardcoded anywhere in this script: every number in
 the output comes from `neb_analysis.py`.
 
@@ -107,6 +123,49 @@ def validate_active_population(reference_data):
         f"{EXCLUDED_PATHWAY_KEY} is present in the active population -- refusing to export")
 
 
+def compute_endpoint_rmsd_leaderboard_fields(analysis, na, fp_order):
+    """Per-FP endpoint-structure relaxation error (Table 9), full_fp_neb
+    protocol only, restricted to the converged full FP-NEB population.
+    Reuses `analysis.endpoint_rmsd_by_fp_protocol_path` verbatim -- the raw
+    output of `neb_analysis.compute_endpoint_rmsd`, already computed once
+    inside `build_neb_analysis_results` -- and `analysis.full_fp_neb_status_by_fp_path`
+    for the exact same `neb_converged` lookup (default True if a pathway is
+    missing from the status map) that `compute_barrier_error_summaries` uses
+    internally. No new StructureMatcher call, tolerance, or matching logic.
+
+    Returns {fp_key: {field_name: value_or_None}}."""
+    fields_by_fp = {}
+    for fp_key in fp_order:
+        status_lookup = analysis.full_fp_neb_status_by_fp_path.get(fp_key, {})
+        rmsd_lookup = analysis.endpoint_rmsd_by_fp_protocol_path.get(fp_key, {}).get(
+            na.PROTOCOL_FULL_FP_NEB, {})
+
+        attempted = []
+        n_converged_paths = 0
+        for pkey, rd in rmsd_lookup.items():
+            icsd_str, path_str = pkey.split("|")
+            status_key = (str(int(icsd_str)), str(int(path_str)))
+            converged = status_lookup.get(status_key, {}).get("neb_converged", True)
+            if not converged:
+                continue
+            n_converged_paths += 1
+            attempted.append(rd.get("rmsd_img0", float("nan")))
+            attempted.append(rd.get("rmsd_img_last", float("nan")))
+
+        matched = [v for v in attempted if not na.np.isnan(v)]
+        n_attempted = len(attempted)
+        n_matched = len(matched)
+
+        fields_by_fp[fp_key] = {
+            "endpoint_rmsd_n_converged_paths": n_converged_paths,
+            "endpoint_rmsd_n_endpoint_attempts": n_attempted,
+            "endpoint_rmsd_map_success_pct": r(100.0 * n_matched / n_attempted) if n_attempted else None,
+            "endpoint_rmsd_mean_angstrom": r(float(na.np.mean(matched))) if matched else None,
+            "endpoint_rmsd_max_angstrom": r(float(na.np.max(matched))) if matched else None,
+        }
+    return fields_by_fp
+
+
 def build_leaderboard(reference_path, results_path, na, area_between_curves, simplify_class):
     with open(reference_path, "rb") as f:
         ref_sha256 = hashlib.sha256(f.read()).hexdigest() if Path(reference_path).suffix != ".gz" else None
@@ -147,6 +206,8 @@ def build_leaderboard(reference_path, results_path, na, area_between_curves, sim
         area_between_curves, simplify_class,
     )
 
+    endpoint_rmsd_fields_by_fp = compute_endpoint_rmsd_leaderboard_fields(analysis, na, fp_order)
+
     records = []
     for fp_key in fp_order:
         conv = analysis.full_fp_neb_convergence_summary[fp_key][na.PROTOCOL_FULL_FP_NEB]
@@ -184,7 +245,22 @@ def build_leaderboard(reference_path, results_path, na, area_between_curves, sim
         expected_nonconv = key_df.loc[fp_key, "Non-conv. paths (n/total)"]
         assert expected_nonconv == f"{n_not_conv}/{n_total}", (fp_key, expected_nonconv, n_not_conv, n_total)
 
-        records.append({
+        # Cross-check the pooled (img0 + img_last) endpoint-RMSD mean against
+        # compute_barrier_error_summaries's own already-computed, separately
+        # tracked mean_RMSD_img0/mean_RMSD_img_last (same converged
+        # population, same underlying compute_endpoint_rmsd data) -- this
+        # export's own aggregation must reproduce the real function's numbers,
+        # never silently diverge from them.
+        rmsd_mean_exported = endpoint_rmsd_fields_by_fp[fp_key]["endpoint_rmsd_mean_angstrom"]
+        m0 = full_barrier_df.loc[fp_key, "mean_RMSD_img0"] if "mean_RMSD_img0" in full_barrier_df.columns else float("nan")
+        ml = full_barrier_df.loc[fp_key, "mean_RMSD_img_last"] if "mean_RMSD_img_last" in full_barrier_df.columns else float("nan")
+        if rmsd_mean_exported is not None and not (na.np.isnan(m0) or na.np.isnan(ml)):
+            expected_pooled_mean = (float(m0) + float(ml)) / 2
+            assert abs(rmsd_mean_exported - expected_pooled_mean) < 5e-4, (
+                fp_key, "endpoint_rmsd_mean_angstrom cross-check failed",
+                rmsd_mean_exported, expected_pooled_mean)
+
+        record = {
             "fp_key": fp_key,
             "display_name": FP_DISPLAY_NAMES[fp_key],
             "n_nonconverged": n_not_conv,
@@ -197,7 +273,9 @@ def build_leaderboard(reference_path, results_path, na, area_between_curves, sim
             "endpoint_energy_diff_rmse_eV": r(ep_dE_rmse),
             "endpoint_ranking_agreement_pct": r(ep_rank_pct),
             "energy_profile_shape_agreement_pct": r(shape_pct),
-        })
+        }
+        record.update(endpoint_rmsd_fields_by_fp[fp_key])
+        records.append(record)
 
     leaderboard = {
         "schema_version": "1.0.0",
@@ -218,6 +296,13 @@ def build_leaderboard(reference_path, results_path, na, area_between_curves, sim
             "endpoint_energy_diff_rmse_eV": "RMSE of the endpoint energy-difference error (eV, not per atom), full FP-NEB workflow, over the converged full FP-NEB population.",
             "endpoint_ranking_agreement_pct": "Endpoint energy-ranking agreement (%): fraction of the converged full FP-NEB population where the FP identifies the same lower-energy endpoint as DFT (or both classify the endpoints as equal in energy).",
             "energy_profile_shape_agreement_pct": "Energy-profile shape agreement (%): fraction of the converged full FP-NEB population for which the FP reproduces the DFT Normal-Hill energy profile.",
+        },
+        "endpoint_rmsd_metric_columns": {
+            "endpoint_rmsd_n_converged_paths": "Number of full FP-NEB paths with neb_status.neb_converged == true (same convergence source as the barrier-error/endpoint-energy metrics above) and a computable endpoint-RMSD record.",
+            "endpoint_rmsd_n_endpoint_attempts": "Number of individual endpoint-structure comparisons attempted (2 per converged path: the initial and final endpoint), the population map_success_pct/mean/max are computed or filtered from.",
+            "endpoint_rmsd_map_success_pct": "Map success (%): fraction of endpoint-structure comparisons, over the converged full FP-NEB population, for which pymatgen's StructureMatcher.get_rms_dist found a valid structural mapping between the FP-relaxed and DFT-relaxed endpoint structure (ltol=0.5, stol=0.5, angle_tol=10.0, unchanged from neb_analysis.py). A failed mapping is excluded from the mean/max RMSD below, not counted as RMSD=0.",
+            "endpoint_rmsd_mean_angstrom": "Mean RMSD (angstrom) between FP-relaxed and DFT-relaxed endpoint structures, pooling the initial and final endpoints, over the converged full FP-NEB population, restricted to endpoint-structure comparisons with a successful StructureMatcher mapping.",
+            "endpoint_rmsd_max_angstrom": "Maximum RMSD (angstrom) over the same population as endpoint_rmsd_mean_angstrom.",
         },
         "fp_order": fp_order,
         "models": records,
@@ -278,6 +363,7 @@ def main():
     write_output(leaderboard, docs_dest, args.force)
 
     print("CROSS-CHECK AGAINST key_neb_metrics_summary_df: ALL PASSED")
+    print("CROSS-CHECK endpoint_rmsd_mean_angstrom AGAINST mean_RMSD_img0/mean_RMSD_img_last: ALL PASSED")
 
 
 if __name__ == "__main__":

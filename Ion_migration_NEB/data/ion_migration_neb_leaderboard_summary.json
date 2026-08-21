@@ -20,6 +20,13 @@
     "endpoint_ranking_agreement_pct": "Endpoint energy-ranking agreement (%): fraction of the converged full FP-NEB population where the FP identifies the same lower-energy endpoint as DFT (or both classify the endpoints as equal in energy).",
     "energy_profile_shape_agreement_pct": "Energy-profile shape agreement (%): fraction of the converged full FP-NEB population for which the FP reproduces the DFT Normal-Hill energy profile."
   },
+  "endpoint_rmsd_metric_columns": {
+    "endpoint_rmsd_n_converged_paths": "Number of full FP-NEB paths with neb_status.neb_converged == true (same convergence source as the barrier-error/endpoint-energy metrics above) and a computable endpoint-RMSD record.",
+    "endpoint_rmsd_n_endpoint_attempts": "Number of individual endpoint-structure comparisons attempted (2 per converged path: the initial and final endpoint), the population map_success_pct/mean/max are computed or filtered from.",
+    "endpoint_rmsd_map_success_pct": "Map success (%): fraction of endpoint-structure comparisons, over the converged full FP-NEB population, for which pymatgen's StructureMatcher.get_rms_dist found a valid structural mapping between the FP-relaxed and DFT-relaxed endpoint structure (ltol=0.5, stol=0.5, angle_tol=10.0, unchanged from neb_analysis.py). A failed mapping is excluded from the mean/max RMSD below, not counted as RMSD=0.",
+    "endpoint_rmsd_mean_angstrom": "Mean RMSD (angstrom) between FP-relaxed and DFT-relaxed endpoint structures, pooling the initial and final endpoints, over the converged full FP-NEB population, restricted to endpoint-structure comparisons with a successful StructureMatcher mapping.",
+    "endpoint_rmsd_max_angstrom": "Maximum RMSD (angstrom) over the same population as endpoint_rmsd_mean_angstrom."
+  },
   "fp_order": [
     "MACE-MP0_medium",
     "CHGNET",
@@ -42,7 +49,12 @@
       "endpoint_energy_diff_mae_eV": 0.0275,
       "endpoint_energy_diff_rmse_eV": 0.0606,
       "endpoint_ranking_agreement_pct": 85.6209,
-      "energy_profile_shape_agreement_pct": 92.8105
+      "energy_profile_shape_agreement_pct": 92.8105,
+      "endpoint_rmsd_n_converged_paths": 153,
+      "endpoint_rmsd_n_endpoint_attempts": 306,
+      "endpoint_rmsd_map_success_pct": 100.0,
+      "endpoint_rmsd_mean_angstrom": 0.0593,
+      "endpoint_rmsd_max_angstrom": 0.7278
     },
     {
       "fp_key": "CHGNET",
@@ -56,7 +68,12 @@
       "endpoint_energy_diff_mae_eV": 0.0358,
       "endpoint_energy_diff_rmse_eV": 0.069,
       "endpoint_ranking_agreement_pct": 78.2895,
-      "energy_profile_shape_agreement_pct": 93.4211
+      "energy_profile_shape_agreement_pct": 93.4211,
+      "endpoint_rmsd_n_converged_paths": 152,
+      "endpoint_rmsd_n_endpoint_attempts": 304,
+      "endpoint_rmsd_map_success_pct": 100.0,
+      "endpoint_rmsd_mean_angstrom": 0.0783,
+      "endpoint_rmsd_max_angstrom": 0.6584
     },
     {
       "fp_key": "M3GNET_pes",
@@ -70,7 +87,12 @@
       "endpoint_energy_diff_mae_eV": 0.0439,
       "endpoint_energy_diff_rmse_eV": 0.0797,
       "endpoint_ranking_agreement_pct": 77.1242,
-      "energy_profile_shape_agreement_pct": 93.4641
+      "energy_profile_shape_agreement_pct": 93.4641,
+      "endpoint_rmsd_n_converged_paths": 153,
+      "endpoint_rmsd_n_endpoint_attempts": 306,
+      "endpoint_rmsd_map_success_pct": 100.0,
+      "endpoint_rmsd_mean_angstrom": 0.1305,
+      "endpoint_rmsd_max_angstrom": 0.6594
     },
     {
       "fp_key": "UMA_s1_p1",
@@ -84,7 +106,12 @@
       "endpoint_energy_diff_mae_eV": 0.0258,
       "endpoint_energy_diff_rmse_eV": 0.0627,
       "endpoint_ranking_agreement_pct": 88.0795,
-      "energy_profile_shape_agreement_pct": 95.3642
+      "energy_profile_shape_agreement_pct": 95.3642,
+      "endpoint_rmsd_n_converged_paths": 151,
+      "endpoint_rmsd_n_endpoint_attempts": 302,
+      "endpoint_rmsd_map_success_pct": 100.0,
+      "endpoint_rmsd_mean_angstrom": 0.0495,
+      "endpoint_rmsd_max_angstrom": 0.6189
     },
     {
       "fp_key": "M3GNET_matpes_PBE",
@@ -98,7 +125,12 @@
       "endpoint_energy_diff_mae_eV": 0.0412,
       "endpoint_energy_diff_rmse_eV": 0.0758,
       "endpoint_ranking_agreement_pct": 73.2026,
-      "energy_profile_shape_agreement_pct": 89.5425
+      "energy_profile_shape_agreement_pct": 89.5425,
+      "endpoint_rmsd_n_converged_paths": 153,
+      "endpoint_rmsd_n_endpoint_attempts": 306,
+      "endpoint_rmsd_map_success_pct": 99.6732,
+      "endpoint_rmsd_mean_angstrom": 0.1614,
+      "endpoint_rmsd_max_angstrom": 0.8274
     },
     {
       "fp_key": "TensorNET_matpes_PBE",
@@ -112,7 +144,12 @@
       "endpoint_energy_diff_mae_eV": 0.0386,
       "endpoint_energy_diff_rmse_eV": 0.0819,
       "endpoint_ranking_agreement_pct": 80.5195,
-      "energy_profile_shape_agreement_pct": 90.2597
+      "energy_profile_shape_agreement_pct": 90.2597,
+      "endpoint_rmsd_n_converged_paths": 154,
+      "endpoint_rmsd_n_endpoint_attempts": 308,
+      "endpoint_rmsd_map_success_pct": 100.0,
+      "endpoint_rmsd_mean_angstrom": 0.0803,
+      "endpoint_rmsd_max_angstrom": 0.9561
     },
     {
       "fp_key": "MACE_matpes_pbe",
@@ -126,12 +163,17 @@
       "endpoint_energy_diff_mae_eV": 0.0329,
       "endpoint_energy_diff_rmse_eV": 0.0699,
       "endpoint_ranking_agreement_pct": 79.3333,
-      "energy_profile_shape_agreement_pct": 93.3333
+      "energy_profile_shape_agreement_pct": 93.3333,
+      "endpoint_rmsd_n_converged_paths": 150,
+      "endpoint_rmsd_n_endpoint_attempts": 300,
+      "endpoint_rmsd_map_success_pct": 100.0,
+      "endpoint_rmsd_mean_angstrom": 0.0626,
+      "endpoint_rmsd_max_angstrom": 0.83
     }
   ],
   "generation_metadata": {
     "generated_by": "Ion_migration_NEB/scripts/export_neb_leaderboard.py, from neb_analysis.py's build_neb_analysis_results/compute_key_neb_metrics_summary (same functions and rounding order as the analysis notebook)",
-    "generation_timestamp_utc": "2026-08-21T03:10:31.509344+00:00",
+    "generation_timestamp_utc": "2026-08-21T16:17:59.132104+00:00",
     "source_reference_file": "ion_migration_neb_reference.json",
     "source_reference_sha256": "f673135dd05b42371f23de1f89e3cd14729605c5ddd2f3672376785d8c88b4bf",
     "source_results_file": "ion_migration_neb_results.json",

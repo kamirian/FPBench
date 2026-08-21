@@ -199,6 +199,31 @@
   </tr></thead><tbody>
   </tbody></table>
   </div>
+
+  <h3>Endpoint structure relaxation error</h3>
+  <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">
+    Applies only to the <strong style="color:var(--heading);">full FP-NEB workflow</strong> -- the
+    static FP evaluation on DFT-NEB images does not produce a separately FP-relaxed endpoint
+    structure to compare against DFT. Restricted to full FP-NEB paths with
+    <code>neb_status.neb_converged == true</code> (the same convergence source used by the barrier
+    error and endpoint-energy metrics above), pooling the initial and final endpoint structures of
+    each path into one distribution per FP. Computed via pymatgen
+    <code>StructureMatcher</code> (unchanged from <code>neb_analysis.py</code>: ltol=0.5, stol=0.5,
+    angle_tol=10.0). "Map success" is the fraction of endpoint-structure comparisons for which
+    StructureMatcher found a valid mapping; mean/max RMSD are computed only over successfully
+    mapped comparisons.
+  </p>
+
+  <div id="rmsd-leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
+
+  <div class="table-scroll">
+    <table class="dt nebrmsdtable"><thead><tr>
+    <th class="no-sort">FP</th>
+    <th data-dir="high">Map success (%) &uarr;</th>
+    <th data-dir="low">Mean/max RMSD (&Aring;) &darr;</th>
+  </tr></thead><tbody>
+  </tbody></table>
+  </div>
 </section>
 
 <!-- ============== METRIC DESCRIPTIONS ============== -->
@@ -215,6 +240,7 @@
     <tr><td>Energy-profile shape agreement</td><td>Fraction of the converged full FP-NEB population for which the FP reproduces the Normal-Hill energy profile, as in DFT-NEBs.</td></tr>
     <tr><td>Integrated energy-profile difference</td><td>For each path in the converged full FP-NEB population, the integrated absolute energy difference between FP and DFT-NEB energy profiles along the normalized reaction coordinate. MAE/RMSE.</td></tr>
     <tr><td>Endpoint structure relaxation error</td><td>For each endpoint structure, the RMSD between FP-relaxed and DFT-relaxed endpoint structures, for the converged full FP-NEB population. Mean/maximum over all endpoint structures.</td></tr>
+    <tr><td>Map success</td><td>Fraction of endpoint-structure comparisons, over the converged full FP-NEB population, for which pymatgen's <code>StructureMatcher</code> found a valid structural mapping between the FP-relaxed and DFT-relaxed endpoint structure; failures correspond to large structural deviation and are excluded from the mean/max RMSD above.</td></tr>
     <tr><td>Force errors on the FP-NEB path</td><td>Mean force-magnitude error and force-angle error across all atoms for each image structure of the final FP-NEB path (protocol <code>dft_static_on_fp_neb</code>).</td></tr>
     <tr><td>Force errors on the DFT-NEB path</td><td>Mean force-magnitude error and force-angle error across all atoms for each image structure of the final DFT-NEB path (protocol <code>fp_static_on_dft_neb</code>).</td></tr>
   </table></div>
@@ -468,11 +494,55 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
     });
   }
 
+  // Builds table.nebrmsdtable's rows from the same fetched JSON's
+  // endpoint_rmsd_* fields (Table 9, converged full FP-NEB population only,
+  // pooled initial+final endpoints per FP) -- same data.fp_order, same
+  // one-row-per-FP structure as the primary leaderboard table above.
+  function buildEndpointRmsdRows(tbl, data) {
+    const tbody = tbl.querySelector('tbody');
+    tbody.innerHTML = '';
+    const byKey = {};
+    (data.models || []).forEach(m => { byKey[m.fp_key] = m; });
+    const order = data.fp_order || [];
+    if (order.length !== 7 || (data.models || []).length !== 7) {
+      throw new Error(`expected 7 FP records, found fp_order=${order.length}, models=${(data.models || []).length}`);
+    }
+    order.forEach(fpKey => {
+      const m = byKey[fpKey];
+      if (!m) throw new Error(`fp_order lists '${fpKey}' but no matching record was found in models`);
+      const tr = document.createElement('tr');
+
+      const tdName = document.createElement('td');
+      tdName.className = 'fp-name';
+      tdName.textContent = m.display_name;
+      tr.appendChild(tdName);
+
+      const tdMapSuccess = document.createElement('td');
+      tdMapSuccess.dataset.val = String(m.endpoint_rmsd_map_success_pct);
+      tdMapSuccess.textContent = fmtNum(m.endpoint_rmsd_map_success_pct);
+      tr.appendChild(tdMapSuccess);
+
+      const tdRmsd = document.createElement('td');
+      tdRmsd.dataset.val = String(m.endpoint_rmsd_mean_angstrom);
+      tdRmsd.dataset.val2 = String(m.endpoint_rmsd_max_angstrom);
+      tdRmsd.dataset.pair = '1';
+      tdRmsd.dataset.fmt = 'dec4';
+      tr.appendChild(tdRmsd);
+
+      tbody.appendChild(tr);
+    });
+  }
+
   function showLeaderboardError(message) {
     const statusEl = document.getElementById('leaderboard-status');
     statusEl.textContent = 'Could not load the leaderboard: ' + message + '. Showing no data rather than stale or invented values.';
     statusEl.style.display = 'block';
-    document.querySelectorAll('table.nebtable').forEach(tbl => {
+    const rmsdStatusEl = document.getElementById('rmsd-leaderboard-status');
+    if (rmsdStatusEl) {
+      rmsdStatusEl.textContent = statusEl.textContent;
+      rmsdStatusEl.style.display = 'block';
+    }
+    document.querySelectorAll('table.nebtable, table.nebrmsdtable').forEach(tbl => {
       const wrap = tbl.closest('.table-scroll');
       if (wrap) wrap.style.display = 'none';
     });
@@ -483,8 +553,13 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
       const data = await loadLeaderboardData();
       document.querySelectorAll('table.nebtable').forEach(tbl => buildLeaderboardRows(tbl, data));
       document.querySelectorAll('table.nebtable').forEach(colorizeSplitPairs);
-      document.querySelectorAll('table.dt').forEach(makeSortable);
       document.querySelectorAll('table.nebtable').forEach(highlightBestGeneric);
+
+      document.querySelectorAll('table.nebrmsdtable').forEach(tbl => buildEndpointRmsdRows(tbl, data));
+      document.querySelectorAll('table.nebrmsdtable').forEach(colorizeSplitPairs);
+      document.querySelectorAll('table.nebrmsdtable').forEach(highlightBestGeneric);
+
+      document.querySelectorAll('table.dt').forEach(makeSortable);
     } catch (err) {
       showLeaderboardError(err.message);
     }
