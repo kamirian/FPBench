@@ -10,9 +10,8 @@ computational materials workflows:
 Each component targets a specific computational task and evaluates FPs against metrics chosen
 for their relevance to that task, rather than a single generic accuracy score.
 
-**The current public release provides the Force Prediction and Phase Stability and Elemental
-Ordering components.**
-**The Ion Migration by NEB component will be added later.**
+**The current public release provides all three components: Force Prediction, Phase
+Stability and Elemental Ordering, and Ion Migration by NEB.**
 
 ## Components
 
@@ -20,7 +19,7 @@ Ordering components.**
 |---|---|---|
 | Force Prediction | Available | [`Force_error/README.md`](Force_error/README.md) &middot; [website](https://mogroupumd.github.io/FPBench/force-error.html) |
 | Phase Stability and Elemental Ordering | Available | [`Phase_stability_ordering/README.md`](Phase_stability_ordering/README.md) &middot; [website](https://mogroupumd.github.io/FPBench/phase-stability-ordering.html) |
-| Ion Migration by NEB | To be added | [`Ion_migration_NEB/README.md`](Ion_migration_NEB/README.md) |
+| Ion Migration by NEB | Available | [`Ion_migration_NEB/README.md`](Ion_migration_NEB/README.md) &middot; [website](https://mogroupumd.github.io/FPBench/ion-migration-neb.html) |
 
 ## Force Prediction
 
@@ -45,6 +44,21 @@ metrics, rate of ranking errors, and structure-mapping RMSD against the DFT-rela
 See [`Phase_stability_ordering/README.md`](Phase_stability_ordering/README.md) for the full
 description, standardized-file schema, and quick start, and the
 [leaderboard](https://mogroupumd.github.io/FPBench/phase-stability-ordering.html) for the current
+results.
+
+## Ion Migration by NEB
+
+Evaluates FPs on 154 real Li- and Na-ion migration pathways using the nudged elastic band (NEB)
+method, with metrics chosen for their relevance to migration-barrier prediction: fraction of
+non-converged FP-NEB calculations, forward/backward barrier error, endpoint energy-ranking
+agreement, endpoint energy-difference error, energy-profile shape agreement, endpoint-structure
+relaxation error, and force errors on both the FP-NEB and DFT-NEB paths -- together isolating
+whether barrier errors originate from intrinsic FP inaccuracy, endpoint relaxation, or along-path
+force error during NEB optimization.
+
+See [`Ion_migration_NEB/README.md`](Ion_migration_NEB/README.md) for the full description,
+standardized-file schema, and quick start, and the
+[leaderboard](https://mogroupumd.github.io/FPBench/ion-migration-neb.html) for the current
 results.
 
 ## Foundation Potentials Evaluated
@@ -97,9 +111,9 @@ The three r2SCAN-trained FPs (M3GNet-MatPES-r2SCAN, TensorNet-MatPES-r2SCAN, MAC
 are evaluated on the MatPES-r2SCAN dataset (training), in addition to the models listed above.
 
 The "Phase Stability/Ordering & Ion Migration (NEB)" column reflects evaluation in the manuscript.
-**Public code and results for Phase Stability/Ordering are now available** -- see
-[Phase_stability_ordering/README.md](Phase_stability_ordering/README.md). Ion Migration (NEB) is
-still a placeholder -- see [Ion_migration_NEB/README.md](Ion_migration_NEB/README.md).
+**Public code and results for Phase Stability/Ordering and Ion Migration (NEB) are now
+available** -- see [Phase_stability_ordering/README.md](Phase_stability_ordering/README.md) and
+[Ion_migration_NEB/README.md](Ion_migration_NEB/README.md).
 
 ---
 
@@ -125,8 +139,15 @@ FPBench/
 │   ├── data/
 │   ├── examples/
 │   └── requirements.txt
-├── Ion_migration_NEB/                # to be added
-│   └── README.md
+├── Ion_migration_NEB/                # Ion Migration by NEB component (available)
+│   ├── README.md
+│   ├── analysis/
+│   ├── generation/
+│   ├── scripts/
+│   ├── data/
+│   ├── examples/
+│   ├── tests/
+│   └── requirements.txt
 └── docs/                             # leaderboard website (GitHub Pages)
     ├── index.html
     ├── force-error.html

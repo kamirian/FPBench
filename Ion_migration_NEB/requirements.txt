@@ -1,0 +1,23 @@
+# Analysis notebook (analysis/neb_analysis.ipynb) and scripts/
+numpy
+pandas
+matplotlib
+pymatgen
+scikit-learn
+
+# Generator notebooks (generation/fp_neb_generation_and_run.ipynb,
+# generation/dft_static_on_fp_neb.ipynb) -- only needed to run the
+# job-generation / submission-script / merge cells themselves, NOT to
+# evaluate any FP:
+# ase
+
+# DFT-static generator notebook's VASP input-set generation:
+# pymatgen already covers this (pymatgen.io.vasp.sets.MPStaticSet)
+
+# Each FP's own environment (install separately, one venv per FP family --
+# see generation/fp_neb_generation_and_run.ipynb's Foundation Potential
+# Registry section and the README):
+#   mace-torch      # MACE / MACE-MatPES
+#   chgnet          # CHGNet
+#   matgl           # M3GNet / TensorNet / M3GNet-MatPES / TensorNet-MatPES
+#   fairchem-core   # UMA

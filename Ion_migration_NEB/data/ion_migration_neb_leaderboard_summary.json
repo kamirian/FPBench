@@ -1,0 +1,140 @@
+{
+  "schema_version": "1.0.0",
+  "component": "ion_migration_neb",
+  "dataset_name": "FPBench ion-migration NEB leaderboard summary",
+  "active_pathway_count": 154,
+  "active_dft_reference_image_count": 1078,
+  "units": {
+    "energy": "eV",
+    "angle": "degree"
+  },
+  "metric_columns": {
+    "n_nonconverged": "Number of full FP-NEB paths (of n_total) that did not satisfy the NEB force-convergence criterion within the maximum optimization steps.",
+    "n_total": "Total number of paths entering the full FP-NEB barrier-error analysis for this FP (common active pathways with a valid DFT-NEB classification and a full_fp_neb result).",
+    "barrier_mae_full_eV": "MAE of forward/backward migration-barrier errors (eV), full FP-NEB workflow, pooled and combined per compute_key_neb_metrics_summary's round-then-combine convention.",
+    "barrier_rmse_full_eV": "RMSE of forward/backward migration-barrier errors (eV), full FP-NEB workflow, same combination convention.",
+    "barrier_mae_static_eV": "MAE of forward/backward migration-barrier errors (eV), static FP evaluation on the DFT-NEB images.",
+    "barrier_rmse_static_eV": "RMSE of forward/backward migration-barrier errors (eV), static FP evaluation on the DFT-NEB images.",
+    "endpoint_energy_diff_mae_eV": "MAE of the endpoint energy-difference error (eV, not per atom), full FP-NEB workflow, over converged paths.",
+    "endpoint_energy_diff_rmse_eV": "RMSE of the endpoint energy-difference error (eV, not per atom), full FP-NEB workflow, over converged paths.",
+    "endpoint_ranking_agreement_pct": "Endpoint energy-ranking agreement (%): fraction of converged paths where the FP identifies the same lower-energy endpoint as DFT (or both classify the endpoints as equal in energy).",
+    "energy_profile_shape_agreement_pct": "Energy-profile shape agreement (%): fraction of converged paths for which the FP reproduces the DFT Normal-Hill energy profile."
+  },
+  "fp_order": [
+    "MACE-MP0_medium",
+    "CHGNET",
+    "M3GNET_pes",
+    "UMA_s1_p1",
+    "M3GNET_matpes_PBE",
+    "TensorNET_matpes_PBE",
+    "MACE_matpes_pbe"
+  ],
+  "models": [
+    {
+      "fp_key": "MACE-MP0_medium",
+      "display_name": "MACE",
+      "n_nonconverged": 1,
+      "n_total": 154,
+      "barrier_mae_full_eV": 0.065,
+      "barrier_rmse_full_eV": 0.1204,
+      "barrier_mae_static_eV": 0.07,
+      "barrier_rmse_static_eV": 0.13,
+      "endpoint_energy_diff_mae_eV": 0.0275,
+      "endpoint_energy_diff_rmse_eV": 0.0606,
+      "endpoint_ranking_agreement_pct": 85.6209,
+      "energy_profile_shape_agreement_pct": 92.8105
+    },
+    {
+      "fp_key": "CHGNET",
+      "display_name": "CHGNet",
+      "n_nonconverged": 2,
+      "n_total": 154,
+      "barrier_mae_full_eV": 0.115,
+      "barrier_rmse_full_eV": 0.1557,
+      "barrier_mae_static_eV": 0.115,
+      "barrier_rmse_static_eV": 0.1503,
+      "endpoint_energy_diff_mae_eV": 0.0358,
+      "endpoint_energy_diff_rmse_eV": 0.069,
+      "endpoint_ranking_agreement_pct": 78.2895,
+      "energy_profile_shape_agreement_pct": 93.4211
+    },
+    {
+      "fp_key": "M3GNET_pes",
+      "display_name": "M3GNet",
+      "n_nonconverged": 1,
+      "n_total": 154,
+      "barrier_mae_full_eV": 0.155,
+      "barrier_rmse_full_eV": 0.2155,
+      "barrier_mae_static_eV": 0.16,
+      "barrier_rmse_static_eV": 0.2251,
+      "endpoint_energy_diff_mae_eV": 0.0439,
+      "endpoint_energy_diff_rmse_eV": 0.0797,
+      "endpoint_ranking_agreement_pct": 77.1242,
+      "energy_profile_shape_agreement_pct": 93.4641
+    },
+    {
+      "fp_key": "UMA_s1_p1",
+      "display_name": "UMA",
+      "n_nonconverged": 3,
+      "n_total": 154,
+      "barrier_mae_full_eV": 0.05,
+      "barrier_rmse_full_eV": 0.0906,
+      "barrier_mae_static_eV": 0.06,
+      "barrier_rmse_static_eV": 0.1005,
+      "endpoint_energy_diff_mae_eV": 0.0258,
+      "endpoint_energy_diff_rmse_eV": 0.0627,
+      "endpoint_ranking_agreement_pct": 88.0795,
+      "energy_profile_shape_agreement_pct": 95.3642
+    },
+    {
+      "fp_key": "M3GNET_matpes_PBE",
+      "display_name": "M3GNet-MatPES",
+      "n_nonconverged": 1,
+      "n_total": 154,
+      "barrier_mae_full_eV": 0.175,
+      "barrier_rmse_full_eV": 0.2402,
+      "barrier_mae_static_eV": 0.18,
+      "barrier_rmse_static_eV": 0.2451,
+      "endpoint_energy_diff_mae_eV": 0.0412,
+      "endpoint_energy_diff_rmse_eV": 0.0758,
+      "endpoint_ranking_agreement_pct": 73.2026,
+      "energy_profile_shape_agreement_pct": 89.5425
+    },
+    {
+      "fp_key": "TensorNET_matpes_PBE",
+      "display_name": "TensorNet-MatPES",
+      "n_nonconverged": 0,
+      "n_total": 154,
+      "barrier_mae_full_eV": 0.1,
+      "barrier_rmse_full_eV": 0.1551,
+      "barrier_mae_static_eV": 0.11,
+      "barrier_rmse_static_eV": 0.1651,
+      "endpoint_energy_diff_mae_eV": 0.0386,
+      "endpoint_energy_diff_rmse_eV": 0.0819,
+      "endpoint_ranking_agreement_pct": 80.5195,
+      "energy_profile_shape_agreement_pct": 90.2597
+    },
+    {
+      "fp_key": "MACE_matpes_pbe",
+      "display_name": "MACE-MatPES",
+      "n_nonconverged": 4,
+      "n_total": 154,
+      "barrier_mae_full_eV": 0.11,
+      "barrier_rmse_full_eV": 0.1503,
+      "barrier_mae_static_eV": 0.115,
+      "barrier_rmse_static_eV": 0.1603,
+      "endpoint_energy_diff_mae_eV": 0.0329,
+      "endpoint_energy_diff_rmse_eV": 0.0699,
+      "endpoint_ranking_agreement_pct": 79.3333,
+      "energy_profile_shape_agreement_pct": 93.3333
+    }
+  ],
+  "generation_metadata": {
+    "generated_by": "FPBench_ionmigration/scripts/export_leaderboard_summary.py, from neb_analysis.py's build_neb_analysis_results/compute_key_neb_metrics_summary (same functions and rounding order as the analysis notebook)",
+    "generation_timestamp_utc": "2026-08-20T23:30:20.309477Z",
+    "source_reference_file": "ion_migration_neb_reference.json",
+    "source_reference_sha256": "f673135dd05b42371f23de1f89e3cd14729605c5ddd2f3672376785d8c88b4bf",
+    "source_results_file": "ion_migration_neb_results.json",
+    "source_results_sha256": "62a2447a4d121598772a6e14a7fd5814668b397d4faee8433dcd1ad035519799"
+  }
+}

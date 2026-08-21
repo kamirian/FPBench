@@ -6,24 +6,115 @@
   <title>FPBench: Ion Migration by NEB</title>
   <style>
     :root {
-      --bg: #0d1117; --surface: #161b22; --border: #30363d; --accent: #58a6ff;
-      --accent4: #d29922; --text: #c9d1d9; --muted: #8b949e; --heading: #e6edf3;
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --surface2: #1c2230;
+      --border:   #30363d;
+      --accent:   #58a6ff;
+      --accent2:  #3fb950;
+      --accent3:  #f78166;
+      --accent4:  #d29922;
+      --text:     #c9d1d9;
+      --muted:    #8b949e;
+      --heading:  #e6edf3;
+      --code-bg:  #1f2937;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.65; }
-    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
     nav .logo { font-weight: 700; font-size: 1rem; color: var(--heading); text-decoration: none; }
     nav .nav-links { display: flex; align-items: center; }
     nav a { color: var(--muted); text-decoration: none; font-size: 0.88rem; margin-left: 1.4rem; }
     nav a:hover { color: var(--accent); }
     nav a.nav-highlight { color: var(--accent); font-weight: 600; }
-    .hero { text-align: center; padding: 5rem 2rem; max-width: 700px; margin: 0 auto; }
-    .status-badge { display: inline-block; background: rgba(210,153,34,0.15); color: var(--accent4); border-radius: 5px; padding: 0.25rem 0.7rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 1rem; }
-    .hero h1 { font-size: 2rem; font-weight: 800; color: var(--heading); margin-bottom: 1rem; }
-    .hero p { color: var(--muted); font-size: 1rem; margin-bottom: 0.8rem; }
-    .hero a { color: var(--accent); text-decoration: none; }
+
+    .hero { text-align: center; padding: 4rem 2rem 2.6rem; max-width: 860px; margin: 0 auto; }
+    .hero .tag-line { font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; }
+    .hero h1 { font-size: 2.2rem; font-weight: 800; color: var(--heading); letter-spacing: -0.5px; line-height: 1.2; }
+    .hero p { margin-top: 1rem; font-size: 1.02rem; color: var(--muted); max-width: 660px; margin-left: auto; margin-right: auto; }
+    .cta { margin-top: 1.6rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-block; padding: 0.6rem 1.3rem; border-radius: 6px; font-size: 0.92rem; font-weight: 600; text-decoration: none; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--accent); color: #0d1117; }
+    .btn-outline { border: 1px solid var(--border); color: var(--heading); background: var(--surface); }
+    .btn-green  { background: var(--accent2); color: #0d1117; }
+
+    section { max-width: 1080px; margin: 0 auto; padding: 2.6rem 2rem; border-top: 1px solid var(--border); }
+    section h2 { font-size: 1.55rem; color: var(--heading); font-weight: 700; margin-bottom: 1rem; }
+    section h3 { font-size: 1.05rem; color: var(--heading); font-weight: 600; margin: 1.8rem 0 0.6rem; }
+    section p { color: var(--text); margin-bottom: 0.8rem; }
+
+    .callout { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 1rem 1.4rem; margin: 1.2rem 0; font-size: 0.95rem; color: var(--text); }
+    .callout strong { color: var(--heading); }
+
+    .dataset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .dataset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem 1.6rem; }
+    .dataset-card .ds-name { font-size: 1rem; font-weight: 700; color: var(--heading); margin-bottom: 0.4rem; }
+    .dataset-card .ds-stat { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.2rem; }
+    .dataset-card .ds-stat span { color: var(--text); }
+    .dataset-card .ds-desc { font-size: 0.87rem; color: var(--text); margin-top: 0.7rem; line-height: 1.5; }
+
+    .col-legend { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: 0.8rem; color: var(--muted); }
+    .col-legend .arrow-down { color: var(--accent3); }
+    .col-legend .arrow-up   { color: var(--accent2); }
+
+    .protocol-table-wrap { overflow-x: auto; margin: 1rem 0 1.4rem; }
+    table.gen { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-top: 0.8rem; }
+    table.gen th { background: var(--surface); color: var(--muted); text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    table.gen td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.83rem; }
+    table.gen tr:last-child td { border-bottom: none; }
+
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0.2rem 0 1.1rem; scrollbar-width: thin; }
+
+    table.dt { border-collapse: collapse; font-size: 0.82rem; }
+    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 148px; }
+    table.dt th { background: var(--surface2); color: var(--muted); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.3px; cursor: pointer; user-select: none; }
+    table.dt th.no-sort { cursor: default; }
+    table.dt th:hover:not(.no-sort) { color: var(--accent); }
+    table.dt th.sorted-asc, table.dt th.sorted-desc { color: var(--accent); }
+    table.dt th.sorted-asc::after { content: " \25B2"; }
+    table.dt th.sorted-desc::after { content: " \25BC"; }
+    table.dt td { color: var(--text); font-family: "SFMono-Regular", Consolas, monospace; }
+    table.dt tr:last-child td { border-bottom: none; }
+    table.dt th:first-child, table.dt td:first-child {
+      position: sticky; left: 0; background: var(--surface); text-align: left;
+      font-family: inherit; font-weight: 600; color: var(--heading); z-index: 2;
+      min-width: 170px;
+    }
+    table.dt th:first-child { background: var(--surface2); z-index: 3; }
+    table.dt tr:hover td { filter: brightness(1.08); }
+    table.dt td.fp-name { text-align: left; }
+    table.dt td.best { color: var(--accent2) !important; font-weight: 700; }
+    table.dt td.worst { color: var(--accent3) !important; }
+
+    .split-pill { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 0.78rem; }
+    .split-sep { color: var(--muted); margin: 0 2px; }
+
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.84rem; line-height: 1.6; margin-top: 0.8rem; }
+    code { background: var(--code-bg); border-radius: 4px; padding: 0.15em 0.45em; font-size: 0.85em; color: #79c0ff; font-family: "SFMono-Regular", Consolas, monospace; }
+    pre code { background: none; padding: 0; color: var(--text); }
+
     footer { text-align: center; padding: 2.5rem 2rem; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
     footer a { color: var(--accent); text-decoration: none; }
+    footer .affil { margin-top: 0.3rem; font-size: 0.8rem; }
   </style>
 </head>
 <body>
@@ -40,16 +131,333 @@
 </nav>
 
 <div class="hero">
-  <div class="status-badge">To be added</div>
-  <h1>Ion Migration by NEB</h1>
-  <p>This component of FPBench will evaluate foundation potentials on migration-barrier and migration-path analyses using the nudged elastic band (NEB) method.</p>
-  <p>No code, data, or results are included yet.</p>
-  <p style="margin-top:1.5rem;"><a href="index.html">&larr; Back to FPBench</a></p>
+  <div class="tag-line">FPBench &middot; Ion Migration by NEB Component</div>
+  <h1>FPBench: Ion Migration by NEB</h1>
+  <p>
+    Migration-barrier and migration-pathway metrics for foundation potentials (FPs),
+    evaluated on 154 real Li- and Na-ion migration pathways using the nudged elastic
+    band (NEB) method.
+  </p>
+  <div class="cta">
+    <a class="btn btn-primary" href="#results">View Leaderboard</a>
+    <a class="btn btn-green"  href="#use-fpbench">Use FPBench</a>
+    <a class="btn btn-outline" href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB">GitHub</a>
+  </div>
 </div>
+
+<!-- ============== RESULTS ============== -->
+<section id="results">
+  <h2>Results</h2>
+  <p>
+    Values below are read directly from <code>data/ion_migration_neb_leaderboard_summary.json</code>,
+    generated deterministically from the same <code>neb_analysis.py</code> functions the analysis
+    notebook itself uses (<code>build_neb_analysis_results</code>,
+    <code>compute_key_neb_metrics_summary</code>), cross-checked against the notebook's own
+    <code>key_neb_metrics_summary_df</code> before export. FPBench does not publish a single overall
+    ranking; each column below is a complementary, independent measurement. Click any column heading
+    to sort by that column; click again to reverse. Rows load in a fixed, notebook-consistent order.
+  </p>
+  <div class="col-legend">
+    <span><span class="arrow-down">&#9660;</span> lower is better</span>
+    <span><span class="arrow-up">&#9650;</span> higher is better</span>
+    <span style="color:var(--accent2);font-weight:700">green = best in column</span>
+    <span style="color:var(--accent3)">red = worst in column</span>
+    <span style="color:var(--muted)">identifiers are never colored</span>
+  </div>
+
+  <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">
+    154 active pathways (0 excluded pathways shown -- see
+    <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB/data" style="color:var(--accent);">data/README.md</a>).
+    "Non-conv. paths" and all barrier/endpoint metrics are computed over converged full FP-NEB paths only,
+    per FP.
+  </p>
+
+  <div class="table-scroll">
+    <table class="dt nebtable"><thead><tr>
+    <th class="no-sort">FP</th>
+    <th data-dir="low">Non-conv. paths (n/total) &darr;</th>
+    <th data-dir="low">Barrier error (eV), full FP-NEB (MAE / RMSE) &darr;</th>
+    <th data-dir="low">Barrier error (eV), static FP on DFT-NEB (MAE / RMSE) &darr;</th>
+    <th data-dir="low">Endpoint energy-diff. error (eV), full (MAE / RMSE) &darr;</th>
+    <th data-dir="high">Endpoint energy rank. agr. (%), full &uarr;</th>
+    <th data-dir="high">Energy-profile shape agr. (%), full &uarr;</th>
+  </tr></thead><tbody>
+  <tr>
+    <td class="fp-name">MACE</td>
+    <td data-val="0.0064935">1/154</td>
+    <td data-val="0.065" data-val2="0.1204" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.07" data-val2="0.13" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.0275" data-val2="0.0606" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="85.6209">85.62</td>
+    <td data-val="92.8105">92.81</td>
+  </tr>
+  <tr>
+    <td class="fp-name">CHGNet</td>
+    <td data-val="0.0129870">2/154</td>
+    <td data-val="0.115" data-val2="0.1557" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.115" data-val2="0.1503" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.0358" data-val2="0.0690" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="78.2895">78.29</td>
+    <td data-val="93.4211">93.42</td>
+  </tr>
+  <tr>
+    <td class="fp-name">M3GNet</td>
+    <td data-val="0.0064935">1/154</td>
+    <td data-val="0.155" data-val2="0.2155" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.16" data-val2="0.2251" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.0439" data-val2="0.0797" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="77.1242">77.12</td>
+    <td data-val="93.4641">93.46</td>
+  </tr>
+  <tr>
+    <td class="fp-name">UMA</td>
+    <td data-val="0.0194805">3/154</td>
+    <td data-val="0.05" data-val2="0.0906" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.06" data-val2="0.1005" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.0258" data-val2="0.0627" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="88.0795">88.08</td>
+    <td data-val="95.3642">95.36</td>
+  </tr>
+  <tr>
+    <td class="fp-name">M3GNet-MatPES</td>
+    <td data-val="0.0064935">1/154</td>
+    <td data-val="0.175" data-val2="0.2402" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.18" data-val2="0.2451" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.0412" data-val2="0.0758" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="73.2026">73.20</td>
+    <td data-val="89.5425">89.54</td>
+  </tr>
+  <tr>
+    <td class="fp-name">TensorNet-MatPES</td>
+    <td data-val="0">0/154</td>
+    <td data-val="0.1" data-val2="0.1551" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.11" data-val2="0.1651" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.0386" data-val2="0.0819" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="80.5195">80.52</td>
+    <td data-val="90.2597">90.26</td>
+  </tr>
+  <tr>
+    <td class="fp-name">MACE-MatPES</td>
+    <td data-val="0.0259740">4/154</td>
+    <td data-val="0.11" data-val2="0.1503" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.115" data-val2="0.1603" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="0.0329" data-val2="0.0699" data-pair="1" data-fmt="dec4"></td>
+    <td data-val="79.3333">79.33</td>
+    <td data-val="93.3333">93.33</td>
+  </tr>
+  </tbody></table>
+  </div>
+</section>
+
+<!-- ============== METRIC DESCRIPTIONS ============== -->
+<section id="metrics">
+  <h2>Metrics</h2>
+  <p>Table 8 in the manuscript; full methodological details in Methods Section 4.7.</p>
+  <div class="protocol-table-wrap"><table class="gen">
+    <tr><th>Name</th><th>Metrics</th></tr>
+    <tr><td>Non-converged paths</td><td>Fraction of full FP-NEB calculations that do not satisfy the NEB convergence criterion before reaching the maximum number of optimization steps.</td></tr>
+    <tr><td>Barrier error</td><td>The forward and backward barrier errors, referenced to the lower- and higher-energy endpoint respectively, computed relative to DFT for each path. MAE/RMSE over all converged paths.</td></tr>
+    <tr><td>Endpoint energy ranking agreement</td><td>Fraction of converged paths for which FP and DFT identify the same lower-energy endpoint between the two endpoints of the migration path, or both classify the two endpoints as equal in energy.</td></tr>
+    <tr><td>Endpoint energy-difference error</td><td>For each converged path, the error in the endpoint energy difference (eV, not per atom) computed relative to DFT. MAE/RMSE over all converged paths.</td></tr>
+    <tr><td>Energy-profile shape agreement</td><td>Fraction of converged paths for which the FP reproduces the Normal-Hill energy profile, as in DFT-NEBs.</td></tr>
+    <tr><td>Integrated energy-profile difference</td><td>For each converged path, the integrated absolute energy difference between FP and DFT-NEB energy profiles along the normalized reaction coordinate. MAE/RMSE over all converged paths.</td></tr>
+    <tr><td>Endpoint structure relaxation error</td><td>For each endpoint structure, the RMSD between FP-relaxed and DFT-relaxed endpoint structures. Mean/maximum over all endpoint structures of converged paths.</td></tr>
+    <tr><td>Force errors on the FP-NEB path</td><td>Mean force-magnitude error and force-angle error across all atoms for each image structure of the final FP-NEB path (protocol <code>dft_static_on_fp_neb</code>).</td></tr>
+    <tr><td>Force errors on the DFT-NEB path</td><td>Mean force-magnitude error and force-angle error across all atoms for each image structure of the final DFT-NEB path (protocol <code>fp_static_on_dft_neb</code>).</td></tr>
+  </table></div>
+  <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong> Full FP-NEB and static FP-on-DFT-NEB results are separate protocols; force errors on the FP-NEB path and force errors on the DFT-NEB path are separate diagnostics -- comparing the two protocols' barrier errors (both shown in the table above) helps distinguish intrinsic FP inaccuracy from errors introduced during FP endpoint relaxation and NEB path optimization.</p>
+</section>
+
+<!-- ============== PROTOCOLS ============== -->
+<section id="protocols">
+  <h2>Protocols</h2>
+  <div class="protocol-table-wrap"><table class="gen">
+    <tr><th>Workflow</th><th>Structural input</th><th>Results branch</th></tr>
+    <tr><td>Full FP-NEB workflow</td><td>Unrelaxed source endpoint structures</td><td><code>full_fp_neb</code></td></tr>
+    <tr><td>Static FP evaluations on the DFT-NEB image structures</td><td>Finalized DFT-NEB image structures</td><td><code>fp_static_on_dft_neb</code></td></tr>
+    <tr><td>DFT static diagnostics on the final FP-NEB image structures</td><td>Final full FP-NEB image structures</td><td><code>dft_static_on_fp_neb</code></td></tr>
+  </table></div>
+</section>
+
+<!-- ============== DATASET ============== -->
+<section id="dataset">
+  <h2>Benchmark Dataset</h2>
+  <div class="dataset-grid">
+    <div class="dataset-card">
+      <div class="ds-name">Ion-migration pathways</div>
+      <div class="ds-stat">Active pathways: <span>154</span></div>
+      <div class="ds-stat">DFT-NEB images per pathway: <span>7</span></div>
+      <div class="ds-stat">Unique structures: <span>110</span></div>
+      <div class="ds-desc">A subset of 154 Li- and Na-ion migration pathways from the ion-migration dataset of Saravanan et al., spanning oxides, sulfides, halides, and multi-anion compounds. DFT-NEB reference calculations were performed for this work.</div>
+    </div>
+  </div>
+  <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted);">
+    Endpoint structures were relaxed with a convergence threshold of 0.002 eV/&Aring; and fixed cell
+    shape/volume; the full FP-NEB workflow uses a convergence threshold of 0.05 eV/&Aring; and a
+    maximum of 1000 NEB steps. Model versions and official sources for the seven FPs evaluated here
+    are documented once on the <a href="index.html#models" style="color:var(--accent);">FPBench home page</a>.
+    See the <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB" style="color:var(--accent);">Ion_migration_NEB README</a>
+    for the full standardized-file schema.
+  </p>
+</section>
+
+<!-- ============== USE FPBENCH ============== -->
+<section id="use-fpbench">
+  <h2>Use FPBench</h2>
+  <pre><code>Provided FPBench reference + new FP calculations
+                         or
+User DFT reference + user FP results
+                          &darr;
+           standardized reference/results
+                          &darr;
+                validation and analysis
+                          &darr;
+     barrier, profile, RMSD, and force-error tables</code></pre>
+  <p style="margin-top:1rem;"><strong style="color:var(--heading);">Evaluate a new FP on the provided benchmark.</strong> Use <code>generation/fp_neb_generation_and_run.ipynb</code> to generate <code>full_fp_neb</code> and <code>fp_static_on_dft_neb</code> jobs and submission scripts against the shipped DFT reference, run them on your cluster, merge the results, then load the merged file directly in the analysis notebook -- your FP appears in every table above.</p>
+  <p><strong style="color:var(--heading);">Apply the analysis functions to another dataset.</strong> Call <code>build_neb_analysis_results(...)</code> and the table/metric functions in <code>scripts/neb_analysis.py</code> directly with your own DFT reference and FP results.</p>
+  <pre><code>git clone https://github.com/mogroupumd/FPBench.git
+cd FPBench/Ion_migration_NEB
+pip install -r requirements.txt
+pip install jupyterlab
+jupyter lab analysis/neb_analysis.ipynb</code></pre>
+  <p style="margin-top:0.8rem;">See the <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB" style="color:var(--accent);">Ion_migration_NEB README</a> for the full quick start, the generator and analysis notebooks for complete operational detail, and <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB/examples" style="color:var(--accent);">examples/</a> for a small runnable slice of real data.</p>
+</section>
 
 <footer>
   <p><strong>Kiyan Amirian</strong> &amp; <strong>Yifei Mo</strong> &middot; <a href="https://github.com/mogroupumd/FPBench">github.com/mogroupumd/FPBench</a></p>
+  <p class="affil">University of Maryland &middot; MIT License</p>
 </footer>
+
+<script>
+  const CMAPS = {
+    blues: [[247,251,255],[198,219,239],[107,174,214],[33,113,181],[8,48,107]],
+    reds:  [[255,245,240],[252,174,145],[251,106,74],[203,24,29],[103,0,13]],
+  };
+  function cmapRgb(name, t) {
+    const s = CMAPS[name];
+    const x = Math.max(0, Math.min(1, t)) * (s.length - 1);
+    const lo = Math.floor(x), hi = Math.min(s.length - 1, lo + 1);
+    const f = x - lo;
+    return s[lo].map((c, i) => Math.round(c + f * (s[hi][i] - c)));
+  }
+  function autoText(rgb) {
+    return (rgb[0]*299 + rgb[1]*587 + rgb[2]*114) / 1000 > 140 ? '#0d1117' : '#f0f6fc';
+  }
+  function fmtNum(v, kind) {
+    if (v === null || v === undefined || isNaN(v)) return 'n/a';
+    if (kind === 'int') return v.toFixed(0);
+    if (kind === 'dec4') return v.toFixed(4);
+    return v.toFixed(2);
+  }
+
+  // Split-pair coloring for empty "A / B" cells carrying data-val (first
+  // value, e.g. MAE) and data-val2 (second value, e.g. RMSE): renders two
+  // independently-colored blue/red pills, each normalized against only its
+  // own column's values across the table.
+  function colorizeSplitPairs(tbl) {
+    const rows = Array.from(tbl.querySelectorAll('tbody tr')).filter(r => r.querySelector('td[data-pair]'));
+    if (!rows.length) return;
+    const ncols = rows[0].querySelectorAll('td').length;
+    for (let c = 1; c < ncols; c++) {
+      const cells = rows.map(r => r.querySelectorAll('td')[c]).filter(c => c && c.dataset.pair);
+      if (!cells.length) continue;
+      const v1s = cells.map(c => parseFloat(c.dataset.val));
+      const v2s = cells.map(c => parseFloat(c.dataset.val2));
+      const valid1 = v1s.filter(v => !isNaN(v)), valid2 = v2s.filter(v => !isNaN(v));
+      if (!valid1.length) continue;
+      const mn1 = Math.min(...valid1), mx1 = Math.max(...valid1);
+      const mn2 = Math.min(...valid2), mx2 = Math.max(...valid2);
+      cells.forEach((cell, i) => {
+        const v1 = v1s[i], v2 = v2s[i];
+        const kind = cell.dataset.fmt;
+        const t1 = mx1 === mn1 ? 0.5 : (v1 - mn1) / (mx1 - mn1);
+        const t2 = mx2 === mn2 ? 0.5 : (v2 - mn2) / (mx2 - mn2);
+        const rgb1 = cmapRgb('blues', t1), rgb2 = cmapRgb('reds', t2);
+        cell.innerHTML =
+          `<span class="split-pill" style="background:rgb(${rgb1});color:${autoText(rgb1)};">${fmtNum(v1, kind)}</span>` +
+          `<span class="split-sep">/</span>` +
+          `<span class="split-pill" style="background:rgb(${rgb2});color:${autoText(rgb2)};">${fmtNum(v2, kind)}</span>`;
+      });
+    }
+  }
+
+  // Discrete best/worst highlighting for every data column (skips only the
+  // first, FP-name column). Direction per column comes from <th data-dir>.
+  // For split-pair columns this highlights based on the first (data-val,
+  // e.g. MAE) value only.
+  function highlightBestGeneric(tbl) {
+    const ths  = Array.from(tbl.querySelectorAll('thead th'));
+    const rows = Array.from(tbl.querySelectorAll('tbody tr'));
+    if (!rows.length) return;
+    const ncols = rows[0].querySelectorAll('td').length;
+    for (let c = 1; c < ncols; c++) {
+      const cells = rows.map(r => r.querySelectorAll('td')[c]);
+      const vals  = cells.map(cell => parseFloat(cell.dataset.val));
+      const valid = vals.filter(v => !isNaN(v));
+      if (!valid.length) continue;
+      const mn = Math.min(...valid), mx = Math.max(...valid);
+      const higherBetter = ths[c] && ths[c].dataset.dir === 'high';
+      cells.forEach((cell, i) => {
+        cell.classList.remove('best', 'worst');
+        const v = vals[i];
+        if (isNaN(v)) return;
+        if (higherBetter) {
+          if (v === mx) cell.classList.add('best');
+          if (v === mn) cell.classList.add('worst');
+        } else {
+          if (v === mn) cell.classList.add('best');
+          if (v === mx) cell.classList.add('worst');
+        }
+      });
+    }
+  }
+
+  // Attach click-to-sort to every sortable <th> of a table.dt. Numeric
+  // columns sort on data-val (split-pair cells carry data-val too, so they
+  // sort correctly on their first/MAE value; the non-converged-paths column
+  // carries the numeric fraction in data-val while displaying "n/total"
+  // text). Rows load in the notebook-consistent order and are only
+  // reordered once a header is clicked.
+  function makeSortable(tbl) {
+    const thead = tbl.querySelector('thead');
+    const tbody = tbl.querySelector('tbody');
+    if (!thead || !tbody) return;
+    const ths = Array.from(thead.querySelectorAll('th'));
+    ths.forEach((th, idx) => {
+      if (th.classList.contains('no-sort')) return;
+      th.setAttribute('tabindex', '0');
+      th.setAttribute('role', 'button');
+      th.setAttribute('aria-label', 'Sort by ' + th.textContent.trim());
+      const doSort = () => {
+        const asc = th.dataset.sortDir !== 'asc';
+        ths.forEach(h => { delete h.dataset.sortDir; h.classList.remove('sorted-asc', 'sorted-desc'); });
+        th.dataset.sortDir = asc ? 'asc' : 'desc';
+        th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+
+        const bodyRows = Array.from(tbody.querySelectorAll('tr'));
+        bodyRows.sort((a, b) => {
+          const cellA = a.querySelectorAll('td')[idx];
+          const cellB = b.querySelectorAll('td')[idx];
+          const vA = parseFloat(cellA.dataset.val);
+          const vB = parseFloat(cellB.dataset.val);
+          if (!isNaN(vA) && !isNaN(vB)) return asc ? vA - vB : vB - vA;
+          const tA = cellA.textContent.trim(), tB = cellB.textContent.trim();
+          return asc ? tA.localeCompare(tB) : tB.localeCompare(tA);
+        });
+        bodyRows.forEach(r => tbody.appendChild(r));
+        highlightBestGeneric(tbl);
+      };
+      th.addEventListener('click', doSort);
+      th.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doSort(); } });
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('table.nebtable').forEach(colorizeSplitPairs);
+    document.querySelectorAll('table.dt').forEach(makeSortable);
+    document.querySelectorAll('table.nebtable').forEach(highlightBestGeneric);
+  });
+</script>
 
 </body>
 </html>

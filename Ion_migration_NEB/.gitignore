@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+runs/
+submission_scripts/
+.DS_Store
+slurm-*.out
+WAVECAR
+CHGCAR
+vasprun.xml
+OUTCAR
+ion_migration_neb_results_standardized.json
