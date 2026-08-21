@@ -3603,7 +3603,7 @@ def build_combined_ordering_table(dft_ordering, fp_ordering, fps, model_names,
         out["Top-1 accuracy (%) ↑"] = [round(rows[fp]["avg_top1_acc"] * 100, decimal_places) for fp in fps]
         out["Recall@3 (%) ↑"] = [round(rows[fp]["avg_recall@3"] * 100, decimal_places) for fp in fps]
         out["Recall@10 (%) ↑"] = [round(rows[fp]["avg_recall@10"] * 100, decimal_places) for fp in fps]
-        out["Spearman ρ ↑"] = [round(rows[fp]["avg_spearman"], decimal_places) for fp in fps]
+        out["Spearman ρ ↑"] = [round(rows[fp]["avg_spearman"], 2) for fp in fps]
         out["Rate of ranking errors (%) ↓"] = [round(rows[fp]["avg_rank_error_frac"] * 100, decimal_places) for fp in fps]
         out["Mean/max ΔE_DFT (meV/atom) ↓"] = [
             f"{mev_fmt.format(rows[fp]['avg_DeltaE_DFT_mean_misranked']*1000)} / "
