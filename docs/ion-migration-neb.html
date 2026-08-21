@@ -90,14 +90,12 @@
 
     .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0.2rem 0 1.1rem; scrollbar-width: thin; }
 
-    details { border: 1px solid var(--border); border-radius: 8px; margin-top: 0.9rem; background: var(--surface); overflow: hidden; }
-    details summary { padding: 0.85rem 1.1rem; cursor: pointer; font-size: 0.98rem; font-weight: 700; color: var(--heading); list-style: none; }
-    details summary::-webkit-details-marker { display: none; }
-    details summary::before { content: "▶ "; font-size: 0.7rem; color: var(--muted); }
-    details[open] > summary::before { content: "▼ "; }
-    details[open] > summary { border-bottom: 1px solid var(--border); }
-    details summary:hover { color: var(--accent); }
-    .metric-description { padding: 0.8rem 1.1rem 0; font-size: 0.82rem; font-weight: 400; color: var(--muted); line-height: 1.55; }
+    .tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; overflow-x: auto; }
+    .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-size: 0.9rem; font-weight: 600; padding: 0.7rem 1.4rem; cursor: pointer; white-space: nowrap; font-family: inherit; transition: color 0.15s, border-color 0.15s; }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
 
     table.dt { border-collapse: collapse; font-size: 0.82rem; }
     table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 148px; }
@@ -181,39 +179,48 @@
     <span style="color:var(--accent3)">salmon text = worst in column</span>
     <span style="color:var(--muted)">identifiers are never colored</span>
   </div>
-  <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">
-    Results are reported for 154 active pathways. The excluded pathway is documented in the
-    <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB/data" style="color:var(--accent);">data README</a>
-    and is not included in the table. "Non-conv. paths" is reported over eligible full FP-NEB
-    calculations for each FP. Full FP-NEB barrier, endpoint, and profile metrics use the converged
-    full FP-NEB population; static FP barrier errors use valid static FP evaluations on the
-    finalized DFT-NEB image structures and are not filtered by full FP-NEB convergence. Exact
-    denominators are those implemented in <code>neb_analysis.py</code>.
-  </p>
-  <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">
-    Scroll horizontally to view all metrics.
-  </p>
 
-  <div id="leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
-
-  <div class="table-scroll">
-    <table class="dt nebtable"><thead><tr>
-    <th class="no-sort">FP</th>
-    <th data-dir="low">Non-conv. paths<br>(n/total) &darr;</th>
-    <th data-dir="low">Barrier error (eV)<br>full FP-NEB (MAE / RMSE) &darr;</th>
-    <th data-dir="low">Barrier error (eV)<br>static FP on DFT-NEB (MAE / RMSE) &darr;</th>
-    <th data-dir="low">Endpoint energy-diff.<br>error (eV), full (MAE / RMSE) &darr;</th>
-    <th data-dir="high">Endpoint energy<br>rank. agr. (%), full &uarr;</th>
-    <th data-dir="high">Energy-profile<br>shape agr. (%), full &uarr;</th>
-  </tr></thead><tbody>
-  </tbody></table>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('leaderboard',this)">Leaderboard</button>
+    <button class="tab-btn" onclick="switchTab('rmsd',this)">Endpoint-structure relaxation error</button>
   </div>
 
-  <details>
-    <summary>Endpoint structure relaxation error</summary>
-    <div class="metric-description">Restricted to full FP-NEB converged paths.</div>
+  <div id="tab-leaderboard" class="tab-panel active">
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">
+      Results are reported for 154 active pathways. The excluded pathway is documented in the
+      <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB/data" style="color:var(--accent);">data README</a>
+      and is not included in the table. "Non-conv. paths" is reported over eligible full FP-NEB
+      calculations for each FP. Full FP-NEB barrier, endpoint, and profile metrics use the converged
+      full FP-NEB population; static FP barrier errors use valid static FP evaluations on the
+      finalized DFT-NEB image structures and are not filtered by full FP-NEB convergence. Exact
+      denominators are those implemented in <code>neb_analysis.py</code>.
+    </p>
+    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">
+      Scroll horizontally to view all metrics.
+    </p>
 
-    <div id="rmsd-leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin:0.8rem 1.1rem 0;"></div>
+    <div id="leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
+
+    <div class="table-scroll">
+      <table class="dt nebtable"><thead><tr>
+      <th class="no-sort">FP</th>
+      <th data-dir="low">Non-conv. paths<br>(n/total) &darr;</th>
+      <th data-dir="low">Barrier error (eV)<br>full FP-NEB (MAE / RMSE) &darr;</th>
+      <th data-dir="low">Barrier error (eV)<br>static FP on DFT-NEB (MAE / RMSE) &darr;</th>
+      <th data-dir="low">Endpoint energy-diff.<br>error (eV), full (MAE / RMSE) &darr;</th>
+      <th data-dir="high">Endpoint energy<br>rank. agr. (%), full &uarr;</th>
+      <th data-dir="high">Energy-profile<br>shape agr. (%), full &uarr;</th>
+    </tr></thead><tbody>
+    </tbody></table>
+    </div>
+  </div>
+
+  <div id="tab-rmsd" class="tab-panel">
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
+      Restricted to full FP-NEB converged paths.
+    </p>
+
+    <div id="rmsd-leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
 
     <div class="table-scroll">
       <table class="dt nebrmsdtable"><thead><tr>
@@ -226,7 +233,7 @@
     </tr></thead><tbody>
     </tbody></table>
     </div>
-  </details>
+  </div>
 </section>
 
 <!-- ============== METRIC DESCRIPTIONS ============== -->
@@ -242,7 +249,7 @@
     <tr><td>Endpoint energy-difference error</td><td>For each path in the converged full FP-NEB population, the error in the endpoint energy difference (eV, not per atom) computed relative to DFT. MAE/RMSE.</td></tr>
     <tr><td>Energy-profile shape agreement</td><td>Fraction of the converged full FP-NEB population for which the FP reproduces the Normal-Hill energy profile, as in DFT-NEBs.</td></tr>
     <tr><td>Integrated energy-profile difference</td><td>For each path in the converged full FP-NEB population, the integrated absolute energy difference between FP and DFT-NEB energy profiles along the normalized reaction coordinate. MAE/RMSE.</td></tr>
-    <tr><td>Endpoint structure relaxation error</td><td>For each endpoint structure, the RMSD between FP-relaxed and DFT-relaxed endpoint structures, for the converged full FP-NEB population. Mean/maximum over all endpoint structures.</td></tr>
+    <tr><td>Endpoint-structure relaxation error</td><td>For each endpoint structure, the RMSD between FP-relaxed and DFT-relaxed endpoint structures, for the converged full FP-NEB population. Mean/maximum over all endpoint structures.</td></tr>
     <tr><td>Map success</td><td>Fraction of endpoint-structure comparisons, over the converged full FP-NEB population, for which pymatgen's <code>StructureMatcher</code> found a valid structural mapping between the FP-relaxed and DFT-relaxed endpoint structure; failures correspond to large structural deviation and are excluded from the mean/max RMSD above.</td></tr>
     <tr><td>Force errors on the FP-NEB path</td><td>Mean force-magnitude error and force-angle error across all atoms for each image structure of the final FP-NEB path (protocol <code>dft_static_on_fp_neb</code>).</td></tr>
     <tr><td>Force errors on the DFT-NEB path</td><td>Mean force-magnitude error and force-angle error across all atoms for each image structure of the final DFT-NEB path (protocol <code>fp_static_on_dft_neb</code>).</td></tr>
@@ -311,6 +318,13 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
 </footer>
 
 <script>
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+
   const CMAPS = {
     blues: [[247,251,255],[198,219,239],[107,174,214],[33,113,181],[8,48,107]],
     reds:  [[255,245,240],[252,174,145],[251,106,74],[203,24,29],[103,0,13]],

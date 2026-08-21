@@ -172,17 +172,30 @@ if HTML_PAGE.exists():
           "RMSD, and 3 RMSD thresholds)",
           rmsd_thead is not None and len(re.findall(r'<th data-dir="(?:low|high)"', rmsd_thead.group(0))) == 5)
 
-    # -- 8c. endpoint-RMSD section is a collapsible <details>, closed by default -
-    rmsd_details = re.search(
-        r'<details>\s*<summary>Endpoint structure relaxation error</summary>.*?</details>', html, re.S)
-    check("8c. endpoint-RMSD section is wrapped in a <details><summary> collapsible, closed by "
-          "default (no 'open' attribute)", rmsd_details is not None)
-    check("8c. the <details> block contains table.nebrmsdtable (table lives inside the collapsible)",
-          rmsd_details is not None and 'class="dt nebrmsdtable"' in rmsd_details.group(0))
-    check("8c. caption inside the collapsible is the short one-liner, not the old long paragraph",
-          rmsd_details is not None
-          and "Restricted to full FP-NEB converged paths." in rmsd_details.group(0)
-          and "neb_status.neb_converged == true" not in rmsd_details.group(0))
+    # -- 8c. endpoint-RMSD section is a tab (Phase Stability's switchTab pattern), --
+    #        not a <details>/<summary> collapsible -------------------------------
+    check("8c. no <details>/<summary> collapsible remains anywhere on the page",
+          "<details" not in html and "<summary" not in html)
+    check("8c. switchTab is defined, mirroring Phase Stability's own tab-switching function",
+          "function switchTab(id, btn)" in script)
+    check("8c. a tab-bar exists with a Leaderboard tab and an Endpoint-structure relaxation "
+          "error tab", ('<div class="tab-bar">' in html)
+          and ("switchTab('leaderboard',this)" in html) and ("switchTab('rmsd',this)" in html))
+    tab_rmsd_panel = re.search(r'<div id="tab-rmsd" class="tab-panel">.*?</section>', html, re.S)
+    check("8c. tab-rmsd panel exists and contains table.nebrmsdtable",
+          tab_rmsd_panel is not None and 'class="dt nebrmsdtable"' in tab_rmsd_panel.group(0))
+    check("8c. caption inside the RMSD tab is the short one-liner, not the old long paragraph",
+          tab_rmsd_panel is not None
+          and "Restricted to full FP-NEB converged paths." in tab_rmsd_panel.group(0)
+          and "neb_status.neb_converged == true" not in tab_rmsd_panel.group(0))
+    check("8c. the hyphenated heading 'Endpoint-structure relaxation error' is used (matching "
+          "the manuscript's Table 9 wording), not the old unhyphenated form",
+          "Endpoint-structure relaxation error" in html
+          and "Endpoint structure relaxation error" not in html)
+    tab_leaderboard_panel = re.search(
+        r'<div id="tab-leaderboard" class="tab-panel active">.*?<table class="dt nebtable">', html, re.S)
+    check("8c. the primary leaderboard table now lives inside tab-leaderboard, active by default",
+          tab_leaderboard_panel is not None)
 
     # -- 9. error handling: a visible error path exists, not a silent fallback --
     check("9. page defines a visible error-display path for a failed fetch",
