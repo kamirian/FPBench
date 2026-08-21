@@ -11,6 +11,13 @@ scikit-learn
 # evaluate any FP:
 # ase
 
+# Full FP-NEB generated run.py scripts (endpoint relaxation via
+# matcalc.RelaxCalc, climbing-image NEB via matcalc.NEBCalc, both driven
+# through an ASE BFGS optimizer subclass) -- a real Zaratan/FP-environment
+# dependency, not needed by the generator notebook itself or by any
+# analysis-side function (neb_analysis.py never imports matcalc):
+# matcalc
+
 # DFT-static generator notebook's VASP input-set generation:
 # pymatgen already covers this (pymatgen.io.vasp.sets.MPStaticSet)
 
