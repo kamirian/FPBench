@@ -1,10 +1,18 @@
 # Standardized data files
 
+> **Archived deposit.** `ion_migration_neb_reference.json.gz` is also archived under a
+> citable DOI at `<FIGSHARE_DOI>`, together with this README. The deposited copy is
+> byte-identical to the one in this repository; verify with the SHA-256 in the table
+> below. The analysis and generation code that consumes it lives at
+> <https://github.com/mogroupumd/FPBench>. The other two files described below, the
+> leaderboard summary and the all-FP results file, are not part of the deposit.
+
 ## `ion_migration_neb_reference.json.gz`
 
-The canonical DFT-NEB reference (154 active pathways, 7 finalized DFT-NEB
-images per pathway, 1,078 images total). Shipped directly in this repository
--- small enough that no external hosting or Git LFS is needed.
+The canonical DFT-NEB reference (154 active pathways across 109 unique
+structures, 7 finalized DFT-NEB images per pathway, 1,078 images total).
+Shipped directly in this repository -- small enough that no external hosting
+or Git LFS is needed.
 
 | Filename | Uncompressed size | Uncompressed SHA-256 | Compressed size | Compressed SHA-256 |
 |---|---|---|---|---|
@@ -14,8 +22,7 @@ Produced by a deterministic gzip (fixed compression level, no embedded
 timestamp or filename) of the private project's approved
 `input_data/ion_migration_neb_reference.json`; decompression was verified to
 reproduce the exact same JSON content (byte-for-byte) before this file was
-committed. `113548|10` is excluded from the active population -- see
-"Exclusions" below.
+committed.
 
 Both the analysis and generation notebooks' loaders accept `.json` and
 `.json.gz` (detected by file extension).
@@ -49,10 +56,12 @@ Prediction component's standardized files.
 |---|---|---|
 | `ion_migration_neb_results_standardized.json` | ~323 MB | `62a2447a4d121598772a6e14a7fd5814668b397d4faee8433dcd1ad035519799` |
 
-**Distribution link: to be added once this file is deposited on Zenodo /
-HuggingFace Datasets.** This is currently the only remaining blocker to
-fully reproducing `analysis/neb_analysis.ipynb` from this public repository
-without a download. Until that link exists, use one of:
+**This file is deliberately not archived.** Every FP result in it is
+re-derivable by running the seven FPs on the reference structures shipped
+here, which is what this benchmark exists to make possible, so depositing a
+323 MB derived artifact would add storage cost without adding
+reproducibility. The reference structures and the generation code are the
+archived, citable parts. To work with results, use one of:
 
 - The small real example under `../examples/` (`ion_migration_neb_demo_data.json`),
   which requires no download and exercises the same public functions.
@@ -63,7 +72,7 @@ without a download. Until that link exists, use one of:
 
 ### Where to place it
 
-Download (once the link above exists) or regenerate, then place the file at
+Regenerate as described below, then place the file at
 `ion_migration_neb_results_standardized.json` in this `data/` directory. The
 analysis notebook loads it as `../data/ion_migration_neb_results_standardized.json`.
 
@@ -96,7 +105,7 @@ reference_data = {
     "component": "ion_migration_neb",
     "units": {"energy": "eV", "forces": "eV/angstrom"},
     "common_pathway_keys": [...],   # the 154 active pathway keys
-    "excluded_pathways": {...},     # informational; see "Exclusions" below
+    "excluded_pathways": {...},     # informational only; not part of the active 154
     "pathways": {
         "<icsd_id>|<source_path_id>": {
             "identifiers": {"pathway_key": "...", "icsd_id": "...", "source_path_id": "...", "sum_formula": "..."},
@@ -176,12 +185,6 @@ evaluated, single-point, on the DFT-NEB reference's own images), and
   `unsuccessful_image_attempts`. Both are read by the analysis functions for
   status/coverage reporting only -- never for any scientific metric, and
   never changing an existing metric's denominator.
-
-## Exclusions
-
-`113548|10` is excluded from the active 154-pathway population because of an
-irrecoverable DFT-reference image-count protocol mismatch. It is not present
-in `common_pathway_keys` or `pathways` in the shipped reference file.
 
 ## Loading
 
