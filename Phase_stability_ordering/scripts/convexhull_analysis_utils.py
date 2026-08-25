@@ -3525,15 +3525,44 @@ def demonstrate_ordering_ranking(dft_ordering, fp_ordering, group_name, fp_name,
 # still computed internally (available via the *_row helper functions below,
 # e.g. for anyone who wants it) but is not part of the displayed table.
 
-def _hull_metrics_row(dft_hull, fp_hull_one_fp, mode):
+def _hull_metrics_row(dft_hull, fp_hull_one_fp, mode, dedupe_by_structure=True):
     """Numeric metrics for one FP, one mode. MAE/RMSE both returned (table
-    builder below displays MAE only, per the manuscript's own convention)."""
+    builder below displays MAE only, per the manuscript's own convention).
+
+    `dedupe_by_structure` (default True) controls the MAE/RMSE sample pool
+    only -- it does not affect GP_Frac/BaseBest_Frac/Hull_Min_Match below,
+    which are pooled over composition instances/phases/systems, not over
+    structures, and correctly include a shared endpoint once per tie-line
+    system it anchors (see ground_state_agreement_pooled,
+    within_phase_hull_min_agreement, global_hull_min_agreement).
+
+    True (default): one error sample per unique structure -- 597 candidates
+    (561 interior + 36 unique binary endpoints), matching the manuscript's
+    "MAE over all structures in the dataset" and the RMSD table's own
+    per-structure convention (build_rmsd_table/compute_structure_rmsd). A
+    shared endpoint (borders >=2 tie-line systems) contributes exactly one
+    sample, taken from the first system it is encountered in when iterating
+    dft_hull -- exact, since a shared endpoint's DFT and FP energies are
+    byte-identical in every system dft_hull/fp_hull duplicate it into (this
+    project's own fan-out step never recomputes them per system).
+
+    False: the original per-system-appearance pooling -- 679 samples (561
+    interior + 118 endpoint appearances from 36 unique endpoints, 31 of
+    which border >=2 systems). A shared endpoint's identical error is
+    counted once per system it borders, not once overall. Kept only so the
+    originally published MAE/RMSE numbers stay exactly reproducible from
+    this repository; not used by build_combined_hull_table's default."""
     errors = []
+    seen_cids = set()
     for system, candidates in dft_hull.items():
         for cid, dft_entry in candidates.items():
             fp_entry = fp_hull_one_fp[mode][system].get(cid)
             if fp_entry is None or fp_entry.get("status") != "success":
                 continue
+            if dedupe_by_structure:
+                if cid in seen_cids:
+                    continue
+                seen_cids.add(cid)
             errors.append(fp_entry["energy_per_atom"] - dft_entry["energy_per_atom"])
     arr = np.array(errors)
     mae, rmse = mae_rmse(arr)
@@ -3547,12 +3576,20 @@ def _hull_metrics_row(dft_hull, fp_hull_one_fp, mode):
 
 
 def build_combined_hull_table(dft_hull, fp_hull, fps, model_names,
-                               decimal_places=1, mev_fmt="{:.0f}"):
+                               decimal_places=1, mev_fmt="{:.0f}", dedupe_by_structure=True):
     """
     Combined Full-FP-relaxation + Static hull results table, formatted for
     display. Returns (combined_table, rows_by_mode) -- rows_by_mode carries
     the raw numerator/denominator detail (_gs/_wp/_gh) for anyone who wants
     to print or inspect it separately.
+
+    `dedupe_by_structure` (default True) is passed straight through to
+    _hull_metrics_row and controls only the displayed "Average energy error"
+    column's sample pool: one sample per unique structure (597 candidates,
+    default) vs. one sample per per-system appearance (679, including
+    duplicate appearances of the 31 shared binary endpoints). The three
+    agreement columns (ground-state, within-phase, hull-minimum) are
+    unaffected either way -- see _hull_metrics_row's docstring.
     """
     fmt_pct = f"{{:.{decimal_places}f}}"
 
@@ -3573,7 +3610,7 @@ def build_combined_hull_table(dft_hull, fp_hull, fps, model_names,
         return out
 
     rows_by_mode = {
-        mode: {fp: _hull_metrics_row(dft_hull, fp_hull[fp], mode) for fp in fps}
+        mode: {fp: _hull_metrics_row(dft_hull, fp_hull[fp], mode, dedupe_by_structure=dedupe_by_structure) for fp in fps}
         for mode in ("relax", "static")
     }
     combined = pd.concat(
