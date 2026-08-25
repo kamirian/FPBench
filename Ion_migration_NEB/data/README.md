@@ -1,9 +1,9 @@
 # Standardized data files
 
 > **Archived deposit.** `ion_migration_neb_reference.json.gz` is also archived under a
-> citable DOI at `<FIGSHARE_DOI>`, together with this README. The deposited copy is
-> byte-identical to the one in this repository; verify with the SHA-256 in the table
-> below. The analysis and generation code that consumes it lives at
+> citable DOI at <https://doi.org/10.6084/m9.figshare.33332610>, together with this
+> README. The deposited copy is byte-identical to the one in this repository; verify
+> with the SHA-256 in the table below. The analysis and generation code that consumes it lives at
 > <https://github.com/mogroupumd/FPBench>. The other two files described below, the
 > leaderboard summary and the all-FP results file, are not part of the deposit.
 

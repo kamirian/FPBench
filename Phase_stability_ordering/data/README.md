@@ -1,8 +1,8 @@
 # Standardized data files
 
 > **Archived deposit.** `phase_stability_ordering_reference.json.gz` is also archived under a
-> citable DOI at `<FIGSHARE_DOI>`, together with this README. That file is the filtered
-> benchmark subset used in this work: the 597-structure convex-hull subset (one lowest-energy
+> citable DOI at <https://doi.org/10.6084/m9.figshare.33334329>, together with this README. That
+> file is the filtered benchmark subset used in this work: the 597-structure convex-hull subset (one lowest-energy
 > ordering per phase and composition, across 22 tie-line systems) and the 305 ordering groups of
 > 20 candidates each. The underlying DFT-PBE energies for the parent chalcogenide dataset were
 > published separately by Adams et al.; this record only reorganizes and filters them. The
