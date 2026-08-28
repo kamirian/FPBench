@@ -227,9 +227,36 @@
         <td>~388K</td>
         <td><a href="https://github.com/acesuit/mace" style="color:var(--accent);">MACE (GitHub)</a></td>
       </tr>
+      <tr>
+        <td>Orb</td>
+        <td>orb-v3-conservative-inf-omat-20250404</td>
+        <td>25.5M</td>
+        <td>OMat24, AIMD subset only</td>
+        <td>~55M&Dagger;</td>
+        <td><a href="https://arxiv.org/abs/2504.06231" style="color:var(--accent);">Rhodes et al. 2025</a></td>
+      </tr>
+      <tr>
+        <td>SevenNet</td>
+        <td>7net-mf-ompa (modal <code>mpa</code>)</td>
+        <td>25.7M</td>
+        <td>MPtrj + sAlex + OMat24, multi-fidelity; <code>mpa</code> selects the MPtrj + sAlex task</td>
+        <td>not reported for this checkpoint</td>
+        <td><a href="https://sevennet.readthedocs.io/en/latest/user_guide/pretrained.html" style="color:var(--accent);">SevenNet pretrained models</a> &middot; <a href="https://doi.org/10.1021/jacs.4c14455" style="color:var(--accent);">Kim et al. 2025</a></td>
+      </tr>
+      <tr>
+        <td>MatterSim</td>
+        <td>MatterSim-v1.0.0-5M</td>
+        <td>4.55M</td>
+        <td>Nonpublic MatterSim active-learning dataset, GGA-PBE(+U)&dagger;</td>
+        <td>6M</td>
+        <td><a href="https://github.com/microsoft/mattersim/blob/main/MODEL_CARD.md" style="color:var(--accent);">Model card</a> &middot; <a href="https://arxiv.org/abs/2405.04967" style="color:var(--accent);">Yang et al. 2024</a></td>
+      </tr>
     </table>
   </div>
   <p class="note">* Pre-trained on MACE-OMAT-0, then fine-tuned on the matched MatPES functional.</p>
+  <p class="note">&dagger; The MatterSim model card reports "Training Data Size: 6M", "Model Parameters: 4.5M", and training on "a specific variant of Density Functional Theory (PBE)". The GGA-PBE(+U) labelling, with Hubbard U applied to selected materials following Materials Project settings, is described in Yang et al. rather than on the model card. The dataset itself is not released, so the OOD label reflects the absence of documented training exposure rather than a verified composition.</p>
+  <p class="note">&Dagger; Rhodes et al. state that "all orb-v3-*-omat models are only trained on the AIMD subset of OMat24", and that the OMat24 dataset "contains ~55 million AIMD-sampled structures".</p>
+  <p class="note">Orb, SevenNet and MatterSim are additional potentials evaluated after submission of the manuscript, which reports the ten FPs above them. Model sizes for these three are parameter counts measured from the loaded checkpoints, not figures quoted from the papers.</p>
   <p class="note">This is the current set of FPs evaluated. As additional FPs are tested, they will be added to this table; existing benchmark results remain tied to their original model versions and are not silently replaced.</p>
 </section>
 
@@ -246,6 +273,9 @@
       <tr><td>M3GNet-MatPES</td><td class="yes">&#10003; (training)</td><td class="yes">&#10003; (OOD)</td><td class="yes">&#10003; (OOD)</td></tr>
       <tr><td>TensorNet-MatPES</td><td class="yes">&#10003; (training)</td><td class="yes">&#10003; (OOD)</td><td class="yes">&#10003; (OOD)</td></tr>
       <tr><td>MACE-MatPES</td><td class="yes">&#10003; (training)</td><td class="yes">&#10003; (fine-tuned)*</td><td class="yes">&#10003; (OOD)</td></tr>
+      <tr><td>Orb</td><td class="yes">&#10003; (OOD)</td><td>not evaluated</td><td>not evaluated</td></tr>
+      <tr><td>SevenNet</td><td class="yes">&#10003; (OOD)</td><td>not evaluated</td><td>not evaluated</td></tr>
+      <tr><td>MatterSim</td><td class="yes">&#10003; (OOD)&dagger;</td><td>not evaluated</td><td>not evaluated</td></tr>
     </table>
   </div>
   <p class="note">* Pre-trained on MACE-OMAT-0, fine-tuned on MatPES-PBE.</p>

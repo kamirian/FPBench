@@ -176,8 +176,24 @@ not silently replaced.
 | M3GNet-MatPES-r2SCAN | v2025.1 | 664.2K | MatPES-r2SCAN | ~388K | [MatGL](https://matgl.ai/) &middot; [MatPES](https://matpes.ai/) |
 | TensorNet-MatPES-r2SCAN | v2025.1 | 837.9K | MatPES-r2SCAN | ~388K | [MatGL](https://matgl.ai/) &middot; [MatPES](https://matpes.ai/) |
 | MACE-MatPES-r2SCAN | &gt;=v0.3.10 | 9.06M | Fine-tuned on MatPES-r2SCAN* | ~388K | [MACE](https://github.com/acesuit/mace) |
+| Orb | orb-v3-conservative-inf-omat-20250404 | 25.5M | OMat24, AIMD subset only | ~55M&Dagger; | [Rhodes et al. 2025](https://arxiv.org/abs/2504.06231) |
+| SevenNet | 7net-mf-ompa (modal `mpa`) | 25.7M | MPtrj + sAlex + OMat24, multi-fidelity; `mpa` selects the MPtrj + sAlex task | not reported for this checkpoint | [SevenNet pretrained models](https://sevennet.readthedocs.io/en/latest/user_guide/pretrained.html) &middot; [Kim et al. 2025](https://doi.org/10.1021/jacs.4c14455) |
+| MatterSim | MatterSim-v1.0.0-5M | 4.55M | Nonpublic MatterSim active-learning dataset, GGA-PBE(+U)&dagger; | 6M | [Model card](https://github.com/microsoft/mattersim/blob/main/MODEL_CARD.md) &middot; [Yang et al. 2024](https://arxiv.org/abs/2405.04967) |
 
 \* Pre-trained on MACE-OMAT-0, then fine-tuned on the matched MatPES functional.
+
+&dagger; The MatterSim model card reports "Training Data Size: 6M", "Model Parameters: 4.5M", and
+training on "a specific variant of Density Functional Theory (PBE)". The GGA-PBE(+U) labelling,
+with Hubbard U applied to selected materials following Materials Project settings, is described in
+Yang et al. rather than on the model card. The dataset itself is not released, so the OOD label
+reflects the absence of documented training exposure rather than a verified composition.
+
+&Dagger; Rhodes et al. state that "all orb-v3-*-omat models are only trained on the AIMD subset of
+OMat24", and that the OMat24 dataset "contains ~55 million AIMD-sampled structures".
+
+Orb, SevenNet and MatterSim are additional potentials evaluated after submission of the
+manuscript, which reports the ten FPs above them. Model sizes for these three are parameter counts measured from the loaded checkpoints, not
+figures quoted from the papers.
 
 ### Evaluation matrix
 
@@ -194,6 +210,9 @@ onto it (`fine-tuned`).
 | M3GNet-MatPES | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) |
 | TensorNet-MatPES | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) |
 | MACE-MatPES | &#10003; (training) | &#10003; (fine-tuned)* | &#10003; (OOD) |
+| Orb | &#10003; (OOD) | not evaluated | not evaluated |
+| SevenNet | &#10003; (OOD) | not evaluated | not evaluated |
+| MatterSim | &#10003; (OOD)&dagger; | not evaluated | not evaluated |
 
 \* Pre-trained on MACE-OMAT-0, fine-tuned on MatPES-PBE.
 
