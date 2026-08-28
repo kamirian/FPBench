@@ -261,6 +261,29 @@ See [`data/README.md`](data/README.md) for the full status-value tables.
 
 ---
 
+## Registering a potential
+
+To evaluate an FP that is not already on the leaderboard, add one entry to the
+`POTENTIAL_REGISTRY` dictionary in `generation/fp_neb_generation_and_run.ipynb`. No metric or
+analysis code needs changing.
+
+| Field | Purpose |
+|---|---|
+| dictionary key | Short registry key used for job and script names. Lowercase, filesystem-safe. |
+| `output_key` | Canonical FP identifier written into the results JSON's `models` dictionary. |
+| `display_name` | Name shown in tables and on the leaderboard. |
+| `site_pkgs` | site-packages directory of the environment this FP runs in. |
+| `venv_activate` | Activate script of that environment. |
+| `model_path` | Checkpoint path, or `None` if the package ships its own weights. |
+| `import_lines` | Import statements for the calculator. |
+| `calc_lines` | Code that builds the ASE calculator, ending in a variable named `calc`. Refers to the checkpoint as `MODEL_PATH`. |
+
+Both `output_key` and the dictionary key are asserted unique, so a collision fails loudly rather
+than overwriting another FP's results. Copy the shape of an existing entry in the same notebook.
+See [Adding a potential](../ADDING_A_POTENTIAL.md) for the full workflow.
+
+---
+
 ## Reproducing the provided benchmark
 
 `data/ion_migration_neb_reference.json.gz` (shipped) plus

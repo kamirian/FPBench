@@ -219,6 +219,28 @@ Sections 4.6.1-4.6.3 for complete methodological details.
 
 ---
 
+## Registering a potential
+
+To evaluate an FP that is not already on the leaderboard, add one entry to the
+`POTENTIAL_REGISTRY` dictionary in `generation/convexhull_ordering_run_generator.ipynb`. No
+metric or analysis code needs changing.
+
+| Field | Purpose |
+|---|---|
+| dictionary key | Short registry key used for job and script names. Lowercase, filesystem-safe. |
+| `mlip_name` | Name written into the standardized results. |
+| `site_pkgs` | site-packages directory of the environment this FP runs in. |
+| `venv_activate` | Activate script of that environment. |
+| `python` | Python executable of that environment. |
+| `model_path` | Checkpoint path, or `None` if the package ships its own weights. |
+| `calc_setup` | Code that builds the ASE calculator, ending in a variable named `calc`. Refers to the checkpoint as `MODEL_PATH`. |
+
+Copy the shape of an existing entry in the same notebook. Placeholder values beginning
+`/path/to/` or `YOUR_` are rejected with a clear error rather than written into a job script.
+See [Adding a potential](../ADDING_A_POTENTIAL.md) for the full workflow.
+
+---
+
 ## Reproducing the provided benchmark
 
 The two standardized files under `data/` and `analysis/convexhull_ordering_analysis_all_models.ipynb`

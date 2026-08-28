@@ -1,53 +1,54 @@
 # FPBench
 
-FPBench measures how well foundation potentials (FPs) perform on real computational materials
-tasks, rather than on a single average accuracy score. It provides the reference datasets, the
-evaluation code, and a public leaderboard for three workflows: force prediction, phase stability
-and elemental ordering, and ion migration by NEB.
+FPBench is an application-oriented benchmark for foundation potentials (FPs). It evaluates FPs on
+representative computational materials tasks rather than on average energy and force errors alone,
+and provides the reference datasets, the evaluation code, and a public leaderboard for three
+components: force prediction, phase stability and elemental ordering, and ion migration by NEB.
 
 **Leaderboard: https://mogroupumd.github.io/FPBench/**
 
 ---
 
-## How to use FPBench
+## Using FPBench
 
-There are three things people usually come here to do.
+FPBench supports three modes of use.
 
-| I want to ... | Start here |
-|---|---|
-| **See how the tested FPs compare** | The [leaderboard](https://mogroupumd.github.io/FPBench/). No installation. |
-| **Run FPBench on my own potential** | [Adding a potential](ADDING_A_POTENTIAL.md), then the component you care about. |
-| **Apply the FPBench metrics to my own dataset** | The analysis functions in each component's `scripts/`. Each component README has a "Using FPBench" section describing this route. |
+- **Reported results.** The [leaderboard](https://mogroupumd.github.io/FPBench/) gives the
+  current metrics for every evaluated FP and requires no installation.
+- **Evaluation of an additional potential.** The FP is registered in the relevant generator
+  notebook and run against the provided reference datasets. See
+  [Adding a potential](ADDING_A_POTENTIAL.md).
+- **Application to an independent dataset.** The analysis functions in each component's
+  `scripts/` directory accept standardized inputs directly.
 
-Every component follows the same shape. You produce a *standardized results file*, the validator
-checks it, and the analysis functions turn it into the metric tables you see on the leaderboard.
-Whether those results came from our reference dataset or from your own data does not change
-anything downstream.
+All three components share a common workflow. Calculations are written to a standardized results
+file, validated, and passed to the analysis functions that produce the reported metric tables. The
+provided reference data and user-supplied data enter this workflow at the same point.
 
 ```text
-        your FP + FPBench reference data
-                      or
-          your own DFT and FP results
-                       |
-              standardized results
-                       |
-              validation + analysis
-                       |
-                  metric tables
+        FP evaluated on the FPBench reference data
+                          or
+            user DFT and FP results
+                          |
+                standardized results
+                          |
+               validation and analysis
+                          |
+                    metric tables
 ```
 
-Each component documents its own version of this in detail:
+Each component documents its own workflow in detail.
 
-- [Force prediction -- Using FPBench](Force_error/README.md#using-fpbench)
-- [Phase stability and ordering -- Using FPBench](Phase_stability_ordering/README.md#using-fpbench)
-- [Ion migration by NEB -- Using FPBench](Ion_migration_NEB/README.md#using-fpbench)
+- [Force prediction](Force_error/README.md#using-fpbench)
+- [Phase stability and elemental ordering](Phase_stability_ordering/README.md#using-fpbench)
+- [Ion migration by NEB](Ion_migration_NEB/README.md#using-fpbench)
 
 ---
 
-## Try it in five minutes
+## Quick start
 
-This runs on a real 5-structure slice of MatPES-PBE that ships with the repository. No large
-download is needed.
+The following example uses a five-structure subset of MatPES-PBE included in the repository and
+requires no additional download.
 
 ```bash
 git clone https://github.com/mogroupumd/FPBench.git
@@ -75,8 +76,8 @@ print("Models:", list(force_results))
 print("Fields:", list(force_results["mace"]))
 ```
 
-That is the same standardization step every FPBench force metric is built on. To see the full
-tables and figures, install `jupyterlab` and open an analysis notebook:
+This is the standardization step underlying every force metric reported by FPBench. The complete
+tables and figures are produced by the analysis notebooks.
 
 ```bash
 pip install jupyterlab
@@ -85,47 +86,48 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb
 
 ---
 
-## Benchmark your own potential
+## Evaluating a new potential
 
-Three steps, the same for all three components.
+The procedure is the same for all three components.
 
-1. **Register your FP.** Add one entry to the `POTENTIAL_REGISTRY` in the component's generator
-   notebook, describing the environment to use and how to build an ASE calculator.
-   See [Adding a potential](ADDING_A_POTENTIAL.md).
-2. **Run the calculations.** The generator notebook writes job and submission scripts for your
-   own cluster. Running the generation cells never submits anything; submission is always a
-   separate, explicit step.
-3. **Merge and analyse.** The generator merges the finished jobs into a standardized results
-   file, and the analysis notebook produces the metric tables.
+1. **Register the potential.** Add one entry to the `POTENTIAL_REGISTRY` in the component's
+   generator notebook, specifying the environment to use and the code that constructs an ASE
+   calculator. See [Adding a potential](ADDING_A_POTENTIAL.md).
+2. **Run the calculations.** The generator notebook writes job and submission scripts for the
+   target cluster. Running the generation cells does not submit any job; submission is a separate
+   step.
+3. **Merge and analyse.** The generator merges the completed jobs into a standardized results
+   file, which the analysis notebook converts into the metric tables.
 
-Requirements are per component; each has its own `requirements.txt`. We recommend a separate
-virtual environment per FP family, since their PyTorch and ASE version requirements often
-conflict.
+Requirements are specified per component in the corresponding `requirements.txt`. A separate
+virtual environment per FP family is recommended, since their PyTorch and ASE version
+requirements frequently conflict.
 
 ---
 
-## The three benchmarks
+## Benchmark components
 
 **[Force prediction](Force_error/README.md)** compares FP and DFT forces atom by atom on
-MatPES-PBE, MatPES-r2SCAN, and OMat24 rattled-1000. Beyond average MAE and RMSE it reports the
-fraction of highly accurate predictions, joint force magnitude-angle accuracy, large-force-error
-atoms, and errors on far-from-equilibrium atoms.
+MatPES-PBE, MatPES-r2SCAN, and OMat24 rattled-1000. In addition to average MAE and RMSE, it
+reports the fraction of highly accurate force predictions, joint force magnitude-angle accuracy,
+large-force-error atoms, and errors on far-from-equilibrium atoms.
 [Results](https://mogroupumd.github.io/FPBench/force-error.html)
 
-**[Phase stability and elemental ordering](Phase_stability_ordering/README.md)** tests whether an
-FP preserves *relative* energies, on a chalcogenide phase-change-material dataset of 597 unique
-hull candidates across 22 tie-line systems and 305 ordering groups. It reports ground-state
-agreement, within-phase and global hull-minimum agreement, Top-1, Recall@k and Spearman ranking
-metrics, and relaxation RMSD against the DFT-relaxed structure.
+**[Phase stability and elemental ordering](Phase_stability_ordering/README.md)** evaluates whether
+an FP reproduces the relative energies of competing phases, compositions, and elemental orderings,
+using a chalcogenide phase-change-material dataset of 597 unique hull candidates across 22
+tie-line systems and 305 ordering groups. It reports ground-state agreement, within-phase and
+global hull-minimum agreement, Top-1 accuracy, Recall@k, Spearman rank correlation, and
+relaxation RMSD against the DFT-relaxed structure.
 [Results](https://mogroupumd.github.io/FPBench/phase-stability-ordering.html)
 
-**[Ion migration by NEB](Ion_migration_NEB/README.md)** runs the nudged elastic band method on
-154 real Li- and Na-ion migration pathways across 109 unique structures. It reports non-converged
-FP-NEB calculations, forward and backward barrier error, endpoint energy ranking and difference,
-energy-profile shape agreement, endpoint relaxation error, and along-path force errors. Running
-the full FP-NEB workflow alongside static FP evaluations on the DFT-NEB images separates
-intrinsic potential-energy-surface error from error introduced by FP relaxation and pathway
-optimization.
+**[Ion migration by NEB](Ion_migration_NEB/README.md)** applies the nudged elastic band method to
+154 Li- and Na-ion migration pathways spanning 109 unique structures. It reports non-converged
+FP-NEB calculations, forward and backward barrier errors, endpoint energy ranking and
+energy-difference errors, energy-profile shape agreement, endpoint relaxation error, and
+along-path force errors. Comparing the full FP-NEB workflow with static FP evaluations on the
+DFT-NEB images separates intrinsic potential-energy-surface error from error introduced by FP
+endpoint relaxation and pathway optimization.
 [Results](https://mogroupumd.github.io/FPBench/ion-migration-neb.html)
 
 ---
@@ -135,7 +137,7 @@ optimization.
 ```text
 FPBench/
 ├── README.md
-├── ADDING_A_POTENTIAL.md             # how to register and run your own FP
+├── ADDING_A_POTENTIAL.md             # how to register and run an additional FP
 ├── LICENSE
 ├── Force_error/                      # Force prediction
 │   ├── README.md

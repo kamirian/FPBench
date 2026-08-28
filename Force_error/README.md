@@ -164,6 +164,28 @@ e<sub>vec</sub> = ||F<sub>FP</sub> − F<sub>DFT</sub>|| (force-vector error); r
 
 ---
 
+## Registering a potential
+
+To evaluate an FP that is not already on the leaderboard, add one entry to the
+`POTENTIAL_REGISTRY` dictionary in `generation/matpes_PBE_run_generator.ipynb` (and the
+`matpes_r2scan_` / `matpes_run_generator_omat24_rattled1000` variants for those datasets). No
+metric or analysis code needs changing.
+
+| Field | Purpose |
+|---|---|
+| dictionary key | Short registry key used for job and script names. Lowercase, filesystem-safe. |
+| `fp_name` | Name written into the standardized results. |
+| `venv_activate` | Activate script of the environment this FP runs in. |
+| `python` | Python executable of that environment. |
+| `model_path` | Checkpoint path, or `None` if the package ships its own weights. |
+| `calc_setup_code` | Code that builds the ASE calculator, ending in a variable named `calc`. Refers to the checkpoint as `MODEL_PATH`. |
+
+Copy the shape of an existing entry in the same notebook. Placeholder values beginning
+`/path/to/` or `YOUR_` are rejected with a clear error rather than written into a job script.
+See [Adding a potential](../ADDING_A_POTENTIAL.md) for the full workflow.
+
+---
+
 ## Reproducing the provided benchmark
 
 The standardized results files under `data/` and the three analysis notebooks together reproduce
