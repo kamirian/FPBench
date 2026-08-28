@@ -426,9 +426,30 @@ def build_full_fp_neb_status_map(fp_results_data, fp_order):
             icsd_id = pdata["identifiers"]["icsd_id"]
             source_path_id = pdata["identifiers"]["source_path_id"]
             rec = dict(pdata["convergence"]) if pdata.get("convergence") else {}
-            rec.setdefault("neb_converged", pdata["neb_status"]["neb_converged"])
-            rec.setdefault("neb_last_fmax", pdata["neb_status"]["neb_last_fmax"])
-            rec.setdefault("neb_n_steps", pdata["neb_status"]["neb_n_steps"])
+            neb_status = pdata["neb_status"]
+
+            def _status_field(*names, _neb_status=neb_status, _icsd=icsd_id, _path=source_path_id):
+                # Legacy reconstructed results carry "convergence" (already
+                # seeded into rec above) or the old neb_status field names
+                # (neb_last_fmax/neb_n_steps); the current generator's own
+                # merge output (fp_neb_generation_and_run.ipynb,
+                # merge_full_fp_neb) never writes "convergence" at all and
+                # uses different neb_status field names
+                # (last_fmax_eV_per_angstrom/optimizer_steps). Accept either
+                # naming rather than assuming one schema, but never silently
+                # default to None/0 if genuinely neither name is present --
+                # that would misreport a real number as missing or zero.
+                for name in names:
+                    if name in _neb_status:
+                        return _neb_status[name]
+                raise KeyError(
+                    f"{_icsd}|{_path}: neb_status has none of {names} -- "
+                    f"present keys: {sorted(_neb_status.keys())}"
+                )
+
+            rec.setdefault("neb_converged", _status_field("neb_converged"))
+            rec.setdefault("neb_last_fmax", _status_field("neb_last_fmax", "last_fmax_eV_per_angstrom"))
+            rec.setdefault("neb_n_steps", _status_field("neb_n_steps", "optimizer_steps"))
             full_fp_neb_status_by_fp_path[fp_key][(icsd_id, source_path_id)] = rec
     return full_fp_neb_status_by_fp_path
 
@@ -711,6 +732,35 @@ def _force_error_row(fp_key, icsd_str, path_str, image_index, endpoint_role,
     }
 
 
+# Exact key set/order _force_error_row returns. Used only to give a genuinely
+# empty result (e.g. a protocol with zero records for every FP -- a normal,
+# expected state early in any real generation run) the correct columns
+# instead of pandas' default 0-row/0-column DataFrame, which crashes on any
+# column access (not just .groupby()) downstream. Never changes the columns
+# or values of a non-empty result.
+_FORCE_ERROR_ROW_COLUMNS = [
+    "fp_key", "pathway_key", "icsd_id", "source_path_id", "protocol", "calculation_stage",
+    "structure_source", "image_index", "endpoint_role", "n_atoms", "fp_energy_total_eV",
+    "dft_energy_total_eV", "delta_energy_eV", "fp_fmax_eV_per_angstrom", "dft_fmax_eV_per_angstrom",
+    "mean_abs_delta_force_magnitude", "max_abs_delta_force_magnitude", "mean_force_angle_error_deg",
+    "max_force_angle_error_deg", "n_valid_force_angles", "delta_force_magnitude_migrating_atom",
+    "force_angle_error_migrating_atom_deg", "source_population", "calculation_status",
+    "_signed_delta_force_per_atom", "_abs_delta_force_per_atom", "_force_angle_error_per_atom",
+    "_dft_force_magnitude_per_atom",
+]
+
+
+def _force_error_rows_to_df(rows):
+    if not rows:
+        return pd.DataFrame(rows, columns=_FORCE_ERROR_ROW_COLUMNS)
+    df = pd.DataFrame(rows)
+    assert list(df.columns) == _FORCE_ERROR_ROW_COLUMNS, (
+        "_force_error_row's return keys changed without updating _FORCE_ERROR_ROW_COLUMNS "
+        f"to match: {list(df.columns)} != {_FORCE_ERROR_ROW_COLUMNS}"
+    )
+    return df
+
+
 def build_full_fp_neb_path_force_errors(dft_static_on_fp_neb_records_by_fp, fp_order):
     """Force errors on the FP-NEB path (protocol dft_static_on_fp_neb):
     DFT single-point evaluated on the FP's own final full-mode NEB images.
@@ -739,7 +789,7 @@ def build_full_fp_neb_path_force_errors(dft_static_on_fp_neb_records_by_fp, fp_o
                     source_population=source_population,
                     calculation_status="present",
                 ))
-    return pd.DataFrame(rows)
+    return _force_error_rows_to_df(rows)
 
 
 def build_dft_neb_path_force_errors(fp_static_on_dft_neb_images_by_fp_path, dft_neb_images_by_path, fp_order):
@@ -773,7 +823,7 @@ def build_dft_neb_path_force_errors(fp_static_on_dft_neb_images_by_fp_path, dft_
                     source_population=None,
                     calculation_status="present",
                 ))
-    return pd.DataFrame(rows)
+    return _force_error_rows_to_df(rows)
 
 
 # ─────────────────────────────────────────────────────────────────────────

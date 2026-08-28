@@ -172,11 +172,16 @@ output is exactly what the analysis notebook loads, with no manual conversion st
 2. You configure one or more FPs; with `GENERATE_JOBS = True` it generates per-FP
    `full_fp_neb`/`fp_static_on_dft_neb` jobs and, with `WRITE_SUBMISSION_SCRIPTS = True`,
    submission scripts. Both default to `False` so a routine "Run All" never writes
-   thousands of files. Generated `full_fp_neb` jobs use `matcalc.RelaxCalc` for
-   fixed-cell endpoint relaxation and `matcalc.NEBCalc` for climbing-image NEB, both
-   driven by an ASE BFGS optimizer that MatCalc itself constructs and runs; generated
-   `fp_static_on_dft_neb` jobs are calculator-only single-point evaluations, with no
-   relaxation or NEB optimization at all.
+   thousands of files. Before relaxation, each generated `full_fp_neb` job pre-aligns its
+   start/end endpoint structures under the minimum-image convention (pymatgen
+   `Structure.interpolate(..., pbc=True)`, no site reordering) -- the reference file stores
+   each endpoint in its own independent periodic frame, and `matcalc.NEBCalc` interpolates
+   with `pbc=False` internally, so without this step a migrating site can get interpolated
+   the long way around the cell instead of via its true minimum-image hop. Generated
+   `full_fp_neb` jobs use `matcalc.RelaxCalc` for fixed-cell endpoint relaxation and
+   `matcalc.NEBCalc` for climbing-image NEB, both driven by an ASE BFGS optimizer that
+   MatCalc itself constructs and runs; generated `fp_static_on_dft_neb` jobs are
+   calculator-only single-point evaluations, with no relaxation or NEB optimization at all.
 3. You run the generated jobs on your cluster (the notebook never submits jobs itself).
 4. The notebook's merge step writes one complete candidate results file under its own
    `runs/.../merged/` directory -- never overwriting a canonical results file.

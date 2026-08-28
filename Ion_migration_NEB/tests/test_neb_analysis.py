@@ -452,6 +452,32 @@ coverage_mismatch_31b = na.validate_analysis_coverage(fp_static_31b, dft_images_
 check("31b. validate_analysis_coverage reports a count mismatch for a genuinely short image list",
       len(coverage_mismatch_31b) == 1 and coverage_mismatch_31b.iloc[0]["issue"] == "image count mismatch")
 
+# ── 32. current-generator neb_status schema (last_fmax_eV_per_angstrom, ────
+# optimizer_steps; no legacy neb_last_fmax/neb_n_steps, no top-level
+# "convergence" key at all) -- exactly the record shape merge_full_fp_neb in
+# fp_neb_generation_and_run.ipynb actually writes. Regression test: this repo
+# once had a build_full_fp_neb_status_map that did direct dict access on only
+# the legacy field names, raising KeyError unconditionally on this real
+# generator output -- every other check above uses example_canonical_pathway_
+# records()'s legacy-schema fixtures and would never have caught it.
+ref32, fp32, ex32 = _base_dataset()
+current_schema_pathway = copy.deepcopy(ex32["full_fp_neb_pathway"])
+del current_schema_pathway["convergence"]
+current_schema_pathway["neb_status"] = {
+    "calculation_status": "completed",
+    "neb_converged": True,
+    "optimizer_steps": 17,
+    "last_fmax_eV_per_angstrom": 0.031,
+}
+fp32["models"]["MyFP"]["full_fp_neb"]["pathways"]["999001|1"] = current_schema_pathway
+analysis32 = na.build_neb_analysis_results(ref32, fp32, validate=True)
+status32 = analysis32.full_fp_neb_status_by_fp_path["MyFP"].get(("999001", "1"), {})
+check("32. current-schema neb_status (last_fmax_eV_per_angstrom/optimizer_steps, no legacy "
+      "neb_last_fmax/neb_n_steps, no top-level convergence key) is read without raising -- "
+      "exactly the shape the real generator (merge_full_fp_neb) writes",
+      status32.get("neb_last_fmax") == 0.031 and status32.get("neb_n_steps") == 17
+      and status32.get("neb_converged") is True)
+
 
 # ── summary ──────────────────────────────────────────────────────────────
 n_pass = sum(1 for _, ok in results if ok)
