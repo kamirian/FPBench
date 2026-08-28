@@ -1,102 +1,189 @@
 # FPBench
 
-FPBench evaluates foundation potentials (FPs) using application-oriented metrics across three
-computational materials workflows:
+FPBench measures how well foundation potentials (FPs) perform on real computational materials
+tasks, rather than on a single average accuracy score. It provides the reference datasets, the
+evaluation code, and a public leaderboard for three workflows: force prediction, phase stability
+and elemental ordering, and ion migration by NEB.
 
-1. **Force prediction** for atomistic simulations
-2. **Phase stability and elemental ordering**
-3. **Ion migration by NEB calculations**
+**Leaderboard: https://mogroupumd.github.io/FPBench/**
 
-Each component targets a specific computational task and evaluates FPs against metrics chosen
-for their relevance to that task, rather than a single generic accuracy score.
+---
 
-**The current public release provides all three components: Force Prediction, Phase
-Stability and Elemental Ordering, and Ion Migration by NEB.**
+## How to use FPBench
 
-## Components
+There are three things people usually come here to do.
 
-| Component | Status | Documentation |
-|---|---|---|
-| Force Prediction | Available | [`Force_error/README.md`](Force_error/README.md) &middot; [website](https://mogroupumd.github.io/FPBench/force-error.html) |
-| Phase Stability and Elemental Ordering | Available | [`Phase_stability_ordering/README.md`](Phase_stability_ordering/README.md) &middot; [website](https://mogroupumd.github.io/FPBench/phase-stability-ordering.html) |
-| Ion Migration by NEB | Available | [`Ion_migration_NEB/README.md`](Ion_migration_NEB/README.md) &middot; [website](https://mogroupumd.github.io/FPBench/ion-migration-neb.html) |
+| I want to ... | Start here |
+|---|---|
+| **See how the tested FPs compare** | The [leaderboard](https://mogroupumd.github.io/FPBench/). No installation. |
+| **Run FPBench on my own potential** | [Adding a potential](ADDING_A_POTENTIAL.md), then the component you care about. |
+| **Apply the FPBench metrics to my own dataset** | The analysis functions in each component's `scripts/`. Each component README has a "Using FPBench" section describing this route. |
 
-## Force Prediction
+Every component follows the same shape. You produce a *standardized results file*, the validator
+checks it, and the analysis functions turn it into the metric tables you see on the leaderboard.
+Whether those results came from our reference dataset or from your own data does not change
+anything downstream.
 
-Evaluates FPs against DFT reference forces on MatPES-PBE, MatPES-r2SCAN, and OMat24 rattled-1000,
-using metrics chosen for their relevance to structural relaxation, molecular dynamics, and NEB
-calculations: highly accurate force predictions, joint force magnitude-angle accuracy,
-large-force-error atoms, and force errors on far-from-equilibrium atoms.
+```text
+        your FP + FPBench reference data
+                      or
+          your own DFT and FP results
+                       |
+              standardized results
+                       |
+              validation + analysis
+                       |
+                  metric tables
+```
 
-See [`Force_error/README.md`](Force_error/README.md) for the full description, notation, and
-quick start, and the [leaderboard](https://mogroupumd.github.io/FPBench/force-error.html) for
-the current per-dataset results.
+Each component documents its own version of this in detail:
 
-## Phase Stability and Elemental Ordering
+- [Force prediction -- Using FPBench](Force_error/README.md#using-fpbench)
+- [Phase stability and ordering -- Using FPBench](Phase_stability_ordering/README.md#using-fpbench)
+- [Ion migration by NEB -- Using FPBench](Ion_migration_NEB/README.md#using-fpbench)
 
-Evaluates FPs on convex-hull/relative-phase-stability prediction, elemental-ordering energy
-ranking, and structural-relaxation (RMSD) accuracy, on a 22-system phase-change-material (PCM)
-tie-line dataset (597 unique hull candidates, 305 ordering groups of 20 candidates each), using
-metrics chosen for phase-diagram/stability screening and order/disorder ranking: ground-state
-agreement, within-phase and global hull-minimum agreement, Top-1/Recall@k/Spearman ranking
-metrics, rate of ranking errors, and structure-mapping RMSD against the DFT-relaxed structure.
+---
 
-See [`Phase_stability_ordering/README.md`](Phase_stability_ordering/README.md) for the full
-description, standardized-file schema, and quick start, and the
-[leaderboard](https://mogroupumd.github.io/FPBench/phase-stability-ordering.html) for the current
-results.
+## Try it in five minutes
 
-## Ion Migration by NEB
+This runs on a real 5-structure slice of MatPES-PBE that ships with the repository. No large
+download is needed.
 
-Evaluates FPs on 154 real Li- and Na-ion migration pathways across 109 unique ICSD structures
-using the nudged elastic band (NEB) method, with metrics chosen for their relevance to
-migration-barrier prediction: fraction of non-converged FP-NEB calculations, forward/backward
-barrier error, endpoint energy-ranking agreement, endpoint energy-difference error, energy-profile
-shape agreement, endpoint-structure relaxation error, and force errors on both the FP-NEB and
-DFT-NEB paths. Comparing the full FP-NEB workflow against static FP evaluations on the DFT-NEB
-image structures separates errors observed from static FP evaluations on those images from
-additional differences associated with FP endpoint relaxation and FP-NEB pathway optimization.
+```bash
+git clone https://github.com/mogroupumd/FPBench.git
+cd FPBench/Force_error
+pip install -r requirements.txt
+```
 
-See [`Ion_migration_NEB/README.md`](Ion_migration_NEB/README.md) for the full description,
-standardized-file schema, and quick start, and the
-[leaderboard](https://mogroupumd.github.io/FPBench/ion-migration-neb.html) for the current
-results.
+```python
+import json, sys
+from pathlib import Path
 
-## Foundation Potentials Evaluated
+sys.path.insert(0, str(Path("scripts").resolve()))
+from force_results import build_force_results
 
-Exact checkpoints and versions used in this study. Model size and training-dataset size are the
-values used in this study's own code/records; official source links point to each architecture's
-primary release page.
+with open("examples/mace_matpes_cartesian_force_example.json") as f:
+    example = json.load(f)
 
-| FP | Model &amp; version | Model size | Training dataset | Approx. training-dataset size | Official source |
+force_results = build_force_results(
+    example["dft_forces"],
+    {"mace": example["fp_forces"]},
+    structure_ids=example["structure_ids"],
+)
+
+print("Models:", list(force_results))
+print("Fields:", list(force_results["mace"]))
+```
+
+That is the same standardization step every FPBench force metric is built on. To see the full
+tables and figures, install `jupyterlab` and open an analysis notebook:
+
+```bash
+pip install jupyterlab
+jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb
+```
+
+---
+
+## Benchmark your own potential
+
+Three steps, the same for all three components.
+
+1. **Register your FP.** Add one entry to the `POTENTIAL_REGISTRY` in the component's generator
+   notebook, describing the environment to use and how to build an ASE calculator.
+   See [Adding a potential](ADDING_A_POTENTIAL.md).
+2. **Run the calculations.** The generator notebook writes job and submission scripts for your
+   own cluster. Running the generation cells never submits anything; submission is always a
+   separate, explicit step.
+3. **Merge and analyse.** The generator merges the finished jobs into a standardized results
+   file, and the analysis notebook produces the metric tables.
+
+Requirements are per component; each has its own `requirements.txt`. We recommend a separate
+virtual environment per FP family, since their PyTorch and ASE version requirements often
+conflict.
+
+---
+
+## The three benchmarks
+
+**[Force prediction](Force_error/README.md)** compares FP and DFT forces atom by atom on
+MatPES-PBE, MatPES-r2SCAN, and OMat24 rattled-1000. Beyond average MAE and RMSE it reports the
+fraction of highly accurate predictions, joint force magnitude-angle accuracy, large-force-error
+atoms, and errors on far-from-equilibrium atoms.
+[Results](https://mogroupumd.github.io/FPBench/force-error.html)
+
+**[Phase stability and elemental ordering](Phase_stability_ordering/README.md)** tests whether an
+FP preserves *relative* energies, on a chalcogenide phase-change-material dataset of 597 unique
+hull candidates across 22 tie-line systems and 305 ordering groups. It reports ground-state
+agreement, within-phase and global hull-minimum agreement, Top-1, Recall@k and Spearman ranking
+metrics, and relaxation RMSD against the DFT-relaxed structure.
+[Results](https://mogroupumd.github.io/FPBench/phase-stability-ordering.html)
+
+**[Ion migration by NEB](Ion_migration_NEB/README.md)** runs the nudged elastic band method on
+154 real Li- and Na-ion migration pathways across 109 unique structures. It reports non-converged
+FP-NEB calculations, forward and backward barrier error, endpoint energy ranking and difference,
+energy-profile shape agreement, endpoint relaxation error, and along-path force errors. Running
+the full FP-NEB workflow alongside static FP evaluations on the DFT-NEB images separates
+intrinsic potential-energy-surface error from error introduced by FP relaxation and pathway
+optimization.
+[Results](https://mogroupumd.github.io/FPBench/ion-migration-neb.html)
+
+---
+
+## Repository structure
+
+```text
+FPBench/
+├── README.md
+├── ADDING_A_POTENTIAL.md             # how to register and run your own FP
+├── LICENSE
+├── Force_error/                      # Force prediction
+│   ├── README.md
+│   ├── analysis/                     # analysis notebooks
+│   ├── generation/                   # job generators (POTENTIAL_REGISTRY lives here)
+│   ├── scripts/                      # importable metric and standardization functions
+│   ├── data/                         # data documentation and download pointers
+│   ├── examples/                     # small runnable examples, committed
+│   └── requirements.txt
+├── Phase_stability_ordering/         # same layout
+├── Ion_migration_NEB/                # same layout, plus tests/
+└── docs/                             # leaderboard website (GitHub Pages)
+```
+
+Large standardized data files are not committed to Git. Each component's `data/README.md` says
+where to obtain them; the `examples/` slices need no download.
+
+---
+
+## Foundation potentials evaluated
+
+These are the FPs currently on the leaderboard, with the exact checkpoints used. Model and
+training-set sizes are the values recorded by this study's own code. As more FPs are tested they
+are added here; existing results stay tied to the model version they were produced with and are
+not silently replaced.
+
+| FP | Model &amp; version | Model size | Training dataset | Approx. training-set size | Source |
 |---|---|---|---|---|---|
 | MACE | &gt;=v0.3.10 (MACE-MPA-0, medium) | 9.06M | MPtrj + sAlex | ~3.5M | [MACE foundation models](https://mace-docs.readthedocs.io/en/latest/guide/foundation_models.html) |
-| CHGNet | v0.3.0 | 412.5K | MPtrj | ~1.58M | [CHGNet (GitHub)](https://github.com/CederGroupHub/chgnet) |
+| CHGNet | v0.3.0 | 412.5K | MPtrj | ~1.58M | [CHGNet](https://github.com/CederGroupHub/chgnet) |
 | M3GNet | MP-2021.2.8-PES | 288.2K | MP-2021.2.8 | ~176.6K | [MatGL](https://matgl.ai/) |
 | UMA | s-1p1 | 146.5M | OC20 + ODAC23 + OMat24 + OMC25 + OMol25 | ~500M | [FAIR Chemistry](https://fair-chem.github.io/) |
 | M3GNet-MatPES | v2025.1 | 664.2K | MatPES-PBE | ~435K | [MatGL](https://matgl.ai/) &middot; [MatPES](https://matpes.ai/) |
 | TensorNet-MatPES | v2025.1 | 837.9K | MatPES-PBE | ~435K | [MatGL](https://matgl.ai/) &middot; [MatPES](https://matpes.ai/) |
-| MACE-MatPES | &gt;=v0.3.10 | 9.06M | Fine-tuned on MatPES-PBE* | ~435K | [MACE (GitHub)](https://github.com/acesuit/mace) |
+| MACE-MatPES | &gt;=v0.3.10 | 9.06M | Fine-tuned on MatPES-PBE* | ~435K | [MACE](https://github.com/acesuit/mace) |
 | M3GNet-MatPES-r2SCAN | v2025.1 | 664.2K | MatPES-r2SCAN | ~388K | [MatGL](https://matgl.ai/) &middot; [MatPES](https://matpes.ai/) |
 | TensorNet-MatPES-r2SCAN | v2025.1 | 837.9K | MatPES-r2SCAN | ~388K | [MatGL](https://matgl.ai/) &middot; [MatPES](https://matpes.ai/) |
-| MACE-MatPES-r2SCAN | &gt;=v0.3.10 | 9.06M | Fine-tuned on MatPES-r2SCAN* | ~388K | [MACE (GitHub)](https://github.com/acesuit/mace) |
+| MACE-MatPES-r2SCAN | &gt;=v0.3.10 | 9.06M | Fine-tuned on MatPES-r2SCAN* | ~388K | [MACE](https://github.com/acesuit/mace) |
 
 \* Pre-trained on MACE-OMAT-0, then fine-tuned on the matched MatPES functional.
 
-This is the current set of FPs evaluated. As additional FPs are tested, they will be added to this
-table; existing benchmark results remain tied to their original model versions and are not
-silently replaced.
+### Evaluation matrix
 
----
+Which FPs were evaluated on which dataset. The parenthetical says whether that dataset is inside
+the FP's own training data (`training`), outside it (`OOD`), or a fine-tune of an OOD base model
+onto it (`fine-tuned`).
 
-## Evaluation Matrix
-
-Which FPs were evaluated on which FPBench component/dataset. A checkmark means the FP was
-evaluated there; the parenthetical states whether that dataset falls inside (`training`) or
-outside (`OOD`, out-of-distribution) the FP's own training data, or whether the FP is a fine-tune
-of an OOD base model onto that dataset (`fine-tuned`).
-
-| FP | MatPES-PBE (Force Prediction) | OMat24 rattled-1000 (Force Prediction, SI) | Phase Stability/Ordering &amp; Ion Migration (NEB) |
+| FP | MatPES-PBE (force) | OMat24 rattled-1000 (force, SI) | Phase stability / ordering and NEB |
 |---|---|---|---|
 | MACE | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
 | CHGNet | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
@@ -108,57 +195,10 @@ of an OOD base model onto that dataset (`fine-tuned`).
 
 \* Pre-trained on MACE-OMAT-0, fine-tuned on MatPES-PBE.
 
-The three r2SCAN-trained FPs (M3GNet-MatPES-r2SCAN, TensorNet-MatPES-r2SCAN, MACE-MatPES-r2SCAN)
-are evaluated on the MatPES-r2SCAN dataset (training), in addition to the models listed above.
-
-The "Phase Stability/Ordering & Ion Migration (NEB)" column reflects evaluation in the manuscript.
-**Public code and results for Phase Stability/Ordering and Ion Migration (NEB) are now
-available** -- see [Phase_stability_ordering/README.md](Phase_stability_ordering/README.md) and
-[Ion_migration_NEB/README.md](Ion_migration_NEB/README.md).
+The three r2SCAN-trained FPs are evaluated on MatPES-r2SCAN (training), in addition to the
+models above.
 
 ---
-
-## Repository Structure
-
-```text
-FPBench/
-├── README.md
-├── LICENSE
-├── Force_error/                     # Force Prediction component (available)
-│   ├── README.md
-│   ├── analysis/
-│   ├── generation/
-│   ├── scripts/
-│   ├── data/
-│   ├── examples/
-│   └── requirements.txt
-├── Phase_stability_ordering/         # Phase Stability and Elemental Ordering component (available)
-│   ├── README.md
-│   ├── analysis/
-│   ├── generation/
-│   ├── scripts/
-│   ├── data/
-│   ├── examples/
-│   └── requirements.txt
-├── Ion_migration_NEB/                # Ion Migration by NEB component (available)
-│   ├── README.md
-│   ├── analysis/
-│   ├── generation/
-│   ├── scripts/
-│   ├── data/
-│   ├── examples/
-│   ├── tests/
-│   └── requirements.txt
-└── docs/                             # leaderboard website (GitHub Pages)
-    ├── index.html
-    ├── force-error.html
-    ├── phase-stability-ordering.html
-    └── ion-migration-neb.html
-```
-
-## Website
-
-https://mogroupumd.github.io/FPBench/
 
 ## License
 
