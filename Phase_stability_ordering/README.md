@@ -200,7 +200,6 @@ See [`data/README.md`](data/README.md) for the full field-level schema, checksum
 | Spearman's ρ | Rank correlation between FP and DFT orderings within each ordering group. The reported metric is the mean over all ordering groups. |
 | Rate of ranking errors | Fraction of configuration pairs whose FP and DFT rankings disagree, within each ordering group. The reported metric is the mean over all ordering groups. |
 | ΔE<sup>DFT</sup> of misranked pairs | DFT energy difference between configurations that the FP misranks. For each ordering group, the mean and maximum ΔE<sup>DFT</sup> over its misranked pairs are computed and then averaged across all ordering groups. |
-| DFT energy difference of misranked pairs (ΔE_DFT) | DFT energy difference between misranked configuration pairs; the mean and maximum quantify the severity of ranking errors and indicate the likelihood of producing qualitatively incorrect elemental orderings. |
 
 ### Structural-relaxation effects
 
