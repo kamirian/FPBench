@@ -221,16 +221,17 @@ Table 8 in the manuscript; implementation details in the Methods.
 
 | Name | Metrics |
 |---|---|
-| Non-converged paths | Fraction of eligible full FP-NEB calculations that do not satisfy the NEB convergence criterion before reaching the maximum number of optimization steps. |
-| Barrier error, full FP-NEB | The forward and backward barrier errors, referenced to the lower- and higher-energy endpoint respectively, computed relative to DFT for each path over the converged full FP-NEB population. MAE/RMSE. |
-| Barrier error, static FP on DFT-NEB | The same forward/backward barrier errors, computed over valid static FP evaluations on the finalized DFT-NEB image structures. Static evaluations are single-point calculations and are not filtered by full FP-NEB convergence. MAE/RMSE. |
-| Endpoint energy ranking agreement | Fraction of the converged full FP-NEB population for which the FP and DFT identify the same lower-energy endpoint, or both classify the two endpoints as equal in energy. |
-| Endpoint energy-difference error | For each path in the converged full FP-NEB population, the error (eV, not per atom) in the endpoint energy difference relative to DFT. MAE/RMSE. |
-| Energy-profile shape agreement | Fraction of the converged full FP-NEB population for which the FP reproduces the DFT Normal-Hill energy profile. |
-| Integrated energy-profile difference | For each path in the converged full FP-NEB population, the integrated absolute energy difference between FP and DFT-NEB energy profiles along the normalized reaction coordinate. MAE/RMSE. |
-| Endpoint structure relaxation error | RMSD between FP-relaxed and DFT-relaxed endpoint structures, for the converged full FP-NEB population. Mean/maximum over all endpoint structures. |
-| Force errors on the FP-NEB path | Mean force-magnitude error and force-angle error, averaged over all atoms, for each image of the final FP-NEB path (protocol `dft_static_on_fp_neb`). |
-| Force errors on the DFT-NEB path | Mean force-magnitude error and force-angle error, averaged over all atoms, for each image of the final DFT-NEB path (protocol `fp_static_on_dft_neb`). |
+| Non-converged paths | Fraction of FP-NEB calculations that do not satisfy the NEB convergence criterion before reaching the maximum number of optimization steps. |
+| Barrier error, full FP-NEB | The forward and backward barrier errors are computed relative to DFT for each path. The reported metric is the MAE/RMSE over all converged paths. |
+| Barrier error, static FP evaluations on the DFT-NEB images | The same forward and backward barrier errors, computed from static FP evaluations on the DFT-NEB image structures. The reported metric is the MAE/RMSE over all paths. |
+| Endpoint energy ranking agreement | Fraction of converged paths for which FP and DFT identify the same lower-energy endpoint between the two endpoints of the migration path, or both classify the two endpoints as equal in energy. |
+| Endpoint energy-difference error | For each path, the error in the endpoint energy difference is computed relative to DFT. The reported metric is the MAE/RMSE over all converged paths. |
+| Energy-profile shape agreement | Fraction of converged paths for which the FP reproduces the Normal-Hill energy profile, as in DFT-NEBs. |
+| Integrated energy-profile difference | For each path, the integrated absolute energy difference between FP and DFT-NEB energy profiles along the normalized reaction coordinate is computed. The reported metric is the MAE/RMSE over all converged paths. |
+| Endpoint structure relaxation error | For each endpoint structure, the RMSD between FP-relaxed and DFT-relaxed endpoint structures is computed. The reported metric is the mean/maximum over all endpoint structures of the converged paths. |
+| Map success | Fraction of endpoint-structure comparisons, over the converged paths, for which pymatgen's `StructureMatcher` found a valid structural mapping between the FP-relaxed and DFT-relaxed endpoint structure. A failed mapping is excluded from the mean/maximum RMSD, not counted as RMSD = 0. |
+| Force errors on FP-NEB path | Mean force-magnitude error \|Δ\|F\|\| and force-angle error Δθ across all atoms for each image structure of the final FP-NEB path. |
+| Force errors on DFT-NEB path | Mean force magnitude error \|Δ\|F\|\| and force angle error Δθ across all atoms for each image structure of the final DFT-NEB path. |
 
 The exact denominators (`n_total`/`n_nonconverged`, and which population feeds each MAE/RMSE
 pair) are those implemented in `scripts/neb_analysis.py`'s `compute_barrier_error_summaries`

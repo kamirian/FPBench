@@ -617,12 +617,12 @@
 
   <div class="table-scroll-plain"><table class="gen">
     <tr><th>Name</th><th>Metrics</th></tr>
-    <tr><td>Average error</td><td>MAE/RMSE of all atoms.</td></tr>
-    <tr><td>Cumulative distribution functions of force errors</td><td>CDFs of force-magnitude error |&Delta;|<i>F</i>|| and angle error |&Delta;<i>&theta;</i>| for all evaluated FPs.</td></tr>
-    <tr><td>Highly accurate magnitude predictions</td><td>% of atoms, MAE/RMSE within this subset. Evaluates the proportion of predictions which have very small errors (|&Delta;<i>F</i>| &lt; 0.01 eV/&Aring;).</td></tr>
-    <tr><td>Large force-magnitude errors</td><td>% of atoms, MAE/RMSE within this subset. Identifies predictions with extreme errors (|&Delta;<i>F</i>| &gt; 0.5 eV/&Aring;), with increasingly severe cases at higher thresholds (up to |&Delta;<i>F</i>| &gt; 10 eV/&Aring;).</td></tr>
-    <tr><td>Far from equilibrium regime (FE atoms)</td><td>MAE/RMSE within this subset. Evaluates FP performance for far-from-equilibrium atoms (|<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;).</td></tr>
-    <tr><td>Joint magnitude-angle accuracy</td><td>% of atoms. Evaluates the fraction of predictions with simultaneously low force magnitude and angle error (|&Delta;<i>F</i>| &lt; 0.01 eV/&Aring; and angle-error thresholds of 1&deg; (strict) and 20&deg; (looser)).</td></tr>
+    <tr><td>Average error</td><td>Force-magnitude error &Delta;|<i>F</i>| and force-angle error &Delta;<i>&theta;</i>, reported as MAE/RMSE over all atoms or a selected subset.</td></tr>
+    <tr><td>Cumulative distribution functions (CDFs) of force errors</td><td>CDFs of |&Delta;|<i>F</i>||, &Delta;<i>&theta;</i>, and norm of the force-vector error <i>e</i><sub>vec</sub>, over all atoms or a selected subset.</td></tr>
+    <tr><td>Highly accurate force predictions (small-force-error atoms)</td><td>Fraction of atoms with very small values of |&Delta;|<i>F</i>|| and &Delta;<i>&theta;</i> below threshold (e.g. |&Delta;|<i>F</i>|| &lt; 0.01 eV/&Aring;).</td></tr>
+    <tr><td>Joint force magnitude-angle accuracy</td><td>Fraction of atoms with simultaneously small values of |&Delta;|<i>F</i>|| and &Delta;<i>&theta;</i> (e.g. |&Delta;|<i>F</i>|| &lt; 0.01 eV/&Aring; and &Delta;<i>&theta;</i> &lt; 1&deg; or 20&deg;).</td></tr>
+    <tr><td>Large-force-error atoms</td><td>Fraction of atoms with high values of |&Delta;|<i>F</i>|| and &Delta;<i>&theta;</i> (e.g. |&Delta;|<i>F</i>|| &gt; 0.5 eV/&Aring;).</td></tr>
+    <tr><td>Force errors on far-from-equilibrium (FE) atoms</td><td>MAE/RMSE evaluated for &Delta;|<i>F</i>|, &Delta;<i>&theta;</i> over the FE atoms selected as |<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;. Fraction of FE atoms with relative force-magnitude error <i>r</i><sub><i>F</i></sub> below increasing thresholds.</td></tr>
   </table></div>
 
   <div class="callout" style="margin-top:1.2rem;">

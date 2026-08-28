@@ -333,20 +333,21 @@
   <h3 style="margin-top:1.4rem;">Convex hull and relative phase stability</h3>
   <div class="table-scroll-plain"><table class="gen">
     <tr><th>Name</th><th>Metrics</th></tr>
-    <tr><td>Average energy error</td><td>MAE (eV/atom), computed by aggregating all structures across all tie-line systems.</td></tr>
-    <tr><td>Ground-state agreement</td><td>Fraction of compositions for which the FP and DFT predict the same lowest-energy phase.</td></tr>
-    <tr><td>Within-phase minimum agreement</td><td>Whether the minimum-energy composition within each competing phase is correctly identified.</td></tr>
-    <tr><td>Hull-minimum agreement</td><td>Correct identification of both the phase and composition corresponding to the global convex-hull minimum.</td></tr>
+    <tr><td>Average energy error</td><td>Energy error relative to DFT, reported as the MAE over all structures in the convex-hull benchmark.</td></tr>
+    <tr><td>Ground-state agreement: lowest-energy phase at each composition.</td><td>For each composition, the FP-predicted ground-state phase is compared with DFT. The reported metric is the fraction of compositions, across all tie-line systems, for which the two agree.</td></tr>
+    <tr><td>Within-phase hull-minimum agreement: lowest-energy composition within each phase.</td><td>For each phase, the FP-predicted minimum-energy composition is compared with DFT. The reported metric is the fraction of phases, across all tie-line systems, for which the two agree.</td></tr>
+    <tr><td>Hull-minimum agreement: global convex-hull minimum across the tie-line.</td><td>For each tie-line system, the FP-predicted convex-hull minimum is compared with DFT. The reported metric is the fraction of systems for which the two agree.</td></tr>
   </table></div>
 
   <h3>Energy rankings of elemental orderings</h3>
   <div class="table-scroll-plain"><table class="gen">
     <tr><th>Name</th><th>Metrics</th></tr>
-    <tr><td>Average energy error</td><td>MAE (eV/atom), pooled over all structures in the ordering benchmark.</td></tr>
-    <tr><td>Top-1 accuracy</td><td>Recovery of the lowest-energy DFT structure, averaged over ordering groups.</td></tr>
-    <tr><td>Recall@k</td><td>Fraction of the k lowest-energy DFT orderings retained among the top k FP-ranked orderings within each ordering group, averaged over ordering groups.</td></tr>
-    <tr><td>Spearman's &rho;</td><td>Rank correlation between FP and DFT orderings, averaged over ordering groups.</td></tr>
-    <tr><td>Rate of ranking errors</td><td>Fraction of pairwise ordering disagreements.</td></tr>
+    <tr><td>Average energy error</td><td>Energy error relative to DFT, reported as the MAE over all structures in the ordering benchmark.</td></tr>
+    <tr><td>Top-1 accuracy</td><td>Fraction of ordering groups for which the FP identifies the same lowest-energy configuration (LEC) as DFT.</td></tr>
+    <tr><td>Recall@k</td><td>Fraction of the k lowest-energy DFT orderings retained among the top k FP-ranked orderings within each ordering group. The reported metric is the mean over all ordering groups.</td></tr>
+    <tr><td>Spearman's &rho;</td><td>Rank correlation between FP and DFT orderings within each ordering group. The reported metric is the mean over all ordering groups.</td></tr>
+    <tr><td>Rate of ranking errors</td><td>Fraction of configuration pairs whose FP and DFT rankings disagree, within each ordering group. The reported metric is the mean over all ordering groups.</td></tr>
+    <tr><td>&Delta;<i>E</i><sup>DFT</sup> of misranked pairs</td><td>DFT energy difference between configurations that the FP misranks. For each ordering group, the mean and maximum &Delta;<i>E</i><sup>DFT</sup> over its misranked pairs are computed and then averaged across all ordering groups.</td></tr>
     <tr><td>DFT energy difference of misranked pairs (&Delta;E<sub>DFT</sub>)</td><td>DFT energy difference between misranked configuration pairs; the mean and maximum quantify the severity of ranking errors and indicate the likelihood of producing qualitatively incorrect elemental orderings.</td></tr>
   </table></div>
 
@@ -354,7 +355,7 @@
   <p style="font-size:0.85rem;color:var(--muted);">Applies to full FP relaxation only (static evaluation does not produce an FP-relaxed structure to compare).</p>
   <div class="table-scroll-plain"><table class="gen">
     <tr><th>Name</th><th>Metrics</th></tr>
-    <tr><td>Structure relaxation error</td><td>Structural agreement metrics between FP-relaxed and DFT-relaxed structures for the same dataset used in the convex-hull energy analysis, via pymatgen's <code>StructureMatcher</code>.</td></tr>
+    <tr><td>Structure relaxation error</td><td>For each structure, the RMSD between the FP-relaxed and DFT-relaxed structures is computed. The reported metric is the mean/maximum over all structures in the dataset.</td></tr>
     <tr><td>Mean/max RMSD</td><td>Geometric deviation after alignment (&Aring;).</td></tr>
     <tr><td>Map success</td><td>Fraction of cases where FP and DFT structures remain sufficiently similar for meaningful RMSD evaluation; failures correspond to large structural deviation.</td></tr>
     <tr><td>RMSD thresholds</td><td>Increasingly strict measures of fidelity.</td></tr>

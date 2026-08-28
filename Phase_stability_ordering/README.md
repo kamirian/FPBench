@@ -185,20 +185,21 @@ See [`data/README.md`](data/README.md) for the full field-level schema, checksum
 
 | Name | Metrics |
 |---|---|
-| Average energy error | MAE (eV/atom), computed by aggregating all structures across all tie-line systems. |
-| Ground-state agreement | Fraction of compositions for which the FP and DFT predict the same lowest-energy phase. |
-| Within-phase minimum agreement | Whether the minimum-energy composition within each competing phase is correctly identified. |
-| Hull-minimum agreement | Correct identification of both the phase and composition corresponding to the global convex-hull minimum. |
+| Average energy error | Energy error relative to DFT, reported as the MAE over all structures in the convex-hull benchmark. |
+| Ground-state agreement: lowest-energy phase at each composition. | For each composition, the FP-predicted ground-state phase is compared with DFT. The reported metric is the fraction of compositions, across all tie-line systems, for which the two agree. |
+| Within-phase hull-minimum agreement: lowest-energy composition within each phase. | For each phase, the FP-predicted minimum-energy composition is compared with DFT. The reported metric is the fraction of phases, across all tie-line systems, for which the two agree. |
+| Hull-minimum agreement: global convex-hull minimum across the tie-line. | For each tie-line system, the FP-predicted convex-hull minimum is compared with DFT. The reported metric is the fraction of systems for which the two agree. |
 
 ### Energy rankings of elemental orderings
 
 | Name | Metrics |
 |---|---|
-| Average energy error | MAE (eV/atom), pooled over all structures in the ordering benchmark. |
-| Top-1 accuracy | Recovery of the lowest-energy DFT structure, averaged over ordering groups. |
-| Recall@k | Fraction of the k lowest-energy DFT orderings retained among the top k FP-ranked orderings within each ordering group, averaged over ordering groups. |
-| Spearman's ρ | Rank correlation between FP and DFT orderings, averaged over ordering groups. |
-| Rate of ranking errors | Fraction of pairwise ordering disagreements. |
+| Average energy error | Energy error relative to DFT, reported as the MAE over all structures in the ordering benchmark. |
+| Top-1 accuracy | Fraction of ordering groups for which the FP identifies the same lowest-energy configuration (LEC) as DFT. |
+| Recall@k | Fraction of the k lowest-energy DFT orderings retained among the top k FP-ranked orderings within each ordering group. The reported metric is the mean over all ordering groups. |
+| Spearman's ρ | Rank correlation between FP and DFT orderings within each ordering group. The reported metric is the mean over all ordering groups. |
+| Rate of ranking errors | Fraction of configuration pairs whose FP and DFT rankings disagree, within each ordering group. The reported metric is the mean over all ordering groups. |
+| ΔE<sup>DFT</sup> of misranked pairs | DFT energy difference between configurations that the FP misranks. For each ordering group, the mean and maximum ΔE<sup>DFT</sup> over its misranked pairs are computed and then averaged across all ordering groups. |
 | DFT energy difference of misranked pairs (ΔE_DFT) | DFT energy difference between misranked configuration pairs; the mean and maximum quantify the severity of ranking errors and indicate the likelihood of producing qualitatively incorrect elemental orderings. |
 
 ### Structural-relaxation effects
@@ -208,7 +209,7 @@ compare).
 
 | Name | Metrics |
 |---|---|
-| Structure relaxation error | Structural agreement metrics between FP-relaxed and DFT-relaxed structures for the same dataset used in the convex-hull energy analysis, via pymatgen's `StructureMatcher`. |
+| Structure relaxation error | For each structure, the RMSD between the FP-relaxed and DFT-relaxed structures is computed. The reported metric is the mean/maximum over all structures in the dataset. |
 | Mean/max RMSD | Geometric deviation after alignment (Å). |
 | Map success | Fraction of cases where FP and DFT structures remain sufficiently similar for meaningful RMSD evaluation; failures correspond to large structural deviation. |
 | RMSD thresholds | Increasingly strict measures of fidelity. |

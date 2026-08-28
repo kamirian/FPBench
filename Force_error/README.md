@@ -150,12 +150,12 @@ complete methodological detail.
 
 | Name | Metrics |
 |---|---|
-| Average error | MAE/RMSE of all atoms. |
-| Cumulative distribution functions of force errors | CDFs of force-magnitude error \|Δ\|F\|\| and angle error \|Δθ\| for all evaluated FPs. |
-| Highly accurate magnitude predictions | % of atoms, MAE/RMSE within this subset. Evaluates the proportion of predictions which have very small errors (\|ΔF\| < 0.01 eV/Å). |
-| Large force-magnitude errors | % of atoms, MAE/RMSE within this subset. Identifies predictions with extreme errors (\|ΔF\| > 0.5 eV/Å), with increasingly severe cases at higher thresholds (up to \|ΔF\| > 10 eV/Å). |
-| Far from equilibrium regime (FE atoms) | MAE/RMSE within this subset. Evaluates FP performance for far-from-equilibrium atoms (\|F_DFT\| > 1 eV/Å). |
-| Joint magnitude-angle accuracy | % of atoms. Evaluates the fraction of predictions with simultaneously low force magnitude and angle error (\|ΔF\| < 0.01 eV/Å and angle-error thresholds of 1° (strict) and 20° (looser)). |
+| Average error | Force-magnitude error Δ\|F\| and force-angle error Δθ, reported as MAE/RMSE over all atoms or a selected subset. |
+| Cumulative distribution functions (CDFs) of force errors | CDFs of \|Δ\|F\|\|, Δθ, and norm of the force-vector error e<sub>vec</sub>, over all atoms or a selected subset. |
+| Highly accurate force predictions (small-force-error atoms) | Fraction of atoms with very small values of \|Δ\|F\|\| and Δθ below threshold (e.g. \|Δ\|F\|\| < 0.01 eV/Å). |
+| Joint force magnitude-angle accuracy | Fraction of atoms with simultaneously small values of \|Δ\|F\|\| and Δθ (e.g. \|Δ\|F\|\| < 0.01 eV/Å and Δθ < 1° or 20°). |
+| Large-force-error atoms | Fraction of atoms with high values of \|Δ\|F\|\| and Δθ (e.g. \|Δ\|F\|\| > 0.5 eV/Å). |
+| Force errors on far-from-equilibrium (FE) atoms | MAE/RMSE evaluated for Δ\|F\|, Δθ over the FE atoms selected as \|F<sub>DFT</sub>\| > 1 eV/Å. Fraction of FE atoms with relative force-magnitude error r<sub>F</sub> below increasing thresholds. |
 
 Notation: Δ|F| = |F<sub>FP</sub>| − |F<sub>DFT</sub>| (force-magnitude error); |Δ|F|| for CDFs,
 thresholds, and fraction metrics; Δθ, the angle between the FP and DFT force vectors;
@@ -186,7 +186,7 @@ be added here once it is. In the meantime:
 
 ```bibtex
 @misc{amirian2026fpbench,
-  author = {Kiyan Amirian and Yifei Mo},
+  author = {Kiyan Amirian and Ramanuja Srinivasan Saravanan and Felix Adams and Charles E Schwarz and Yifei Mo},
   title  = {FPBench: Foundation Potential Force-Error Analysis},
   year   = {2026},
   url    = {https://github.com/mogroupumd/FPBench}
