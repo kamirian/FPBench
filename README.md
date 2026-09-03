@@ -181,7 +181,7 @@ not silently replaced.
 | MatterSim | MatterSim-v1.0.0-5M | 4.55M | Nonpublic MatterSim active-learning dataset, GGA-PBE(+U)&dagger; | 6M | [Model card](https://github.com/microsoft/mattersim/blob/main/MODEL_CARD.md) &middot; [Yang et al. 2024](https://arxiv.org/abs/2405.04967) |
 | Nequix | nequix-oam-1 | 707.6K | OMat24 + sAlex + MPtrj&sect; | not reported for this checkpoint | [Koker et al. 2025](https://arxiv.org/abs/2508.16067) &middot; [nequix](https://github.com/atomicarchitects/nequix) |
 | GPTFF | gptff_v2 | 502.5K | Atomly&#8214; | ~37.6M configurations | [Xie et al. 2024](https://doi.org/10.1016/j.scib.2024.08.039) |
-| ALIGNN | alignnff_wt10 | 4.03M | JARVIS-DFT&para; | 307,113 | [Choudhary et al. 2023](https://arxiv.org/abs/2209.05554) |
+| ALIGNN | alignnff_wt10 | 4.03M | JARVIS-DFT&para; | ~307.1K | [Choudhary et al. 2023](https://arxiv.org/abs/2209.05554) |
 
 \* Pre-trained on MACE-OMAT-0, then fine-tuned on the matched MatPES functional.
 
@@ -205,7 +205,7 @@ plane-wave cutoff and version 5.4 PAW pseudopotentials. The functional matches t
 reference; the cutoff and pseudopotential version do not necessarily, so small systematic
 offsets relative to MatPES-PBE are expected independently of model quality.
 
-&para; ALIGNN is trained on JARVIS-DFT at the **OptB88vdW** level, not PBE. It is the only FP here
+&para; ALIGNN is trained on JARVIS-DFT at the **OptB88vdW** level, not PBE. Its training set is 307,113 points, split 90:5:5. It is the only FP here
 whose training reference functional differs from the evaluation reference, so its scores measure
 agreement with the FPBench MatPES-PBE reference rather than a functional-matched fitting error.
 
