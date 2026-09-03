@@ -115,14 +115,14 @@ large-force-error atoms, and errors on far-from-equilibrium atoms.
 
 **[Phase stability and elemental ordering](Phase_stability_ordering/README.md)** evaluates whether
 an FP reproduces the relative energies of competing phases, compositions, and elemental orderings,
-using a chalcogenide phase-change-material dataset of 597 unique hull candidates across 22
+using a chalcogenide phase-change-material dataset of 597 unique hull structures across 22
 tie-line systems and 305 ordering groups. It reports ground-state agreement, within-phase and
 global hull-minimum agreement, Top-1 accuracy, Recall@k, Spearman rank correlation, and
 relaxation RMSD against the DFT-relaxed structure.
 [Results](https://mogroupumd.github.io/FPBench/phase-stability-ordering.html)
 
 **[Ion migration by NEB](Ion_migration_NEB/README.md)** applies the nudged elastic band method to
-154 Li- and Na-ion migration pathways spanning 109 unique structures. It reports non-converged
+154 Li- and Na-ion migration pathways spanning 106 structurally distinct materials. It reports non-converged
 FP-NEB calculations, forward and backward barrier errors, endpoint energy ranking and
 energy-difference errors, energy-profile shape agreement, endpoint relaxation error, and
 along-path force errors. Comparing the full FP-NEB workflow with static FP evaluations on the

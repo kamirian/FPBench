@@ -2,15 +2,17 @@
 
 > **Archived deposit.** `ion_migration_neb_reference.json.gz` is also archived under a
 > citable DOI at <https://doi.org/10.6084/m9.figshare.33332610>, together with this
-> README. The deposited copy is byte-identical to the one in this repository; verify
-> with the SHA-256 in the table below. The analysis and generation code that consumes it lives at
+> README. The deposited copy contains the same reference data as the one in this
+> repository; its metadata block differs, because internal source-file references were
+> removed for the public deposit. Verify the repository copy with the SHA-256 in the
+> table below, and the deposited copy with the SHA-256 given in the deposit's own README. The analysis and generation code that consumes it lives at
 > <https://github.com/mogroupumd/FPBench>. The other two files described below, the
 > leaderboard summary and the all-FP results file, are not part of the deposit.
 
 ## `ion_migration_neb_reference.json.gz`
 
-The canonical DFT-NEB reference (154 active pathways across 109 unique
-structures, 7 finalized DFT-NEB images per pathway, 1,078 images total).
+The canonical DFT-NEB reference (154 active pathways spanning 106 structurally
+distinct materials, 7 finalized DFT-NEB images per pathway, 1,078 images total).
 Shipped directly in this repository -- small enough that no external hosting
 or Git LFS is needed.
 

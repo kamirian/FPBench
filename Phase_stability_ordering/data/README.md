@@ -4,9 +4,13 @@
 > citable DOI at <https://doi.org/10.6084/m9.figshare.33334329>, together with this README. That
 > file is the filtered benchmark subset used in this work: the 597-structure convex-hull subset (one lowest-energy
 > ordering per phase and composition, across 22 tie-line systems) and the 305 ordering groups of
-> 20 candidates each. The underlying DFT-PBE energies for the parent chalcogenide dataset were
-> published separately by Adams et al.; this record only reorganizes and filters them. The
-> deposited copy is byte-identical to the one in this repository; verify with the SHA-256 below.
+> 20 candidates each. The underlying DFT-PBE energies for the parent chalcogenide dataset are
+> deposited by Adams et al. at <https://doi.org/10.5061/dryad.xd2547dxn> and should be cited as
+> the primary source; this record only reorganizes and filters them. The
+> deposited copy contains the same reference data as the one in this repository; its metadata block
+> differs, because the internal source-file references were removed for the public deposit. Verify
+> the repository copy with the SHA-256 below, and the deposited copy with the SHA-256 given in the
+> deposit's own README.
 > The code that consumes it lives at <https://github.com/mogroupumd/FPBench>. The FP results file
 > below is not part of the deposit.
 
