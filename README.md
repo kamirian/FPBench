@@ -179,6 +179,9 @@ not silently replaced.
 | Orb | orb-v3-conservative-inf-omat-20250404 | 25.5M | OMat24, AIMD subset only | ~55M&Dagger; | [Rhodes et al. 2025](https://arxiv.org/abs/2504.06231) |
 | SevenNet | 7net-mf-ompa (modal `mpa`) | 25.7M | MPtrj + sAlex + OMat24, multi-fidelity; `mpa` selects the MPtrj + sAlex task | not reported for this checkpoint | [SevenNet pretrained models](https://sevennet.readthedocs.io/en/latest/user_guide/pretrained.html) &middot; [Kim et al. 2025](https://doi.org/10.1021/jacs.4c14455) |
 | MatterSim | MatterSim-v1.0.0-5M | 4.55M | Nonpublic MatterSim active-learning dataset, GGA-PBE(+U)&dagger; | 6M | [Model card](https://github.com/microsoft/mattersim/blob/main/MODEL_CARD.md) &middot; [Yang et al. 2024](https://arxiv.org/abs/2405.04967) |
+| Nequix | nequix-oam-1 | 707.6K | OMat24 + sAlex + MPtrj&sect; | not reported for this checkpoint | [Koker et al. 2025](https://arxiv.org/abs/2508.16067) &middot; [nequix](https://github.com/atomicarchitects/nequix) |
+| GPTFF | gptff_v2 | 502.5K | Atomly, GGA-PBE (520 eV, POTCAR 5.4) | ~37.6M configurations | [Xie et al. 2024](https://doi.org/10.1016/j.scib.2024.08.039) |
+| ALIGNN | alignnff_wt10 | 4.03M | JARVIS-DFT, **OptB88vdW**&para; | 307,113 | [Choudhary et al. 2023](https://arxiv.org/abs/2209.05554) |
 
 \* Pre-trained on MACE-OMAT-0, then fine-tuned on the matched MatPES functional.
 
@@ -191,9 +194,19 @@ reflects the absence of documented training exposure rather than a verified comp
 &Dagger; Rhodes et al. state that "all orb-v3-*-omat models are only trained on the AIMD subset of
 OMat24", and that the OMat24 dataset "contains ~55 million AIMD-sampled structures".
 
-Orb, SevenNet and MatterSim are additional potentials evaluated after submission of the
-manuscript, which reports the ten FPs above them. Model sizes for these three are parameter counts measured from the loaded checkpoints, not
-figures quoted from the papers.
+&sect; Nequix's released checkpoint is `nequix-oam-1`. Koker et al. describe a Nequix trained on
+MPtrj and do not document this checkpoint; the OMat24 + sAlex + MPtrj corpus is inferred from the
+`oam` checkpoint identifier and is not confirmed in the paper. The model size is a parameter count
+measured from the loaded checkpoint (707,569), consistent with the 700K-708K reported for the
+architecture.
+
+&para; ALIGNN is trained on JARVIS-DFT at the **OptB88vdW** level, not PBE. It is the only FP here
+whose training reference functional differs from the evaluation reference, so its scores measure
+agreement with the FPBench MatPES-PBE reference rather than a functional-matched fitting error.
+
+The potentials listed after the r2SCAN entries were evaluated after submission of the
+manuscript, which reports the ten FPs above them. Their model sizes are parameter counts
+measured from the loaded checkpoints.
 
 ### Evaluation matrix
 
@@ -213,6 +226,9 @@ onto it (`fine-tuned`).
 | Orb | &#10003; (OOD) | not evaluated | not evaluated |
 | SevenNet | &#10003; (OOD) | not evaluated | not evaluated |
 | MatterSim | &#10003; (OOD)&dagger; | not evaluated | not evaluated |
+| Nequix | &#10003; (OOD)&sect; | not evaluated | not evaluated |
+| GPTFF | &#10003; (OOD) | not evaluated | not evaluated |
+| ALIGNN | &#10003; (OOD)&para; | not evaluated | not evaluated |
 
 \* Pre-trained on MACE-OMAT-0, fine-tuned on MatPES-PBE.
 

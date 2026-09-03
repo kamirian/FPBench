@@ -7,8 +7,10 @@ plain .json or gzip-compressed .json.gz), this script:
 
   1. loads both through the public `neb_analysis.load_neb_datasets`;
   2. validates the active population (154 pathways, 1,078 finalized
-     DFT-reference images, 109 unique active ICSD identifiers, `113548|10`
-     absent) before computing or writing anything;
+     DFT-reference images, 109 unique active ICSD identifiers (these collapse
+     to 106 structurally distinct materials once endpoints are matched with
+     pymatgen StructureMatcher -- see the component README; this check counts
+     source identifiers, not distinct materials), `113548|10` absent) before computing or writing anything;
   3. runs the same unmodified `neb_analysis.py` functions the analysis
      notebook itself uses (`build_neb_analysis_results`, and the
      `barrier_error_summary_by_protocol` / `profile_summary_by_protocol`
