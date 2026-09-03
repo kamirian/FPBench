@@ -263,7 +263,7 @@
         <td>GPTFF</td>
         <td>gptff_v2</td>
         <td>502.5K</td>
-        <td>Atomly, GGA-PBE (520 eV, POTCAR 5.4)</td>
+        <td>Atomly&#8214;</td>
         <td>~37.6M configurations</td>
         <td><a href="https://doi.org/10.1016/j.scib.2024.08.039" style="color:var(--accent);">Xie et al. 2024</a></td>
       </tr>
@@ -271,7 +271,7 @@
         <td>ALIGNN</td>
         <td>alignnff_wt10</td>
         <td>4.03M</td>
-        <td>JARVIS-DFT, <strong>OptB88vdW</strong>&para;</td>
+        <td>JARVIS-DFT&para;</td>
         <td>307,113</td>
         <td><a href="https://arxiv.org/abs/2209.05554" style="color:var(--accent);">Choudhary et al. 2023</a></td>
       </tr>
@@ -281,6 +281,7 @@
   <p class="note">&dagger; The MatterSim model card reports "Training Data Size: 6M", "Model Parameters: 4.5M", and training on "a specific variant of Density Functional Theory (PBE)". The GGA-PBE(+U) labelling, with Hubbard U applied to selected materials following Materials Project settings, is described in Yang et al. rather than on the model card. The dataset itself is not released, so the OOD label reflects the absence of documented training exposure rather than a verified composition.</p>
   <p class="note">&Dagger; Rhodes et al. state that "all orb-v3-*-omat models are only trained on the AIMD subset of OMat24", and that the OMat24 dataset "contains ~55 million AIMD-sampled structures".</p>
   <p class="note">&sect; Nequix&rsquo;s released checkpoint is <code>nequix-oam-1</code>. Koker et al. describe a Nequix trained on MPtrj and do not document this checkpoint; the OMat24 + sAlex + MPtrj corpus is inferred from the <code>oam</code> checkpoint identifier and is not confirmed in the paper. The model size is a parameter count measured from the loaded checkpoint (707,569), consistent with the 700K&ndash;708K reported for the architecture.</p>
+  <p class="note">&#8214; GPTFF&rsquo;s Atomly labels were computed with VASP at the GGA-PBE level with a 520 eV plane-wave cutoff and version 5.4 PAW pseudopotentials. The functional matches the FPBench reference; the cutoff and pseudopotential version do not necessarily, so small systematic offsets relative to MatPES-PBE are expected independently of model quality.</p>
   <p class="note">&para; ALIGNN is trained on JARVIS-DFT at the <strong>OptB88vdW</strong> level, not PBE. It is the only FP here whose training reference functional differs from the evaluation reference, so its scores measure agreement with the FPBench MatPES-PBE reference rather than a functional-matched fitting error.</p>
   <p class="note">The potentials listed after the r2SCAN entries were evaluated after submission of the manuscript, which reports the ten FPs above them. Their model sizes are parameter counts measured from the loaded checkpoints.</p>
   <p class="note">This is the current set of FPs evaluated. As additional FPs are tested, they will be added to this table; existing benchmark results remain tied to their original model versions and are not silently replaced.</p>

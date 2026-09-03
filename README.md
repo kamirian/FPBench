@@ -180,8 +180,8 @@ not silently replaced.
 | SevenNet | 7net-mf-ompa (modal `mpa`) | 25.7M | MPtrj + sAlex + OMat24, multi-fidelity; `mpa` selects the MPtrj + sAlex task | not reported for this checkpoint | [SevenNet pretrained models](https://sevennet.readthedocs.io/en/latest/user_guide/pretrained.html) &middot; [Kim et al. 2025](https://doi.org/10.1021/jacs.4c14455) |
 | MatterSim | MatterSim-v1.0.0-5M | 4.55M | Nonpublic MatterSim active-learning dataset, GGA-PBE(+U)&dagger; | 6M | [Model card](https://github.com/microsoft/mattersim/blob/main/MODEL_CARD.md) &middot; [Yang et al. 2024](https://arxiv.org/abs/2405.04967) |
 | Nequix | nequix-oam-1 | 707.6K | OMat24 + sAlex + MPtrj&sect; | not reported for this checkpoint | [Koker et al. 2025](https://arxiv.org/abs/2508.16067) &middot; [nequix](https://github.com/atomicarchitects/nequix) |
-| GPTFF | gptff_v2 | 502.5K | Atomly, GGA-PBE (520 eV, POTCAR 5.4) | ~37.6M configurations | [Xie et al. 2024](https://doi.org/10.1016/j.scib.2024.08.039) |
-| ALIGNN | alignnff_wt10 | 4.03M | JARVIS-DFT, **OptB88vdW**&para; | 307,113 | [Choudhary et al. 2023](https://arxiv.org/abs/2209.05554) |
+| GPTFF | gptff_v2 | 502.5K | Atomly&#8214; | ~37.6M configurations | [Xie et al. 2024](https://doi.org/10.1016/j.scib.2024.08.039) |
+| ALIGNN | alignnff_wt10 | 4.03M | JARVIS-DFT&para; | 307,113 | [Choudhary et al. 2023](https://arxiv.org/abs/2209.05554) |
 
 \* Pre-trained on MACE-OMAT-0, then fine-tuned on the matched MatPES functional.
 
@@ -199,6 +199,11 @@ MPtrj and do not document this checkpoint; the OMat24 + sAlex + MPtrj corpus is 
 `oam` checkpoint identifier and is not confirmed in the paper. The model size is a parameter count
 measured from the loaded checkpoint (707,569), consistent with the 700K-708K reported for the
 architecture.
+
+&#8214; GPTFF's Atomly labels were computed with VASP at the GGA-PBE level with a 520 eV
+plane-wave cutoff and version 5.4 PAW pseudopotentials. The functional matches the FPBench
+reference; the cutoff and pseudopotential version do not necessarily, so small systematic
+offsets relative to MatPES-PBE are expected independently of model quality.
 
 &para; ALIGNN is trained on JARVIS-DFT at the **OptB88vdW** level, not PBE. It is the only FP here
 whose training reference functional differs from the evaluation reference, so its scores measure
