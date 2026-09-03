@@ -452,31 +452,225 @@ coverage_mismatch_31b = na.validate_analysis_coverage(fp_static_31b, dft_images_
 check("31b. validate_analysis_coverage reports a count mismatch for a genuinely short image list",
       len(coverage_mismatch_31b) == 1 and coverage_mismatch_31b.iloc[0]["issue"] == "image count mismatch")
 
-# ── 32. current-generator neb_status schema (last_fmax_eV_per_angstrom, ────
-# optimizer_steps; no legacy neb_last_fmax/neb_n_steps, no top-level
-# "convergence" key at all) -- exactly the record shape merge_full_fp_neb in
-# fp_neb_generation_and_run.ipynb actually writes. Regression test: this repo
-# once had a build_full_fp_neb_status_map that did direct dict access on only
-# the legacy field names, raising KeyError unconditionally on this real
-# generator output -- every other check above uses example_canonical_pathway_
-# records()'s legacy-schema fixtures and would never have caught it.
-ref32, fp32, ex32 = _base_dataset()
-current_schema_pathway = copy.deepcopy(ex32["full_fp_neb_pathway"])
-del current_schema_pathway["convergence"]
-current_schema_pathway["neb_status"] = {
-    "calculation_status": "completed",
+# ── 32. new-schema-only neb_status (no "convergence" key; the current ──────
+# generator's real field names last_fmax_eV_per_angstrom/optimizer_steps
+# instead of the legacy neb_last_fmax/neb_n_steps) -- the exact schema
+# fp_neb_generation_and_run.ipynb's merge_full_fp_neb actually produces,
+# confirmed against a real Zaratan mace_matpes_pbe run. Regression test for
+# a real KeyError('neb_last_fmax') this schema previously triggered in
+# build_full_fp_neb_status_map.
+ref32, fp32, _ = _base_dataset()
+pdata32 = fp32["models"]["MyFP"]["full_fp_neb"]["pathways"]["999001|1"]
+pdata32.pop("convergence", None)
+pdata32["neb_status"] = {
     "neb_converged": True,
-    "optimizer_steps": 17,
     "last_fmax_eV_per_angstrom": 0.031,
+    "optimizer_steps": 17,
 }
-fp32["models"]["MyFP"]["full_fp_neb"]["pathways"]["999001|1"] = current_schema_pathway
-analysis32 = na.build_neb_analysis_results(ref32, fp32, validate=True)
-status32 = analysis32.full_fp_neb_status_by_fp_path["MyFP"].get(("999001", "1"), {})
-check("32. current-schema neb_status (last_fmax_eV_per_angstrom/optimizer_steps, no legacy "
-      "neb_last_fmax/neb_n_steps, no top-level convergence key) is read without raising -- "
-      "exactly the shape the real generator (merge_full_fp_neb) writes",
-      status32.get("neb_last_fmax") == 0.031 and status32.get("neb_n_steps") == 17
-      and status32.get("neb_converged") is True)
+status_map32 = na.build_full_fp_neb_status_map(fp32, ["MyFP"])
+rec32 = status_map32["MyFP"][("999001", "1")]
+check("32. new-schema-only neb_status (no convergence key, last_fmax_eV_per_angstrom/"
+      "optimizer_steps field names): build_full_fp_neb_status_map succeeds without KeyError "
+      "and reports the real values",
+      rec32.get("neb_converged") is True
+      and abs(rec32.get("neb_last_fmax") - 0.031) < 1e-9
+      and rec32.get("neb_n_steps") == 17)
+
+# ── 32b. neither the legacy nor the new field name present at all -- must ──
+# raise clearly, never silently default to None/0 and misreport a real
+# number as missing.
+ref32b, fp32b, _ = _base_dataset()
+pdata32b = fp32b["models"]["MyFP"]["full_fp_neb"]["pathways"]["999001|1"]
+pdata32b.pop("convergence", None)
+pdata32b["neb_status"] = {"neb_converged": True}  # no fmax/steps field under any known name
+try:
+    na.build_full_fp_neb_status_map(fp32b, ["MyFP"])
+    check("32b. neither legacy nor new fmax/steps field name present: build_full_fp_neb_status_map "
+          "raises instead of silently defaulting", False)
+except KeyError:
+    check("32b. neither legacy nor new fmax/steps field name present: build_full_fp_neb_status_map "
+          "raises instead of silently defaulting", True)
+
+# ── 33. genuinely empty dft_static_on_fp_neb / fp_static_on_dft_neb records ──
+# (a normal, expected state early in any real generation run -- e.g. the
+# VASP-diagnostics protocol not run yet for any FP) must produce a
+# correctly-columned, 0-row DataFrame from build_full_fp_neb_path_force_errors
+# / build_dft_neb_path_force_errors, not pandas' default 0-row/0-column
+# DataFrame. Regression test for a real KeyError('fp_key') this triggered in
+# neb_analysis.ipynb cell 47's
+# `.groupby(['fp_key','icsd_id','source_path_id']).ngroups` when the user fed
+# a genuinely partial real dataset through it.
+empty_force_errors_df = na.build_full_fp_neb_path_force_errors({}, ["MyFP", "OtherFP"])
+check("33. build_full_fp_neb_path_force_errors on genuinely empty input returns 0 rows",
+      len(empty_force_errors_df) == 0)
+check("33. ...with the real columns present (not pandas' default 0-row/0-column empty frame)",
+      list(empty_force_errors_df.columns) == na._FORCE_ERROR_ROW_COLUMNS)
+try:
+    n_groups33 = empty_force_errors_df.groupby(["fp_key", "icsd_id", "source_path_id"]).ngroups
+    check("33. .groupby(['fp_key','icsd_id','source_path_id']).ngroups on the empty result "
+          "succeeds (exactly cell 47's real crash site) and reports 0 groups",
+          n_groups33 == 0)
+except KeyError:
+    check("33. .groupby(['fp_key','icsd_id','source_path_id']).ngroups on the empty result "
+          "succeeds (exactly cell 47's real crash site) and reports 0 groups", False)
+
+empty_dft_neb_force_errors_df = na.build_dft_neb_path_force_errors({}, {}, ["MyFP"])
+check("33b. build_dft_neb_path_force_errors on genuinely empty input also returns 0 rows "
+      "with the real columns present",
+      len(empty_dft_neb_force_errors_df) == 0
+      and list(empty_dft_neb_force_errors_df.columns) == na._FORCE_ERROR_ROW_COLUMNS)
+
+# Non-empty inputs must be completely unaffected by the empty-case fix.
+# build_full_fp_neb_path_force_errors expects protocol dft_static_on_fp_neb's
+# shape (DFT single-point on the FP's own final images: both dft_* and fp_*
+# energy/forces per image), not fp_static_on_dft_neb's.
+ref33c, fp33c, _ = _base_dataset()
+dft_static_records_33c = {"MyFP": {"999001|1": fp33c["models"]["MyFP"]["dft_static_on_fp_neb"]["pathways"]["999001|1"]}}
+nonempty_df33c = na.build_full_fp_neb_path_force_errors(dft_static_records_33c, ["MyFP"])
+check("33c. a genuinely non-empty result is unaffected by the empty-case fix (real rows, real columns)",
+      len(nonempty_df33c) > 0 and list(nonempty_df33c.columns) == na._FORCE_ERROR_ROW_COLUMNS)
+
+# ── 34. barrier_combination: "pooled" (default) vs "round_then_average_ ────
+# legacy" -- two synthetic full_fp_neb pathways under one FP, hand-chosen so
+# the forward barrier errors are [0.101, 0.103] and the backward barrier
+# errors are [0.201, 0.207] (both DFT profiles: E0=-10.000, Emid=-9.000,
+# E2=-9.500, a Normal-Hill profile with asymmetric endpoints so forward and
+# backward barriers are independently controllable via the FP endpoint/
+# intermediate energies). This is a real regression pin, not a tautological
+# call-and-assert: every target string below was computed independently by
+# hand (see the comment on each check).
+import pandas as pd
+from neb_plots import area_between_curves, simplify_class
+
+ref34, fp34, ex34 = _base_dataset()
+
+
+def _make_pathway_pair(icsd, path_id, dft_e0, dft_emid, dft_e2, fp_e0, fp_emid, fp_e2):
+    dft_p = copy.deepcopy(ex34["dft_reference_pathway"])
+    dft_p["identifiers"]["icsd_id"] = icsd
+    dft_p["identifiers"]["source_path_id"] = path_id
+    dft_p["dft_neb_images"][0]["energy_total_eV"] = dft_e0
+    dft_p["dft_neb_images"][1]["energy_total_eV"] = dft_emid
+    dft_p["dft_neb_images"][2]["energy_total_eV"] = dft_e2
+    dft_p["dft_relaxed_endpoints"]["initial"]["energy_total_eV"] = dft_e0
+    dft_p["dft_relaxed_endpoints"]["final"]["energy_total_eV"] = dft_e2
+    fp_p = copy.deepcopy(ex34["full_fp_neb_pathway"])
+    fp_p["identifiers"]["icsd_id"] = icsd
+    fp_p["identifiers"]["source_path_id"] = path_id
+    fp_p["final_fp_neb_images"]["0"]["fp_energy_total_eV"] = fp_e0
+    fp_p["final_fp_neb_images"]["1"]["fp_energy_total_eV"] = fp_emid
+    fp_p["final_fp_neb_images"]["2"]["fp_energy_total_eV"] = fp_e2
+    return dft_p, fp_p
+
+
+# Path A: DFT forward=1.000, backward=0.500; FP forward=1.101 (err +0.101),
+# backward=0.701 (err +0.201).
+dft_a34, fp_a34 = _make_pathway_pair("999101", "1", -10.000, -9.000, -9.500,
+                                      -10.000, -8.899, -9.600)
+# Path B: same DFT profile; FP forward=1.103 (err +0.103), backward=0.707
+# (err +0.207).
+dft_b34, fp_b34 = _make_pathway_pair("999103", "1", -10.000, -9.000, -9.500,
+                                      -10.000, -8.897, -9.604)
+
+ref34["pathways"] = {"999101|1": dft_a34, "999103|1": dft_b34}
+ref34["common_pathway_keys"] = ["999101|1", "999103|1"]
+fp34["models"]["MyFP"]["full_fp_neb"]["pathways"] = {"999101|1": fp_a34, "999103|1": fp_b34}
+# fp_static_on_dft_neb/dft_static_on_fp_neb: this test only exercises the
+# "full" protocol's barrier_combination behavior, so the static-protocol
+# content itself doesn't matter -- but it must be non-empty (real converged
+# data for both pathway keys), not {}, since compute_barrier_error_summaries'
+# static_barrier_df must have real MAE_energy_forward_barrier/etc. columns
+# to build at all (a genuinely empty-protocol DataFrame is a distinct,
+# already-covered case -- see test 23 -- and not what this test is about).
+for pkey in ("999101|1", "999103|1"):
+    static_p = copy.deepcopy(ex34["fp_static_on_dft_neb_pathway"])
+    icsd, path_id = pkey.split("|")
+    static_p["identifiers"] = {"icsd_id": icsd, "source_path_id": path_id}
+    fp34["models"]["MyFP"]["fp_static_on_dft_neb"]["pathways"][pkey] = static_p
+    dft_static_p = copy.deepcopy(ex34["dft_static_on_fp_neb_pathway"])
+    dft_static_p["identifiers"] = {"icsd_id": icsd, "source_path_id": path_id}
+    fp34["models"]["MyFP"]["dft_static_on_fp_neb"]["pathways"][pkey] = dft_static_p
+del fp34["models"]["MyFP"]["fp_static_on_dft_neb"]["pathways"]["999001|1"]
+del fp34["models"]["MyFP"]["dft_static_on_fp_neb"]["pathways"]["999001|1"]
+
+analysis34 = na.build_neb_analysis_results(ref34, fp34, validate=True)
+benchmark_pathways_df34 = pd.DataFrame(
+    [{"ICSD": int(i), "Path": int(p)} for i, p in (k.split("|") for k in ref34["common_pathway_keys"])]
+)
+
+
+def _summary34(**kwargs):
+    return na.compute_key_neb_metrics_summary(
+        analysis34.dft_valid_path_metrics_df, analysis34.fp_path_metrics_by_protocol,
+        analysis34.dft_path_metrics_df, analysis34.full_fp_neb_status_by_fp_path,
+        analysis34.endpoint_rmsd_by_fp_protocol_path, benchmark_pathways_df34,
+        analysis34.dft_neb_images_by_path, analysis34.full_fp_neb_images_by_fp_path,
+        analysis34.fp_static_on_dft_neb_images_by_fp_path,
+        ["MyFP"], 1.0, area_between_curves, simplify_class, **kwargs,
+    )
+
+
+legacy34 = _summary34(barrier_combination="round_then_average_legacy")
+pooled34 = _summary34(barrier_combination="pooled")
+default34 = _summary34()
+
+# By hand: MAE_fwd = mean(0.101, 0.103) = 0.102 -> round(.,2) = 0.10;
+# MAE_bwd = mean(0.201, 0.207) = 0.204 -> round(.,2) = 0.20;
+# combined MAE = (0.10 + 0.20) / 2 = 0.15. RMSE_fwd = sqrt(mean(0.101**2,
+# 0.103**2)) = 0.10200... -> round(.,2) = 0.10; RMSE_bwd = sqrt(mean(0.201**2,
+# 0.207**2)) = 0.20402... -> round(.,2) = 0.20; combined RMSE =
+# sqrt((0.10**2 + 0.20**2) / 2) = 0.158113... -> "0.1581". This reproduces
+# the exact real-world defect: two genuinely different underlying MAE values
+# (0.102, 0.204) collapse onto the same displayed 0.15 a real published
+# barrier value would show, because of the intermediate 2dp rounding.
+check("34. round_then_average_legacy: forward/backward MAE (0.102, 0.204) round to (0.10, 0.20) "
+      "BEFORE combining, giving 0.1500 / 0.1581 -- matches independently hand-computed values",
+      legacy34.loc["MyFP", "Barrier error (eV) (full)"] == "0.1500 / 0.1581")
+
+# By hand, pooled: MAE over the concatenated [0.101, 0.103, 0.201, 0.207]
+# array = 0.612 / 4 = 0.153; RMSE = sqrt(mean([0.101**2, 0.103**2, 0.201**2,
+# 0.207**2])) = sqrt(0.10406 / 4) = 0.161291... -> "0.1613". Genuinely
+# different from the legacy 0.1500 / 0.1581 above precisely because no
+# intermediate rounding occurs.
+check("34. pooled: MAE/RMSE over the concatenated forward+backward error array give "
+      "0.1530 / 0.1613 -- independently hand-computed, and different from the legacy value",
+      pooled34.loc["MyFP", "Barrier error (eV) (full)"] == "0.1530 / 0.1613")
+
+check("34. barrier_combination default (no argument passed) matches the explicit 'pooled' call",
+      default34.loc["MyFP", "Barrier error (eV) (full)"] == pooled34.loc["MyFP", "Barrier error (eV) (full)"])
+
+try:
+    _summary34(barrier_combination="bogus_value")
+    check("34. an invalid barrier_combination value raises ValueError instead of silently "
+          "falling back to one convention", False)
+except ValueError:
+    check("34. an invalid barrier_combination value raises ValueError instead of silently "
+          "falling back to one convention", True)
+
+# ── 35. format_half_away_from_zero: the project's display-time rounding ────
+# house rule (round halves AWAY FROM ZERO, contrasted directly against
+# Python/NumPy's default round-half-to-even) established alongside this
+# fix. 0.125 is exactly representable in binary, so this is a genuine tie,
+# not float noise -- Python's own round(0.125, 2) gives 0.12 (rounds to
+# even), proving the two conventions really do disagree here.
+check("35. format_half_away_from_zero(0.125, 2) rounds the tie up to '0.13'",
+      na.format_half_away_from_zero(0.125, 2) == "0.13")
+check("35. Python's own round(0.125, 2) gives 0.12 (round-half-to-even) -- confirms 0.125 is "
+      "a genuine tie where the two conventions actually disagree, not a coincidence",
+      round(0.125, 2) == 0.12)
+check("35. format_half_away_from_zero(-0.125, 2) rounds the tie to '-0.13' (away from zero, "
+      "not toward positive infinity)",
+      na.format_half_away_from_zero(-0.125, 2) == "-0.13")
+check("35. format_half_away_from_zero(0.135, 2) rounds the tie up to '0.14' (0.135 is not "
+      "exactly representable in binary, but Decimal(repr(x)) recovers the intended decimal "
+      "tie rather than the binary value's true side)",
+      na.format_half_away_from_zero(0.135, 2) == "0.14")
+check("35. format_half_away_from_zero(0.0647, 4) is a no-op away from any tie: '0.0647'",
+      na.format_half_away_from_zero(0.0647, 4) == "0.0647")
+check("35. format_half_away_from_zero(None, 4) and format_half_away_from_zero(float('nan'), 4) "
+      "both return 'nan'",
+      na.format_half_away_from_zero(None, 4) == "nan"
+      and na.format_half_away_from_zero(float("nan"), 4) == "nan")
 
 
 # ── summary ──────────────────────────────────────────────────────────────

@@ -8,10 +8,10 @@ Sections
 A. Geometry helpers       – tie-line projections, fractions
 B. Data builders          – build_clean_*, build_points_for_system, normalize_to_endpoints
 C. Convex hull             – lower_hull, plot_normalized_with_hulls (both styles)
-D. Energy metrics          – mae_rmse, prepare_points_for_metrics, get_system_metrics
-E. Agreement metrics       – compute_gp_same_frac, compute_basebest_same_frac, etc.
-F. Aggregate summary       – create_aggregate_summary
-G. Structure comparison    – compute_rmsd_table
+D. Energy metrics          – mae_rmse, legacy_prepare_points_for_metrics, legacy_get_system_metrics
+E. Agreement metrics       – legacy_compute_gp_same_frac, legacy_compute_basebest_same_frac, etc.
+F. Aggregate summary       – legacy_create_aggregate_summary
+G. Structure comparison    – legacy_compute_rmsd_table
 H. Ordering metrics        – get_Epa, compute_metrics_one_group, summarize_one_potential
 
 Sections A-H above are the original data model (all_mlips_clean_*, endpoints_*,
@@ -540,7 +540,17 @@ def build_points_for_system(all_merged: dict, mlip: str, system_name: str,
                              round_x: int = 8, clip_x: bool = True) -> list[dict]:
     """
     Returns list of point dicts:
-      {key, x, is_endpoint, E_mlip, E_dft}
+      {key, x, is_endpoint, E_mlip, E_dft, phase_id}
+
+    phase_id is the canonical phase identity: entry["sid"] when present (set
+    by _hull_to_legacy_merged from the standardized data's own phase_id
+    field), falling back to extract_base(key) only for genuinely legacy
+    input that carries no explicit phase_id. Every plotting/demo function
+    that groups or colors by phase should read this field, not call
+    extract_base itself -- extract_base truncates on the FIRST underscore,
+    which is wrong for phase_id values that themselves contain an
+    underscore (e.g. "r3m_SnTe" -> "r3m", 21 candidates in the current
+    dataset, all SnTe-bordering systems).
     """
     dsys = all_merged[mlip][system_name]
     frA, frB = parse_endmembers(system_name)
@@ -563,6 +573,7 @@ def build_points_for_system(all_merged: dict, mlip: str, system_name: str,
             "is_endpoint": ("__" in key),
             "E_mlip":      entry.get("MLIP_energy/atom"),
             "E_dft":       entry.get("DFT_energy/atom"),
+            "phase_id":    entry.get("sid") if entry.get("sid") is not None else extract_base(key),
         })
     return points
 
@@ -576,6 +587,123 @@ def pick_endpoints_by_x(points: list[dict]):
     p0 = min(at_min, key=lambda p: p["E_mlip"] if p["E_mlip"] is not None else float("inf"))
     p1 = min(at_max, key=lambda p: p["E_mlip"] if p["E_mlip"] is not None else float("inf"))
     return p0, p1
+
+
+def pick_endpoints_independent(points_full_universe: list[dict], points_fp_filtered: list[dict]):
+    """
+    Select DFT's own preferred endpoint and this FP's own preferred endpoint
+    independently at each tie-line side, instead of sharing one endpoint
+    candidate between the two methods (see pick_endpoints_by_x, which does
+    the sharing -- this is a separate, non-duplicating alternative for
+    endpoint_reference="independent" in within_phase_hull_min_agreement /
+    global_hull_min_agreement, and is also what plot_normalized_with_hulls /
+    plot_normalized_without_phases now call for that same setting -- see
+    those functions' own docstrings; pick_endpoints_by_x/normalize_to_endpoints
+    remain the unmodified endpoint_reference="shared_fp_legacy" path).
+
+    points_full_universe: points for the FULL canonical DFT candidate set at
+        this system (every DFT endpoint candidate, regardless of whether any
+        FP has a successful result there). Used for TWO things: (1) picking
+        DFT's own endpoint via E_dft, and (2) establishing the TRUE tie-line
+        side boundaries (min_x/max_x) that BOTH DFT's and the FP's search are
+        anchored to. This is what makes the DFT endpoint choice identical
+        across every FP and every protocol (relax/static) -- it never looks
+        at E_mlip/FP availability at all -- and it is also what stops a
+        future FP that has zero successful candidates at a true endpoint
+        side from silently causing the FP-side search to drift onto an
+        interior composition (see below).
+    points_fp_filtered: points already restricted to this FP/mode's
+        successful candidates (the same input pick_endpoints_by_x/
+        normalize_to_endpoints receive today) -- used only to pick this FP's
+        own endpoint, via E_mlip, AT THE TRUE SIDES ESTABLISHED ABOVE (not at
+        whatever min/max x happens to be present within this filtered list
+        itself). If every true-endpoint-side candidate failed for this FP,
+        the filtered list simply has no point matching that true x, and
+        _pick below raises -- it does NOT fall back to treating the nearest
+        available (necessarily interior) composition as a replacement
+        endpoint. This is the fix for the following latent gap: the
+        original version of this function derived min_x/max_x from
+        points_fp_filtered directly, so if literally every FP-successful
+        candidate at one true side happened to fail, min_x/max_x computed
+        from that already-filtered list could silently shift to an interior
+        x and the "endpoint" selected there would not really be an
+        endpoint. Verified this never occurred for any FP/mode/system in the
+        currently released standardized data (every present FP has >=1
+        successful candidate at both true sides in every system) -- see
+        tests/test_convexhull_analysis_utils.py's synthetic
+        all-endpoint-candidates-missing regression test for the case where
+        it would.
+
+    Same x-clustering and 1e-5 tolerance as pick_endpoints_by_x. Deterministic
+    tie-break: (energy_per_atom, candidate_id) -- never an unordered/implicit
+    tie-break. Raises ValueError (does not silently fall back to the other
+    method's endpoint, to a different convention, or to an interior
+    composition) if either method has no valid candidate at either true side.
+
+    Returns (p0_dft, p1_dft, p0_fp, p1_fp).
+    """
+    def _at_x(points, target_x):
+        return [p for p in points if abs(p["x"] - target_x) < 1e-5]
+
+    def _pick(candidates, energy_key, label):
+        valid = [p for p in candidates if p.get(energy_key) is not None]
+        if not valid:
+            raise ValueError(f"no valid {label} endpoint candidate at this tie-line side")
+        return min(valid, key=lambda p: (p[energy_key], p["key"]))
+
+    # The true tie-line sides are established ONLY from the full canonical
+    # DFT universe -- never from the FP-filtered list, so a future FP's
+    # availability can never shift where "the endpoint" is considered to be.
+    true_min_x = min(p["x"] for p in points_full_universe)
+    true_max_x = max(p["x"] for p in points_full_universe)
+
+    dft_at_min = _at_x(points_full_universe, true_min_x)
+    dft_at_max = _at_x(points_full_universe, true_max_x)
+    fp_at_min  = _at_x(points_fp_filtered, true_min_x)
+    fp_at_max  = _at_x(points_fp_filtered, true_max_x)
+
+    p0_dft = _pick(dft_at_min, "E_dft",  "DFT (x=0 side)")
+    p1_dft = _pick(dft_at_max, "E_dft",  "DFT (x=1 side)")
+    p0_fp  = _pick(fp_at_min,  "E_mlip", "FP (x=0 side)")
+    p1_fp  = _pick(fp_at_max,  "E_mlip", "FP (x=1 side)")
+    return p0_dft, p1_dft, p0_fp, p1_fp
+
+
+def normalize_independent(points: list[dict], points_full_universe: list[dict]):
+    """
+    Add Erel_mlip and Erel_dft using INDEPENDENT reference lines: DFT's line
+    is anchored to DFT's own lowest-DFT-energy endpoint (from
+    points_full_universe, the full canonical DFT candidate set for this
+    system); the FP's line is anchored to this FP's own lowest-FP-energy
+    endpoint (from `points`, already restricted to this FP/mode's successful
+    candidates). Companion to normalize_to_endpoints, which anchors both
+    lines to the SAME (FP-selected) endpoint -- normalize_to_endpoints is
+    kept, unmodified, only for endpoint_reference="shared_fp_legacy" callers.
+    This function (normalize_independent) is now the one plotting code calls
+    for endpoint_reference="independent" (plot_normalized_with_hulls,
+    plot_normalized_without_phases, and every secondary demo/badge helper
+    listed in those functions' docstrings) -- it is NOT legacy-only.
+
+    Returns (points, p0_dft, p1_dft, p0_fp, p1_fp).
+    """
+    if len(points) < 2:
+        raise ValueError("Need at least 2 points.")
+    p0_dft, p1_dft, p0_fp, p1_fp = pick_endpoints_independent(points_full_universe, points)
+    x0d, x1d = p0_dft["x"], p1_dft["x"]
+    E0d, E1d = p0_dft["E_dft"], p1_dft["E_dft"]
+    dxd = (x1d - x0d) if abs(x1d - x0d) > 1e-6 else 1.0
+    x0f, x1f = p0_fp["x"], p1_fp["x"]
+    E0f, E1f = p0_fp["E_mlip"], p1_fp["E_mlip"]
+    dxf = (x1f - x0f) if abs(x1f - x0f) > 1e-6 else 1.0
+    for p in points:
+        x = p["x"]
+        if all(v is not None for v in [E0f, E1f, p["E_mlip"]]):
+            p["Eref_mlip"] = E0f + (x - x0f) * (E1f - E0f) / dxf
+            p["Erel_mlip"] = p["E_mlip"] - p["Eref_mlip"]
+        if all(v is not None for v in [E0d, E1d, p["E_dft"]]):
+            p["Eref_dft"] = E0d + (x - x0d) * (E1d - E0d) / dxd
+            p["Erel_dft"] = p["E_dft"] - p["Eref_dft"]
+    return points, p0_dft, p1_dft, p0_fp, p1_fp
 
 
 def normalize_to_endpoints(points: list[dict]):
@@ -763,16 +891,38 @@ def plot_normalized_with_hulls(
     endpoint_label_left_dy=0.0,      # vertical nudge for the x=0 label (axes-fraction units)
     endpoint_label_right_dx=0.0,     # horizontal nudge for the x=1 label (data/atomic-fraction units)
     endpoint_label_right_dy=0.0,     # vertical nudge for the x=1 label (axes-fraction units)
+    endpoint_reference="independent",  # "independent" (default, matches Table 4) or "shared_fp_legacy"
 ):
     """
     Scatter + lower-hull plot coloured by mp-id (phases).
     mlip_marker / dft_marker : any matplotlib marker string ("o", "s", "^", "D", "x", "P", …).
     mlip_hollow / dft_hollow : set True for an unfilled (outline-only) marker.
-    """
-    points = build_points_for_system(all_merged, mlip, system_name)
-    points, p0, p1 = normalize_to_endpoints(points)
 
-    mpids = sorted({extract_base(p["key"]) for p in points})
+    endpoint_reference: same two conventions as within_phase_hull_min_agreement
+    / global_hull_min_agreement / build_combined_hull_table.
+      "independent" (default): DFT's and the FP's reference lines are each
+        anchored to that method's own lowest-energy endpoint, selected
+        independently -- matches what Table 4 now reports.
+      "shared_fp_legacy": both reference lines are anchored to the SAME
+        endpoint candidate (whichever has the lowest FP energy) -- the exact
+        original plotting behaviour, kept so previously published figures
+        remain reproducible from this repository. `all_merged` (built by
+        _hull_to_legacy_merged) already carries every DFT candidate with
+        MLIP_energy(/atom) present only where that FP/mode succeeded, so the
+        same `points` list serves as both the FP-filtered view and the full
+        canonical DFT-candidate universe needed by "independent" -- no
+        second build_points_for_system call is required here.
+    """
+    if endpoint_reference not in ("independent", "shared_fp_legacy"):
+        raise ValueError(f"endpoint_reference must be 'independent' or 'shared_fp_legacy', got {endpoint_reference!r}")
+    points = build_points_for_system(all_merged, mlip, system_name)
+    if endpoint_reference == "independent":
+        points, p0_dft, p1_dft, p0_fp, p1_fp = normalize_independent(points, points)
+    else:
+        points, p0_dft, p1_dft = normalize_to_endpoints(points)
+        p0_fp, p1_fp = p0_dft, p1_dft  # shared_fp_legacy: literally the same anchor for both
+
+    mpids = sorted({p["phase_id"] for p in points})
 
     # Build label map first so color assignment can group by label.
     # For composition/spacegroup labels we pick the ordered structure of each
@@ -783,7 +933,7 @@ def plot_normalized_with_hulls(
     if label_by != "mpid":
         _mpid_best_dist: dict[str, float] = {}
         for _p in points:
-            _mpid = extract_base(_p["key"])
+            _mpid = _p["phase_id"]
             _dist = min(_p["x"], 1.0 - _p["x"])
             if _mpid not in _mpid_best_dist or _dist < _mpid_best_dist[_mpid]:
                 _mpid_best_dist[_mpid] = _dist
@@ -853,7 +1003,7 @@ def plot_normalized_with_hulls(
     _mlip_alpha = mlip_alpha if mlip_alpha is not None else alpha
     _dft_alpha  = dft_alpha  if dft_alpha  is not None else alpha
     for p in points:
-        c = color_map[extract_base(p["key"])]
+        c = color_map[p["phase_id"]]
         if p.get("Erel_mlip") is not None:
             # Hollow only for markers that have a fill area; line-only (+ x) are always filled paths
             if mlip_hollow and mlip_marker not in _LINE_ONLY_MARKERS:
@@ -970,7 +1120,15 @@ def plot_normalized_with_hulls(
                  fontsize=_ep_fs, fontweight=endpoint_label_fontweight, clip_on=False)
 
     plt.tight_layout()
-    return fig, ax, points, (p0, p1)
+    # Endpoint identities are always explicit -- "dft" and "fp" keys, never a
+    # single ambiguous (p0, p1) pair. Under endpoint_reference="shared_fp_legacy"
+    # the two are literally the same two point dicts (both anchors coincide by
+    # construction); under "independent" they may be genuinely different
+    # structures. Callers should never have to guess which convention a bare
+    # (p0, p1) tuple came from.
+    endpoints = {"endpoint_reference": endpoint_reference,
+                 "dft": (p0_dft, p1_dft), "fp": (p0_fp, p1_fp)}
+    return fig, ax, points, endpoints
 
 
 def plot_normalized_without_phases(
@@ -993,15 +1151,26 @@ def plot_normalized_without_phases(
     zero_line_alpha=0.35,
     phase_colors=None,
     axis_label_fontweight="normal",
+    endpoint_reference="independent",
 ):
     """
     Same as plot_normalized_with_hulls but all points share one colour
     (no per-phase colouring). Cleaner for publications.
     mlip_marker / dft_marker : any matplotlib marker string ("o", "s", "^", "D", "x", "P", …).
     mlip_hollow / dft_hollow : set True for an unfilled (outline-only) marker.
+
+    endpoint_reference: "independent" (default, matches Table 4) or
+    "shared_fp_legacy" -- see plot_normalized_with_hulls's docstring. Raises
+    on any other value.
     """
+    if endpoint_reference not in ("independent", "shared_fp_legacy"):
+        raise ValueError(f"endpoint_reference must be 'independent' or 'shared_fp_legacy', got {endpoint_reference!r}")
     points = build_points_for_system(all_merged, mlip, system_name)
-    points, p0, p1 = normalize_to_endpoints(points)
+    if endpoint_reference == "independent":
+        points, p0_dft, p1_dft, p0_fp, p1_fp = normalize_independent(points, points)
+    else:
+        points, p0_dft, p1_dft = normalize_to_endpoints(points)
+        p0_fp, p1_fp = p0_dft, p1_dft  # shared_fp_legacy: literally the same anchor for both
 
     _fp_label = mlip_display if mlip_display is not None else mlip
 
@@ -1053,7 +1222,11 @@ def plot_normalized_without_phases(
         title = f"DFT vs {display}{tag}"
     ax.set_title(title, fontsize=textsize + 2)
     plt.tight_layout()
-    return fig, ax, points, (p0, p1)
+    # Explicit endpoint identities -- see plot_normalized_with_hulls's return
+    # for why this is a labeled dict, not a bare (p0, p1) tuple.
+    endpoints = {"endpoint_reference": endpoint_reference,
+                 "dft": (p0_dft, p1_dft), "fp": (p0_fp, p1_fp)}
+    return fig, ax, points, endpoints
 
 
 def plot_hull_pair(all_merged_relax, all_merged_static, mlip, system_name,
@@ -1096,7 +1269,8 @@ def plot_hull_pair(all_merged_relax, all_merged_static, mlip, system_name,
                    endpoint_label_right_dx=0.0, endpoint_label_right_dy=0.0,
                    relax_title=None,       # explicit title for the left (relax/full) subplot; None → auto
                    static_title=None,      # explicit title for the right (static) subplot; None → auto
-                   panel_wspace=0.12):     # horizontal gap between the two panels (matplotlib wspace units)
+                   panel_wspace=0.12,      # horizontal gap between the two panels (matplotlib wspace units)
+                   endpoint_reference="independent"):  # forwarded to whichever plot_fn is used; see below
     """
     Plot full relaxation (left) and static (right) side-by-side with shared legend.
 
@@ -1108,27 +1282,46 @@ def plot_hull_pair(all_merged_relax, all_merged_static, mlip, system_name,
     display_system_name: formatted system name for the figure suptitle (e.g. "GeSe₂–SiSe₂").
     show_endpoint_labels etc.: forwarded only when plot_fn is plot_normalized_with_hulls
         (plot_normalized_without_phases does not support endpoint labels).
+    endpoint_reference: forwarded to BOTH plot_normalized_with_hulls and
+        plot_normalized_without_phases -- both accept and validate it
+        identically ("independent" default, or "shared_fp_legacy"; raises on
+        any other value). See plot_normalized_with_hulls's docstring for what
+        each convention means. A plot_fn other than these two known
+        functions raises here rather than silently guessing whether it
+        accepts endpoint_reference.
     relax_title / static_title: override the per-subplot titles (e.g. "Full FP" / "Static FP");
         None keeps each plot_fn's default ("DFT vs {mlip} (full)"/"(static)").
     """
     if plot_fn is None:
         plot_fn = plot_normalized_without_phases
 
+    # endpoint_reference is threaded to both plot_fn options -- both
+    # plot_normalized_with_hulls and plot_normalized_without_phases accept
+    # and validate it (raising on an unrecognised value), so this is never
+    # silently dropped for either choice of plot_fn.
+    # mlip_lw/dft_lw are only accepted by plot_normalized_with_hulls --
+    # plot_normalized_without_phases has never had those two parameters.
+    # Pre-existing (predates any endpoint_reference work): unconditionally
+    # including them here made plot_hull_pair(plot_fn=plot_normalized_
+    # without_phases) raise TypeError unconditionally, for a reason
+    # unrelated to endpoint_reference. Fixed here since it sits in the same
+    # dict this pass is already correcting.
     marker_kw = {"mlip_hollow": mlip_hollow, "dft_hollow": dft_hollow,
                  "mlip_alpha": mlip_alpha, "dft_alpha": dft_alpha,
-                 "mlip_lw": mlip_lw, "dft_lw": dft_lw,
                  "dodge": dodge, "label_by": label_by, "hull_lw": hull_lw,
                  "show_zero_line": show_zero_line, "marker_label": marker_label,
                  "mlip_hull_color": mlip_hull_color, "dft_hull_color": dft_hull_color,
                  "hull_alpha": hull_alpha, "zero_line_alpha": zero_line_alpha,
                  "phase_colors": phase_colors,
-                 "axis_label_fontweight": axis_label_fontweight}
+                 "axis_label_fontweight": axis_label_fontweight,
+                 "endpoint_reference": endpoint_reference}
     if mlip_marker is not None:
         marker_kw["mlip_marker"] = mlip_marker
     if dft_marker is not None:
         marker_kw["dft_marker"] = dft_marker
     if plot_fn is plot_normalized_with_hulls:
         marker_kw.update({
+            "mlip_lw": mlip_lw, "dft_lw": dft_lw,
             "show_endpoint_labels": show_endpoint_labels,
             "endpoint_labels": endpoint_labels,
             "endpoint_label_fontsize": endpoint_label_fontsize,
@@ -1139,6 +1332,15 @@ def plot_hull_pair(all_merged_relax, all_merged_static, mlip, system_name,
             "endpoint_label_right_dx": endpoint_label_right_dx,
             "endpoint_label_right_dy": endpoint_label_right_dy,
         })
+    elif plot_fn is not plot_normalized_without_phases:
+        # A caller-supplied custom plot_fn -- do not assume it accepts
+        # endpoint_reference at all; fail loudly rather than silently
+        # passing (and possibly mismatching) a kwarg it does not expect.
+        raise ValueError(
+            f"plot_hull_pair does not know whether {plot_fn!r} accepts "
+            "endpoint_reference; pass plot_normalized_with_hulls, "
+            "plot_normalized_without_phases, or extend this check."
+        )
 
     fig, axes = plt.subplots(1, 2, figsize=figsize, sharex=True, sharey=True, dpi=dpi)
     plot_fn(all_merged_relax, mlip, system_name, ax=axes[0], textsize=textsize, show_legend=False,
@@ -1208,8 +1410,50 @@ def pretty_comp_from_key(comp_key: str) -> str:
         return comp_key
 
 
-def prepare_points_for_metrics(all_merged: dict, mlip: str, system_name: str) -> list[dict]:
-    """Flat list of point dicts ready for metric functions."""
+# ═══════════════════════════════════════════════════════════════════════════════
+# DEPRECATED -- an OLDER, statistically DIFFERENT metric implementation.
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Every function in this block through legacy_compute_rmsd_table is NOT the
+# manuscript/Table 4 implementation and must never be presented as such. It
+# predates and disagrees with the canonical, standardized-data metric
+# functions (ground_state_agreement_pooled, within_phase_hull_min_agreement,
+# global_hull_min_agreement, build_combined_hull_table, compute_structure_rmsd)
+# in ways that are not equivalent under any endpoint_reference/
+# composition_grouping/dedupe_by_structure choice:
+#   - Ground-state / within-phase agreement here is grouped by the exact,
+#     unreduced formula string (legacy_prepare_points_for_metrics'
+#     "comp_key") and by extract_base (its "base"), never by the canonical
+#     phase_id or a normalized/reduced composition -- see
+#     ground_state_agreement_pooled's composition_grouping="exact_formula_legacy"
+#     for the ONE legacy convention that IS kept as an explicit, documented
+#     option; this block predates even that and has no equivalent switch.
+#   - legacy_create_aggregate_summary MACRO-averages per-system fractions
+#     (`system_df['GP_Frac'].mean()`), not the POOLED numerator/denominator
+#     convention every canonical metric function uses.
+#   - legacy_get_system_metrics' "Hull_Min_Match" compares RAW (unnormalized)
+#     min(dft) == min(mlip) across every point in a system, with no tie-line
+#     endpoint normalization at all -- unrelated to
+#     global_hull_min_agreement's Erel-based comparison.
+#
+# Confirmed unused: no cell in either the private or public
+# convexhull_ordering_analysis_all_models.ipynb calls anything in this block.
+# It is kept, under this legacy_ prefix, only so it remains callable if
+# anyone needs to reproduce an old, pre-standardized-data-model result; it is
+# not being routed through the canonical functions (they use an
+# architecturally different input shape -- dft_hull/fp_hull, not this
+# block's flat all_merged/pts convention -- routing would mean rewriting
+# this block entirely, not deprecating it) and it is not covered by
+# Table 4's regression tests. Do not extend or "fix" this block piecemeal;
+# if it needs to keep producing a specific historical number, pin that
+# number with its own explicitly-named legacy test instead.
+
+
+def legacy_prepare_points_for_metrics(all_merged: dict, mlip: str, system_name: str) -> list[dict]:
+    """Flat list of point dicts ready for metric functions.
+
+    DEPRECATED -- see the module-level banner immediately above this
+    function. Not the canonical/Table-4 implementation."""
     dsys = all_merged[mlip][system_name]
     pts = []
     for key, entry in dsys.items():
@@ -1230,13 +1474,13 @@ def prepare_points_for_metrics(all_merged: dict, mlip: str, system_name: str) ->
     return pts
 
 
-def get_system_metrics(pts: list[dict]) -> dict | None:
+def legacy_get_system_metrics(pts: list[dict]) -> dict | None:
     if not pts:
         return None
     errs = [p["mlip"] - p["dft"] for p in pts]
     mae_v, rmse_v = mae_rmse(errs)
-    gp_frac,  _, _    = compute_gp_same_frac(pts)
-    bb_frac, _, _, _  = compute_basebest_same_frac(pts)
+    gp_frac,  _, _    = legacy_compute_gp_same_frac(pts)
+    bb_frac, _, _, _  = legacy_compute_basebest_same_frac(pts)
     dft_min  = min(pts, key=lambda p: p["dft"])["sid"]
     mlip_min = min(pts, key=lambda p: p["mlip"])["sid"]
     return {
@@ -1250,10 +1494,10 @@ def get_system_metrics(pts: list[dict]) -> dict | None:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# E. Agreement metrics
+# E. Agreement metrics [DEPRECATED -- see banner above legacy_prepare_points_for_metrics]
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def compute_gp_same_frac(pts: list[dict]) -> tuple[float, int, int]:
+def legacy_compute_gp_same_frac(pts: list[dict]) -> tuple[float, int, int]:
     """
     Ground-phase agreement: per composition, does the MLIP agree with DFT
     on the lowest-energy phase?
@@ -1272,7 +1516,7 @@ def compute_gp_same_frac(pts: list[dict]) -> tuple[float, int, int]:
     return frac, same, total
 
 
-def compute_basebest_same_frac(pts: list[dict]) -> tuple[float, int, int, dict]:
+def legacy_compute_basebest_same_frac(pts: list[dict]) -> tuple[float, int, int, dict]:
     """
     Within-phase best agreement: per mp-id base, does the MLIP pick the same
     lowest-energy composition as DFT?
@@ -1298,7 +1542,7 @@ def compute_basebest_same_frac(pts: list[dict]) -> tuple[float, int, int, dict]:
     return frac, same, total, details
 
 
-def print_gp_rankings(pts: list[dict], max_lines: int = 20):
+def legacy_print_gp_rankings(pts: list[dict], max_lines: int = 20):
     groups: dict[str, list] = {}
     for p in pts:
         groups.setdefault(p["comp_key"], []).append(p)
@@ -1315,10 +1559,10 @@ def print_gp_rankings(pts: list[dict], max_lines: int = 20):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# F. Aggregate summary table
+# F. Aggregate summary table [DEPRECATED -- see banner above legacy_prepare_points_for_metrics]
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def build_per_system_dfs(all_merged: dict, skip_systems: set | None = None
+def legacy_build_per_system_dfs(all_merged: dict, skip_systems: set | None = None
                           ) -> tuple[dict[str, pd.DataFrame], dict[str, pd.DataFrame]]:
     """
     Returns (dfs_with, dfs_without):
@@ -1334,14 +1578,14 @@ def build_per_system_dfs(all_merged: dict, skip_systems: set | None = None
         for system in all_merged[mlip]:
             if system in skip_systems:
                 continue
-            pts = prepare_points_for_metrics(all_merged, mlip, system)
+            pts = legacy_prepare_points_for_metrics(all_merged, mlip, system)
             if not pts:
                 continue
-            r = get_system_metrics(pts)
+            r = legacy_get_system_metrics(pts)
             if r:
                 rows_with.append({**r, "system": system})
             no_ep = [p for p in pts if not p["is_endpoint"]]
-            r2 = get_system_metrics(no_ep)
+            r2 = legacy_get_system_metrics(no_ep)
             if r2:
                 rows_without.append({**r2, "system": system})
         if rows_with:
@@ -1351,7 +1595,7 @@ def build_per_system_dfs(all_merged: dict, skip_systems: set | None = None
     return dfs_with, dfs_without
 
 
-def create_aggregate_summary(all_dfs_dict: dict, all_merged: dict,
+def legacy_create_aggregate_summary(all_dfs_dict: dict, all_merged: dict,
                               include_endpoints: bool = True,
                               skip_systems: set | None = None) -> pd.DataFrame:
     if skip_systems is None:
@@ -1362,7 +1606,7 @@ def create_aggregate_summary(all_dfs_dict: dict, all_merged: dict,
         for system_name in all_merged[mlip]:
             if system_name in skip_systems:
                 continue
-            pts = prepare_points_for_metrics(all_merged, mlip, system_name)
+            pts = legacy_prepare_points_for_metrics(all_merged, mlip, system_name)
             if not include_endpoints:
                 pts = [p for p in pts if not p["is_endpoint"]]
             all_errors.extend([p["mlip"] - p["dft"] for p in pts])
@@ -1383,10 +1627,12 @@ def create_aggregate_summary(all_dfs_dict: dict, all_merged: dict,
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# G. Structure comparison (RMSD)
+# G. Structure comparison (RMSD) [DEPRECATED -- superseded by Section K's
+#    compute_structure_rmsd, which build_rmsd_table actually uses; see the
+#    deprecation banner above legacy_prepare_points_for_metrics]
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def compute_rmsd_table(all_merged: dict, all_DFT_with_endpoints: dict,
+def legacy_compute_rmsd_table(all_merged: dict, all_DFT_with_endpoints: dict,
                        skip_systems: set | None = None,
                        ltol: float = 0.5, stol: float = 0.5,
                        angle_tol: float = 10.0) -> pd.DataFrame:
@@ -2081,10 +2327,11 @@ def _hull_energy_pairs(dft_hull: dict, fp_hull: dict, mode: str) -> dict:
     return out
 
 
-def ground_state_agreement_pooled(dft_hull: dict, fp_hull: dict, mode: str) -> dict:
+def ground_state_agreement_pooled(dft_hull: dict, fp_hull: dict, mode: str,
+                                   composition_grouping: str = "normalized_composition") -> dict:
     """
     Ground-state agreement, POOLED (not macro-averaged): for every composition
-    instance (same chemical formula, i.e. same set of competing phases) within
+    instance (same fixed composition, i.e. same set of competing phases) within
     a system, does the FP pick the same lowest-energy phase as DFT? The
     reported fraction is (matching instances) / (valid instances) pooled
     across every system directly -- each composition instance is weighted
@@ -2093,14 +2340,55 @@ def ground_state_agreement_pooled(dft_hull: dict, fp_hull: dict, mode: str) -> d
     A "composition instance" requires >=2 competing phases; single-phase
     compositions provide no ground-state choice and are excluded (reported
     separately, not silently dropped).
+
+    composition_grouping:
+      "normalized_composition" (default): candidates are grouped within a
+        system by REDUCED composition (Composition.reduced_formula) -- e.g.
+        Bi2Se3, Bi8Se12, and Bi16Se24 are the same fixed composition at
+        different formula-unit/supercell sizes, and are correctly pooled
+        into one competing-phase group. This partition is identical to
+        grouping by tie-line fraction x (verified against the standardized
+        reference: 220 (system, x) buckets either way, 161 valid + 59
+        excluded). This is the manuscript's stated comparison ("per-atom
+        energies of all phases at a fixed composition").
+      "exact_formula_legacy": groups by the exact, unreduced formula-unit
+        string (Composition.__str__, e.g. "Bi2 Se3" vs "Bi8 Se12" vs
+        "Bi16 Se24" as three DIFFERENT groups) -- the original behaviour.
+        318 (system, exact-formula) buckets, 165 valid + 153 excluded; 73 of
+        the 220 normalized-composition groups are split apart into multiple
+        exact-formula buckets here, each split containing genuinely distinct
+        phase_ids (never a duplicate copy of the same phase). Kept only so
+        previously published numbers stay exactly reproducible from this
+        repository.
+    Raises ValueError on any other value -- never silently falls back to
+    either convention.
+
+    Note: this function uses RAW dft_e/fp_e (per-atom energies from
+    _hull_energy_pairs), never tie-line-normalized Erel values -- endpoint
+    selection/normalization (endpoint_reference) has no effect on this
+    metric at all, by construction. Within one fixed-composition group the
+    reference-line value at a single x is a single constant, and subtracting
+    the same constant from every candidate's energy in that group cannot
+    change which one is smallest -- so even if this function were changed to
+    use Erel instead of raw energy, the argmin here would be invariant to
+    endpoint_reference. Any difference between this function's result and a
+    plotting/demo helper's own ground-state check must come from grouping
+    rules, endpoint inclusion, or candidate filtering, never from
+    normalization.
     """
+    if composition_grouping not in ("normalized_composition", "exact_formula_legacy"):
+        raise ValueError(
+            f"composition_grouping must be 'normalized_composition' or 'exact_formula_legacy', "
+            f"got {composition_grouping!r}"
+        )
     pairs = _hull_energy_pairs(dft_hull, fp_hull, mode)
     groups: dict[tuple, list] = {}
     for system, cand_pairs in pairs.items():
         for cid, (dft_e, fp_e) in cand_pairs.items():
             dft_entry = dft_hull[system][cid]
             struct = Structure.from_dict(dft_entry["relaxed_structure"])
-            comp_key = str(struct.composition)
+            comp = struct.composition
+            comp_key = comp.reduced_formula if composition_grouping == "normalized_composition" else str(comp)
             groups.setdefault((system, comp_key), []).append((cid, dft_e, fp_e))
 
     numerator = denominator = excluded_single_phase = 0
@@ -2119,38 +2407,85 @@ def ground_state_agreement_pooled(dft_hull: dict, fp_hull: dict, mode: str) -> d
         "numerator": numerator,
         "denominator": denominator,
         "excluded_single_phase_instances": excluded_single_phase,
+        "composition_grouping": composition_grouping,
     }
 
 
-def within_phase_hull_min_agreement(dft_hull: dict, fp_hull: dict, mode: str) -> dict:
+def _build_fp_filtered_points(dft_hull: dict, fp_hull: dict, mode: str, system: str) -> list[dict]:
+    """Points for `system`, restricted to candidates where this FP/mode has a
+    successful result -- exactly the input pick_endpoints_by_x/
+    normalize_to_endpoints/normalize_independent's FP-side selection have
+    always received. Used by both endpoint_reference conventions."""
+    return build_points_for_system({"__fp__": {system: {
+        cid: {"structure": Structure.from_dict(e["relaxed_structure"]),
+              "MLIP_energy/atom": (fp_hull[mode][system].get(cid) or {}).get("energy_per_atom"),
+              "DFT_energy/atom": e["energy_per_atom"]}
+        for cid, e in dft_hull[system].items()
+        if (fp_hull[mode][system].get(cid) or {}).get("status") == "success"
+    }}}, "__fp__", system)
+
+
+def _build_full_universe_points(dft_hull: dict, system: str) -> list[dict]:
+    """Points for the FULL canonical DFT candidate set at `system` -- every
+    candidate DFT has a result for, regardless of any FP's success or
+    availability. Used only for endpoint_reference="independent"'s DFT-side
+    endpoint selection, so that choice never depends on which FP is being
+    evaluated. E_mlip is always None here (deliberately -- this points list
+    is never used for FP-side selection or for scoring)."""
+    return build_points_for_system({"__fp__": {system: {
+        cid: {"structure": Structure.from_dict(e["relaxed_structure"]),
+              "MLIP_energy/atom": None,
+              "DFT_energy/atom": e["energy_per_atom"]}
+        for cid, e in dft_hull[system].items()
+    }}}, "__fp__", system)
+
+
+def within_phase_hull_min_agreement(dft_hull: dict, fp_hull: dict, mode: str,
+                                     endpoint_reference: str = "independent") -> dict:
     """
     Within-phase hull-minimum agreement: for each phase (phase_id) within a
     tie-line system, does the FP identify the same minimum-(normalized-)energy
-    composition as DFT? Uses normalized (tie-line-relative) energies, per the
-    existing normalize_to_endpoints method -- unchanged.
+    composition as DFT? Uses normalized (tie-line-relative) energies.
+
+    endpoint_reference:
+      "independent" (default): DFT's reference line is anchored to DFT's own
+        lowest-DFT-energy endpoint, selected from the full canonical DFT
+        candidate set (independent of any FP's availability/success, and
+        therefore identical for every FP and protocol). The FP's reference
+        line is anchored to this FP's own lowest-FP-energy endpoint. See
+        normalize_independent / pick_endpoints_independent.
+      "shared_fp_legacy": both reference lines are anchored to the SAME
+        endpoint candidate -- whichever has the lowest FP energy. Exact
+        original behaviour, via normalize_to_endpoints / pick_endpoints_by_x,
+        kept so previously published numbers remain reproducible from this
+        repository.
 
     Phases with only one composition present provide no within-phase choice
     and are reported separately (excluded from the fraction, not silently
     dropped or treated as automatic agreement).
     """
+    if endpoint_reference not in ("independent", "shared_fp_legacy"):
+        raise ValueError(f"endpoint_reference must be 'independent' or 'shared_fp_legacy', got {endpoint_reference!r}")
+
     numerator = denominator = excluded_single_composition = 0
     undefined_normalization = 0
+    undefined_normalization_system_names = []
     for system in dft_hull:
         try:
-            raw_pts = build_points_for_system({"__fp__": {system: {
-                cid: {"structure": Structure.from_dict(e["relaxed_structure"]),
-                      "MLIP_energy/atom": (fp_hull[mode][system].get(cid) or {}).get("energy_per_atom"),
-                      "DFT_energy/atom": e["energy_per_atom"]}
-                for cid, e in dft_hull[system].items()
-                if (fp_hull[mode][system].get(cid) or {}).get("status") == "success"
-            }}}, "__fp__", system)
+            raw_pts = _build_fp_filtered_points(dft_hull, fp_hull, mode, system)
         except Exception:
             undefined_normalization += 1
+            undefined_normalization_system_names.append(system)
             continue
         try:
-            points, _, _ = normalize_to_endpoints(raw_pts)
+            if endpoint_reference == "independent":
+                full_pts = _build_full_universe_points(dft_hull, system)
+                points, *_ = normalize_independent(raw_pts, full_pts)
+            else:
+                points, _, _ = normalize_to_endpoints(raw_pts)
         except Exception:
             undefined_normalization += 1
+            undefined_normalization_system_names.append(system)
             continue
         valid = [p for p in points if p.get("Erel_dft") is not None and p.get("Erel_mlip") is not None]
 
@@ -2178,47 +2513,255 @@ def within_phase_hull_min_agreement(dft_hull: dict, fp_hull: dict, mode: str) ->
         "denominator": denominator,
         "excluded_single_composition_phases": excluded_single_composition,
         "undefined_normalization_systems": undefined_normalization,
+        "undefined_normalization_system_names": undefined_normalization_system_names,
+        "endpoint_reference": endpoint_reference,
     }
 
 
-def global_hull_min_agreement(dft_hull: dict, fp_hull: dict, mode: str) -> dict:
+def _hull_min_verdict_single(dft_hull: dict, fp_hull: dict, mode: str, system: str,
+                              tol: float = 1e-6) -> dict:
+    """
+    One system's global-hull-minimum verdict under
+    hull_min_tie_policy="stable_intermediate" (see global_hull_min_agreement).
+    Raises whatever _build_fp_filtered_points/_build_full_universe_points/
+    normalize_independent would raise (undefined normalization) or a
+    ValueError if no point has both Erel_dft and Erel_mlip -- the caller
+    catches this and records the system as undefined, exactly like the
+    "legacy" tie policy does.
+
+    "The minimum Erel" is taken over every point with a defined Erel for
+    that method (endpoints included -- they are exactly 0 by construction,
+    so including them changes nothing except making explicit that a method
+    with no stable interior composition is comparing against its own
+    endpoints, not silently omitting them). tol (eV/atom) is a numerical-
+    equality tolerance, not a physical stability margin: it exists only to
+    treat a minimum that is indistinguishable from an endpoint's exact-zero
+    Erel as "no stable intermediate", and to detect genuine multi-way ties
+    at the true minimum. 1e-6 eV/atom is far below any real formation-
+    energy scale in this dataset (tens to hundreds of meV/atom) and far
+    above floating-point noise in the linear-interpolation Erel formula.
+
+    A method's answer is "none" (returned as None) when its own minimum
+    Erel >= -tol -- i.e. it finds no composition below its own tie line, so
+    its endpoints ARE its hull minimum and there is no stable intermediate
+    phase to name. Otherwise the answer is the candidate_id of the
+    (deterministically tie-broken, by (Erel, candidate_id)) point at that
+    minimum.
+
+    bucket is one of "both_none" / "dft_none_fp_found" / "dft_found_fp_none"
+    / "both_found". match is True iff:
+      - both_found and the two answers name the same candidate_id, or
+      - both_none and endpoints_match (p0_dft==p0_fp and p1_dft==p1_fp --
+        i.e. DFT's and this FP's independently-selected tie-line anchors are
+        the same structures at both sides, so "no stable intermediate" is a
+        statement about the same hull for both methods, not two different
+        hulls that both happen to have no interior minimum).
+      - dft_none_fp_found or dft_found_fp_none is always a mismatch: one
+        method names an actual stable phase, the other says there isn't
+        one -- these are substantively different answers regardless of
+        where the endpoints sit.
+    The endpoint condition is used ONLY in the both_none branch. When either
+    method names an interior structure, that named structure (not the
+    endpoints, which are just the reference frame the energies happen to be
+    plotted against) is the metric's answer.
+    """
+    raw_pts = _build_fp_filtered_points(dft_hull, fp_hull, mode, system)
+    full_pts = _build_full_universe_points(dft_hull, system)
+    points, p0_dft, p1_dft, p0_fp, p1_fp = normalize_independent(raw_pts, full_pts)
+    valid = [p for p in points if p.get("Erel_dft") is not None and p.get("Erel_mlip") is not None]
+    if not valid:
+        raise ValueError(f"no point with both Erel_dft and Erel_mlip at system {system!r}")
+
+    dft_min_erel = min(p["Erel_dft"] for p in valid)
+    fp_min_erel = min(p["Erel_mlip"] for p in valid)
+    dft_tie_count = sum(1 for p in valid if abs(p["Erel_dft"] - dft_min_erel) <= tol)
+    fp_tie_count = sum(1 for p in valid if abs(p["Erel_mlip"] - fp_min_erel) <= tol)
+
+    if dft_min_erel >= -tol:
+        dft_answer = None
+    else:
+        at_min = [p for p in valid if abs(p["Erel_dft"] - dft_min_erel) <= tol]
+        dft_answer = min(at_min, key=lambda p: (p["Erel_dft"], p["key"]))["key"]
+    if fp_min_erel >= -tol:
+        fp_answer = None
+    else:
+        at_min = [p for p in valid if abs(p["Erel_mlip"] - fp_min_erel) <= tol]
+        fp_answer = min(at_min, key=lambda p: (p["Erel_mlip"], p["key"]))["key"]
+
+    endpoints_match = (p0_dft["key"] == p0_fp["key"]) and (p1_dft["key"] == p1_fp["key"])
+
+    if dft_answer is None and fp_answer is None:
+        bucket, match = "both_none", endpoints_match
+    elif dft_answer is None and fp_answer is not None:
+        bucket, match = "dft_none_fp_found", False
+    elif dft_answer is not None and fp_answer is None:
+        bucket, match = "dft_found_fp_none", False
+    else:
+        bucket, match = "both_found", (dft_answer == fp_answer)
+
+    return {
+        "dft_min_erel": dft_min_erel, "fp_min_erel": fp_min_erel,
+        "dft_tie_count": dft_tie_count, "fp_tie_count": fp_tie_count,
+        "dft_answer": dft_answer, "fp_answer": fp_answer,
+        "p0_dft": p0_dft["key"], "p1_dft": p1_dft["key"],
+        "p0_fp": p0_fp["key"], "p1_fp": p1_fp["key"],
+        "endpoints_match": endpoints_match,
+        "bucket": bucket, "match": match,
+    }
+
+
+def global_hull_min_agreement(dft_hull: dict, fp_hull: dict, mode: str,
+                               endpoint_reference: str = "independent",
+                               hull_min_tie_policy: str = "stable_intermediate",
+                               tol: float = 1e-6) -> dict:
     """
     Global hull-minimum agreement: for each tie-line system, does the FP
     identify the same global convex-hull minimum (across ALL phases and
-    compositions) as DFT? Uses normalized energies, unchanged. Reports the
-    DFT- and FP-selected candidate_id for every system, not just the pooled
-    fraction.
+    compositions) as DFT? Uses normalized energies. Reports the DFT- and
+    FP-selected candidate_id for every system, not just the pooled fraction.
+
+    endpoint_reference: see within_phase_hull_min_agreement -- same two
+    conventions, same default.
+
+    hull_min_tie_policy:
+      "stable_intermediate" (default): a method's minimum-Erel composition
+        only counts as an answer if it is a genuine interior structure below
+        that method's own tie line (Erel < -tol); a method whose minimum
+        Erel is >= -tol has no stable intermediate and is recorded as such
+        rather than naming whichever point min() happened to return among
+        ties at (or indistinguishable from) the endpoints. Two systems agree
+        if both name the same interior structure, or if both find no stable
+        intermediate AND their independently-selected tie-line endpoints
+        coincide at both sides (p0_dft==p0_fp and p1_dft==p1_fp) -- i.e. they
+        are describing the same hull, not two different ones that both
+        happen to be empty. One method finding a stable intermediate while
+        the other does not is always a mismatch. Requires
+        endpoint_reference="independent" (raises otherwise): the endpoint
+        condition compares each method's own independently-selected anchor,
+        which only exists as a meaningful, non-trivial comparison in that
+        mode -- under "shared_fp_legacy" both methods are anchored to a
+        single shared endpoint by construction, so the condition would be
+        vacuously true and not a real check. See _hull_min_verdict_single.
+      "legacy": the original order-dependent behaviour -- for each method,
+        whichever point min() returns for the lowest Erel (ties broken only
+        by dict/list iteration order, not by any explicit rule) is named as
+        that method's answer, with no "no stable intermediate" case at all.
+        Kept so previously published numbers remain exactly reproducible
+        from this repository.
+    tol: numerical-equality tolerance (eV/atom) used only by
+      hull_min_tie_policy="stable_intermediate"; see _hull_min_verdict_single.
+
+    A system with no defined answer (point-building/normalization raised --
+    e.g. an endpoint side with no valid candidate for this FP/mode under
+    endpoint_reference="independent" -- or normalization succeeded but left
+    no point with both Erel_dft and Erel_mlip populated) is EXCLUDED from
+    numerator/denominator and reported explicitly in
+    undefined_normalization_systems/undefined_normalization_system_names,
+    the same way within_phase_hull_min_agreement reports its own excluded
+    systems -- never silently skipped with no record.
+
+    Under hull_min_tie_policy="stable_intermediate", the returned dict also
+    carries standing diagnostics: "buckets" (counts of "both_none" /
+    "dft_none_fp_found" / "dft_found_fp_none" / "both_found"),
+    "both_found_same_structure" (of the "both_found" systems, how many name
+    the same structure -- these are exactly the "both_found" contribution to
+    numerator), and "endpoints_match_systems" (count of systems, across ALL
+    buckets, where p0_dft==p0_fp and p1_dft==p1_fp -- this is a description
+    of how often DFT's and this FP's independently-chosen endpoints
+    coincide, not conditioned on the both_none branch). per_system carries
+    the full per-system detail from _hull_min_verdict_single.
     """
+    if endpoint_reference not in ("independent", "shared_fp_legacy"):
+        raise ValueError(f"endpoint_reference must be 'independent' or 'shared_fp_legacy', got {endpoint_reference!r}")
+    if hull_min_tie_policy not in ("stable_intermediate", "legacy"):
+        raise ValueError(f"hull_min_tie_policy must be 'stable_intermediate' or 'legacy', got {hull_min_tie_policy!r}")
+    if hull_min_tie_policy == "stable_intermediate" and endpoint_reference != "independent":
+        raise ValueError(
+            "hull_min_tie_policy='stable_intermediate' requires endpoint_reference='independent' -- "
+            "it compares each method's own independently-selected anchoring endpoints, which is not "
+            "a meaningful, non-trivial comparison under endpoint_reference='shared_fp_legacy' (there "
+            "is only one shared endpoint by construction there, so the comparison is vacuous)."
+        )
+
+    if hull_min_tie_policy == "legacy":
+        numerator = denominator = 0
+        undefined_normalization = 0
+        undefined_normalization_system_names = []
+        per_system = {}
+        for system in dft_hull:
+            try:
+                raw_pts = _build_fp_filtered_points(dft_hull, fp_hull, mode, system)
+                if endpoint_reference == "independent":
+                    full_pts = _build_full_universe_points(dft_hull, system)
+                    points, *_ = normalize_independent(raw_pts, full_pts)
+                else:
+                    points, _, _ = normalize_to_endpoints(raw_pts)
+            except Exception:
+                undefined_normalization += 1
+                undefined_normalization_system_names.append(system)
+                continue
+            valid = [p for p in points if p.get("Erel_dft") is not None and p.get("Erel_mlip") is not None]
+            if not valid:
+                undefined_normalization += 1
+                undefined_normalization_system_names.append(system)
+                continue
+            dft_min = min(valid, key=lambda p: p["Erel_dft"])
+            fp_min = min(valid, key=lambda p: p["Erel_mlip"])
+            match = dft_min["key"] == fp_min["key"]
+            denominator += 1
+            if match:
+                numerator += 1
+            per_system[system] = {"dft_candidate_id": dft_min["key"], "fp_candidate_id": fp_min["key"], "match": match}
+
+        return {
+            "fraction": (numerator / denominator) if denominator else float("nan"),
+            "numerator": numerator,
+            "denominator": denominator,
+            "per_system": per_system,
+            "undefined_normalization_systems": undefined_normalization,
+            "undefined_normalization_system_names": undefined_normalization_system_names,
+            "endpoint_reference": endpoint_reference,
+            "hull_min_tie_policy": hull_min_tie_policy,
+        }
+
+    # hull_min_tie_policy == "stable_intermediate"
     numerator = denominator = 0
+    undefined_normalization = 0
+    undefined_normalization_system_names = []
     per_system = {}
+    buckets = {"both_none": 0, "dft_none_fp_found": 0, "dft_found_fp_none": 0, "both_found": 0}
+    both_found_same_structure = 0
+    endpoints_match_systems = 0
     for system in dft_hull:
         try:
-            raw_pts = build_points_for_system({"__fp__": {system: {
-                cid: {"structure": Structure.from_dict(e["relaxed_structure"]),
-                      "MLIP_energy/atom": (fp_hull[mode][system].get(cid) or {}).get("energy_per_atom"),
-                      "DFT_energy/atom": e["energy_per_atom"]}
-                for cid, e in dft_hull[system].items()
-                if (fp_hull[mode][system].get(cid) or {}).get("status") == "success"
-            }}}, "__fp__", system)
-            points, _, _ = normalize_to_endpoints(raw_pts)
+            v = _hull_min_verdict_single(dft_hull, fp_hull, mode, system, tol=tol)
         except Exception:
+            undefined_normalization += 1
+            undefined_normalization_system_names.append(system)
             continue
-        valid = [p for p in points if p.get("Erel_dft") is not None and p.get("Erel_mlip") is not None]
-        if not valid:
-            continue
-        dft_min = min(valid, key=lambda p: p["Erel_dft"])
-        fp_min = min(valid, key=lambda p: p["Erel_mlip"])
-        match = dft_min["key"] == fp_min["key"]
         denominator += 1
-        if match:
+        buckets[v["bucket"]] += 1
+        if v["endpoints_match"]:
+            endpoints_match_systems += 1
+        if v["bucket"] == "both_found" and v["match"]:
+            both_found_same_structure += 1
+        if v["match"]:
             numerator += 1
-        per_system[system] = {"dft_candidate_id": dft_min["key"], "fp_candidate_id": fp_min["key"], "match": match}
+        per_system[system] = v
 
     return {
         "fraction": (numerator / denominator) if denominator else float("nan"),
         "numerator": numerator,
         "denominator": denominator,
         "per_system": per_system,
+        "undefined_normalization_systems": undefined_normalization,
+        "undefined_normalization_system_names": undefined_normalization_system_names,
+        "endpoint_reference": endpoint_reference,
+        "hull_min_tie_policy": hull_min_tie_policy,
+        "tol": tol,
+        "buckets": buckets,
+        "both_found_same_structure": both_found_same_structure,
+        "endpoints_match_systems": endpoints_match_systems,
     }
 
 
@@ -2958,7 +3501,7 @@ def _phase_repr_entry(all_merged, mlip, system_name, base_id):
     """Structure of `base_id` closest to an endmember, for labeling."""
     dsys = all_merged[mlip][system_name]
     pts = build_points_for_system(all_merged, mlip, system_name)
-    cand = [p for p in pts if extract_base(p["key"]) == base_id]
+    cand = [p for p in pts if p["phase_id"] == base_id]
     if not cand:
         return None
     best = min(cand, key=lambda p: min(p["x"], 1.0 - p["x"]))
@@ -2985,20 +3528,34 @@ def _lighten_color(color, amount=0.5):
     return (r + (1.0 - r) * amount, g + (1.0 - g) * amount, b + (1.0 - b) * amount)
 
 
-def _valid_points(all_merged, mlip, system_name, include_endpoints=True):
+def _valid_points(all_merged, mlip, system_name, include_endpoints=True, endpoint_reference="independent"):
+    """Points with both Erel_dft and Erel_mlip populated, using the same two
+    endpoint_reference conventions as within_phase_hull_min_agreement /
+    global_hull_min_agreement ("independent" default, "shared_fp_legacy").
+    Raises on any other value -- never silently falls back."""
+    if endpoint_reference not in ("independent", "shared_fp_legacy"):
+        raise ValueError(f"endpoint_reference must be 'independent' or 'shared_fp_legacy', got {endpoint_reference!r}")
     raw_pts = build_points_for_system(all_merged, mlip, system_name)
-    points, _, _ = normalize_to_endpoints(raw_pts)
+    if endpoint_reference == "independent":
+        points, *_ = normalize_independent(raw_pts, raw_pts)
+    else:
+        points, _, _ = normalize_to_endpoints(raw_pts)
     valid = [p for p in points if p.get("Erel_dft") is not None and p.get("Erel_mlip") is not None]
     if not include_endpoints:
         valid = [p for p in valid if not p.get("is_endpoint")]
     return valid
 
 
-def _within_phase_best(all_merged, mlip, system_name, base_id, include_endpoints=True):
-    """DFT's and FP's own lowest-Erel structure within one phase. None if <2 candidates
-    (matches within_phase_hull_min_agreement's single-composition exclusion)."""
-    valid = _valid_points(all_merged, mlip, system_name, include_endpoints)
-    phase_pts = [p for p in valid if extract_base(p["key"]) == base_id]
+def _within_phase_best(all_merged, mlip, system_name, base_id, include_endpoints=True,
+                        endpoint_reference="independent"):
+    """DFT's and FP's own lowest-Erel structure within one phase (matched by the
+    canonical phase_id, not extract_base). None if <2 candidates (matches
+    within_phase_hull_min_agreement's single-composition exclusion).
+    endpoint_reference: see _valid_points -- must match whatever convention
+    the surrounding hull panel was drawn with, or the badge will describe a
+    different reference line than the plotted one."""
+    valid = _valid_points(all_merged, mlip, system_name, include_endpoints, endpoint_reference=endpoint_reference)
+    phase_pts = [p for p in valid if p["phase_id"] == base_id]
     if len(phase_pts) < 2:
         return None, None, None
     dft_best = min(phase_pts, key=lambda p: p["Erel_dft"])
@@ -3006,9 +3563,11 @@ def _within_phase_best(all_merged, mlip, system_name, base_id, include_endpoints
     return dft_best, mlip_best, dft_best["key"] == mlip_best["key"]
 
 
-def _global_hull_min_single(all_merged, mlip, system_name, include_endpoints=True):
-    """DFT's and FP's lowest-Erel structure across ALL phases in this one system."""
-    valid = _valid_points(all_merged, mlip, system_name, include_endpoints)
+def _global_hull_min_single(all_merged, mlip, system_name, include_endpoints=True,
+                             endpoint_reference="independent"):
+    """DFT's and FP's lowest-Erel structure across ALL phases in this one system.
+    endpoint_reference: see _valid_points -- must match the surrounding panel."""
+    valid = _valid_points(all_merged, mlip, system_name, include_endpoints, endpoint_reference=endpoint_reference)
     if not valid:
         return None, None, None
     dft_min = min(valid, key=lambda p: p["Erel_dft"])
@@ -3017,27 +3576,45 @@ def _global_hull_min_single(all_merged, mlip, system_name, include_endpoints=Tru
 
 
 def _ground_state_match_single(all_merged, mlip, system_name, target_x, x_tol=1e-4, include_endpoints=True):
-    """Ground-state check restricted to one composition (tie-line x). None if <2
-    competing phases (matches ground_state_agreement_pooled's single-phase exclusion)."""
-    valid = _valid_points(all_merged, mlip, system_name, include_endpoints)
-    group = [p for p in valid if abs(p["x"] - target_x) <= x_tol]
+    """Ground-state check restricted to one fixed composition (tie-line x).
+    Uses RAW (unnormalized) E_dft/E_mlip, exactly matching
+    ground_state_agreement_pooled -- ground-state agreement never depends on
+    tie-line endpoint normalization (see that function's docstring for why:
+    the argmin within one fixed-composition group is invariant to any
+    constant/line subtracted uniformly from that group), so this takes no
+    endpoint_reference parameter and does not call normalize_to_endpoints/
+    normalize_independent at all. Grouping candidates by tie-line x here is
+    equivalent to ground_state_agreement_pooled's default
+    composition_grouping="normalized_composition": the two partitions of the
+    standardized reference are identical (220 groups either way, verified).
+    None if <2 competing phases (matches ground_state_agreement_pooled's
+    single-phase exclusion)."""
+    raw_pts = build_points_for_system(all_merged, mlip, system_name)
+    if not include_endpoints:
+        raw_pts = [p for p in raw_pts if not p.get("is_endpoint")]
+    group = [p for p in raw_pts
+             if abs(p["x"] - target_x) <= x_tol and p.get("E_dft") is not None and p.get("E_mlip") is not None]
     if len(group) < 2:
         return None
-    dft_best = min(group, key=lambda p: p["Erel_dft"])
-    mlip_best = min(group, key=lambda p: p["Erel_mlip"])
+    dft_best = min(group, key=lambda p: p["E_dft"])
+    mlip_best = min(group, key=lambda p: p["E_mlip"])
     return dft_best["key"] == mlip_best["key"]
 
 
 def list_shared_compositions(all_merged, mlip, system_name, x_tol=1e-4):
-    """Composition x-values where more than one phase (mp-id) is present --
-    candidates for target_x in the ground-state demonstration figure."""
-    raw_pts = build_points_for_system(all_merged, mlip, system_name)
-    points, _, _ = normalize_to_endpoints(raw_pts)
+    """Composition x-values where more than one phase (by canonical phase_id,
+    not extract_base) is present -- candidates for target_x in the
+    ground-state demonstration figure. Only consumes keys/x/phase_id, never
+    an energy field, so there is nothing to normalize here -- no
+    endpoint_reference parameter, and no normalize_to_endpoints/
+    normalize_independent call (removed; it was a no-op for this function's
+    purpose)."""
+    points = build_points_for_system(all_merged, mlip, system_name)
     xs = sorted({round(p["x"], 4) for p in points})
     groups = []
     for x in xs:
         grp = [p for p in points if abs(p["x"] - x) <= x_tol]
-        bases = sorted({extract_base(p["key"]) for p in grp})
+        bases = sorted({p["phase_id"] for p in grp})
         if len(bases) > 1:
             groups.append((x, bases))
     return groups
@@ -3056,12 +3633,20 @@ def _badge(ax, x, y, ok, fontsize=14):
 
 
 def _phase_hull_lines(ax, all_merged, mlip, system_name, target_phase, mlip_hull_color, dft_hull_color,
-                       lighten_amount, lw):
+                       lighten_amount, lw, endpoint_reference="independent"):
     """Lower hull built from ONLY this phase's own points, in a lighter tint of
-    the global hull colors, so it reads as 'this phase's local hull'."""
+    the global hull colors, so it reads as 'this phase's local hull'.
+    endpoint_reference: see _valid_points -- must match the surrounding panel,
+    or these lines will be drawn relative to a different reference line than
+    the plotted scatter."""
+    if endpoint_reference not in ("independent", "shared_fp_legacy"):
+        raise ValueError(f"endpoint_reference must be 'independent' or 'shared_fp_legacy', got {endpoint_reference!r}")
     raw_pts = build_points_for_system(all_merged, mlip, system_name)
-    points, _, _ = normalize_to_endpoints(raw_pts)
-    phase_pts = [p for p in points if extract_base(p["key"]) == target_phase]
+    if endpoint_reference == "independent":
+        points, *_ = normalize_independent(raw_pts, raw_pts)
+    else:
+        points, _, _ = normalize_to_endpoints(raw_pts)
+    phase_pts = [p for p in points if p["phase_id"] == target_phase]
     mlip_xy = [(p["x"], p["Erel_mlip"]) for p in phase_pts if p.get("Erel_mlip") is not None]
     dft_xy = [(p["x"], p["Erel_dft"]) for p in phase_pts if p.get("Erel_dft") is not None]
     mlip_color = _lighten_color(mlip_hull_color, lighten_amount)
@@ -3103,10 +3688,23 @@ def _match_collections_to_points(ax, points, dodge, atol=1e-6):
     return matches
 
 
-def _apply_emphasis(ax, all_merged, mlip, system_name, dodge, is_emph, fade_alpha, emph_lw, emph_s):
-    """Fade every point that fails `is_emph`; leave matching points at full opacity."""
+def _apply_emphasis(ax, all_merged, mlip, system_name, dodge, is_emph, fade_alpha, emph_lw, emph_s,
+                     endpoint_reference="independent"):
+    """Fade every point that fails `is_emph`; leave matching points at full opacity.
+    endpoint_reference: see _valid_points -- MUST match whatever convention
+    the panel on `ax` was actually drawn with. _match_collections_to_points
+    pairs points back to plotted scatter artists by (x, Erel) coordinate, so
+    a mismatched convention here does not raise -- it silently fails to find
+    matches (or matches the wrong points), which is exactly the failure mode
+    this parameter exists to prevent by being threaded explicitly rather
+    than defaulted independently at each call site."""
+    if endpoint_reference not in ("independent", "shared_fp_legacy"):
+        raise ValueError(f"endpoint_reference must be 'independent' or 'shared_fp_legacy', got {endpoint_reference!r}")
     raw_pts = build_points_for_system(all_merged, mlip, system_name)
-    points, _, _ = normalize_to_endpoints(raw_pts)
+    if endpoint_reference == "independent":
+        points, *_ = normalize_independent(raw_pts, raw_pts)
+    else:
+        points, _, _ = normalize_to_endpoints(raw_pts)
     matches = _match_collections_to_points(ax, points, dodge)
     for coll, p in matches:
         if is_emph(p):
@@ -3130,7 +3728,12 @@ _HULL_DEMO_DEFAULTS = dict(
 )
 
 
-def _render_hull_pair(all_merged_relax, all_merged_static, mlip, system_name, model_names, opts):
+def _render_hull_pair(all_merged_relax, all_merged_static, mlip, system_name, model_names, opts,
+                       endpoint_reference="independent"):
+    """endpoint_reference is forwarded to plot_hull_pair/plot_normalized_with_hulls
+    for the panel itself. Callers that also call _apply_emphasis/_phase_hull_lines/
+    _within_phase_best/_global_hull_min_single on the returned axes MUST pass
+    this same value to those calls -- see their docstrings."""
     fig, axes = plot_hull_pair(
         all_merged_relax, all_merged_static, mlip, system_name,
         plot_fn=plot_normalized_with_hulls,
@@ -3150,6 +3753,7 @@ def _render_hull_pair(all_merged_relax, all_merged_static, mlip, system_name, mo
         phase_colors=opts["phase_colors"], legend_fontsize=opts["legend_fontsize"],
         relax_title=opts["relax_title"], static_title=opts["static_title"],
         legend_phase_ncol=3, legend_marker_ncol=2, legend_hull_ncol=2,
+        endpoint_reference=endpoint_reference,
     )
     if fig.legends:
         fig.legends[0].set_bbox_to_anchor((0.5, -0.31), transform=fig.transFigure)
@@ -3163,18 +3767,29 @@ def _render_hull_pair(all_merged_relax, all_merged_static, mlip, system_name, mo
 
 
 def plot_within_phase_demo(all_merged_relax, all_merged_static, mlip, system_name, target_phase,
-                            model_names, include_endpoints=True, **kwargs):
+                            model_names, include_endpoints=True, endpoint_reference="independent", **kwargs):
     """Demonstration figure for within_phase_hull_min_agreement: emphasizes one
-    phase's points and badges whether DFT/FP agree on its lowest-energy composition."""
+    phase's points and badges whether DFT/FP agree on its lowest-energy
+    composition. `target_phase` is matched against the canonical phase_id
+    (not extract_base). The same endpoint_reference is used for the hull
+    panel, the emphasis highlighting, the local phase-hull lines, and the
+    badge -- passing a mismatched value anywhere in this call is not
+    possible, since every step below receives this same argument."""
+    if endpoint_reference not in ("independent", "shared_fp_legacy"):
+        raise ValueError(f"endpoint_reference must be 'independent' or 'shared_fp_legacy', got {endpoint_reference!r}")
     opts = {**_HULL_DEMO_DEFAULTS, **kwargs}
-    fig, axes = _render_hull_pair(all_merged_relax, all_merged_static, mlip, system_name, model_names, opts)
-    is_emph = lambda p: extract_base(p["key"]) == target_phase
+    fig, axes = _render_hull_pair(all_merged_relax, all_merged_static, mlip, system_name, model_names, opts,
+                                   endpoint_reference=endpoint_reference)
+    is_emph = lambda p: p["phase_id"] == target_phase
     for ax, all_merged in zip(axes, (all_merged_relax, all_merged_static)):
         _apply_emphasis(ax, all_merged, mlip, system_name, opts["dodge"], is_emph,
-                         opts["fade_alpha"], opts["emph_lw"], opts["emph_s"])
+                         opts["fade_alpha"], opts["emph_lw"], opts["emph_s"],
+                         endpoint_reference=endpoint_reference)
         _phase_hull_lines(ax, all_merged, mlip, system_name, target_phase,
-                           opts["mlip_hull_color"], opts["dft_hull_color"], opts["lighten_amount"], opts["hull_lw"])
-        _, _, match = _within_phase_best(all_merged, mlip, system_name, target_phase, include_endpoints)
+                           opts["mlip_hull_color"], opts["dft_hull_color"], opts["lighten_amount"], opts["hull_lw"],
+                           endpoint_reference=endpoint_reference)
+        _, _, match = _within_phase_best(all_merged, mlip, system_name, target_phase, include_endpoints,
+                                          endpoint_reference=endpoint_reference)
         _badge(ax, 0.03, 0.97, match, fontsize=opts["badge_fontsize"])
     fig.suptitle(f"{format_system_name(system_name)} — within-phase best-structure",
                  fontsize=13, y=opts["suptitle_y"])
@@ -3183,13 +3798,18 @@ def plot_within_phase_demo(all_merged_relax, all_merged_static, mlip, system_nam
 
 
 def plot_hull_min_demo(all_merged_relax, all_merged_static, mlip, system_name,
-                        model_names, include_endpoints=True, **kwargs):
+                        model_names, include_endpoints=True, endpoint_reference="independent", **kwargs):
     """Demonstration figure for global_hull_min_agreement: badges whether DFT/FP
-    agree on the system-wide minimum-energy structure."""
+    agree on the system-wide minimum-energy structure. The same
+    endpoint_reference is used for the hull panel and the badge."""
+    if endpoint_reference not in ("independent", "shared_fp_legacy"):
+        raise ValueError(f"endpoint_reference must be 'independent' or 'shared_fp_legacy', got {endpoint_reference!r}")
     opts = {**_HULL_DEMO_DEFAULTS, **kwargs}
-    fig, axes = _render_hull_pair(all_merged_relax, all_merged_static, mlip, system_name, model_names, opts)
+    fig, axes = _render_hull_pair(all_merged_relax, all_merged_static, mlip, system_name, model_names, opts,
+                                   endpoint_reference=endpoint_reference)
     for ax, all_merged in zip(axes, (all_merged_relax, all_merged_static)):
-        _, _, match = _global_hull_min_single(all_merged, mlip, system_name, include_endpoints)
+        _, _, match = _global_hull_min_single(all_merged, mlip, system_name, include_endpoints,
+                                               endpoint_reference=endpoint_reference)
         _badge(ax, 0.03, 0.97, match, fontsize=opts["badge_fontsize"])
     fig.suptitle(f"{format_system_name(system_name)} — Global convex hull-minimum agreement",
                  fontsize=13, y=opts["suptitle_y"])
@@ -3198,15 +3818,28 @@ def plot_hull_min_demo(all_merged_relax, all_merged_static, mlip, system_name,
 
 
 def plot_ground_state_demo(all_merged_relax, all_merged_static, mlip, system_name, target_x,
-                            model_names, x_tol=1e-4, include_endpoints=True, **kwargs):
+                            model_names, x_tol=1e-4, include_endpoints=True,
+                            endpoint_reference="independent", **kwargs):
     """Demonstration figure for ground_state_agreement_pooled: emphasizes the
-    competing phases at one composition and badges whether DFT/FP agree."""
+    competing phases at one composition and badges whether DFT/FP agree.
+
+    The BADGE itself (_ground_state_match_single) never depends on
+    endpoint_reference -- ground-state agreement is invariant to tie-line
+    endpoint normalization by construction (see
+    ground_state_agreement_pooled's docstring). `endpoint_reference` is still
+    accepted and threaded here purely so the hull PANEL and the emphasis
+    highlighting are drawn with the same convention as every other demo
+    figure; it has no effect on what the badge reports."""
+    if endpoint_reference not in ("independent", "shared_fp_legacy"):
+        raise ValueError(f"endpoint_reference must be 'independent' or 'shared_fp_legacy', got {endpoint_reference!r}")
     opts = {**_HULL_DEMO_DEFAULTS, **kwargs}
-    fig, axes = _render_hull_pair(all_merged_relax, all_merged_static, mlip, system_name, model_names, opts)
+    fig, axes = _render_hull_pair(all_merged_relax, all_merged_static, mlip, system_name, model_names, opts,
+                                   endpoint_reference=endpoint_reference)
     is_emph = lambda p: abs(p["x"] - target_x) <= x_tol
     for ax, all_merged in zip(axes, (all_merged_relax, all_merged_static)):
         _apply_emphasis(ax, all_merged, mlip, system_name, opts["dodge"], is_emph,
-                         opts["fade_alpha"], opts["emph_lw"], opts["emph_s"])
+                         opts["fade_alpha"], opts["emph_lw"], opts["emph_s"],
+                         endpoint_reference=endpoint_reference)
         ok = _ground_state_match_single(all_merged, mlip, system_name, target_x, x_tol, include_endpoints)
         _badge(ax, 0.03, 0.97, ok, fontsize=opts["badge_fontsize"])
     fig.suptitle(f"{format_system_name(system_name)} — ground-state agreement at x={target_x:.3f}",
@@ -3228,8 +3861,18 @@ def _hull_to_legacy_merged(dft_hull: dict, fp_hull_by_fp: dict, mode: str) -> di
     Per-entry fields match what build_points_for_system reads: "structure"
     (a pymatgen Structure, not a dict -- structure_frac_dict needs the
     object), "MLIP_energy(/atom)", "DFT_energy(/atom)". "sid" carries
-    phase_id (used only for legend colour grouping via extract_base, which
-    for every existing candidate_id already returns exactly phase_id).
+    dft_entry["phase_id"] verbatim -- the standardized data's own canonical
+    phase identity. build_points_for_system reads this directly into each
+    point's "phase_id" field (falling back to extract_base(candidate_id)
+    only when "sid" is absent, e.g. for legacy callers with no phase_id at
+    all). extract_base(candidate_id) is NOT a reliable substitute for
+    phase_id in general: verified 21 candidates (all systems containing an
+    "r3m_SnTe"-prefixed phase -- SnTe_Bi2Te3, SnTe_Sb2Te3, SnTe_SnSe) where
+    extract_base(candidate_id) truncates to "r3m" (splitting on the first
+    underscore) while the real phase_id is "r3m_SnTe". No cross-phase
+    collision results from this within any single system, but the two are
+    not equivalent and plotting/demo code now uses phase_id directly instead
+    of relying on extract_base wherever "sid"/phase_id is available.
     build_points_for_system recomputes x geometrically from "structure"
     itself, so dft_hull's own stored "x" is not needed here.
     """
@@ -3277,6 +3920,7 @@ def plot_hull_pair_demo(
     figsize=(6.4, 3.3), legend_fontsize=9,
     subplot_left=None, subplot_right=None, panel_wspace=0.2,
     legend_phase_ncol=3, legend_marker_ncol=2, legend_hull_ncol=2,
+    endpoint_reference="independent",
 ):
     """Plain relax/static hull-pair panel, no metric badges -- the main
     single-system comparison figure. Consumes dft_hull/fp_hull_by_fp (the
@@ -3286,7 +3930,11 @@ def plot_hull_pair_demo(
     scatter; endmember labels (e.g. "GeSe2" / "SiSe2") sit under x=0/x=1
     instead of a redundant suptitle; Static FP panel shows its own y-axis
     numbers (shares the Full FP panel's range via sharey, but matplotlib
-    hides tick labels on shared axes by default)."""
+    hides tick labels on shared axes by default).
+
+    endpoint_reference: "independent" (default -- matches Table 4) or
+    "shared_fp_legacy" (exact original figure, kept for reproducibility).
+    See plot_normalized_with_hulls's docstring."""
     all_merged_relax = _hull_to_legacy_merged(dft_hull, fp_hull_by_fp, "relax")
     all_merged_static = _hull_to_legacy_merged(dft_hull, fp_hull_by_fp, "static")
     fig, axes = plot_hull_pair(
@@ -3319,6 +3967,7 @@ def plot_hull_pair_demo(
         endpoint_label_right_dx=endpoint_label_right_dx, endpoint_label_right_dy=endpoint_label_right_dy,
         legend_phase_ncol=legend_phase_ncol, legend_marker_ncol=legend_marker_ncol, legend_hull_ncol=legend_hull_ncol,
         panel_wspace=panel_wspace,
+        endpoint_reference=endpoint_reference,
     )
     axes[1].set_ylabel("")
     axes[1].tick_params(axis="y", labelleft=True)
@@ -3525,9 +4174,30 @@ def demonstrate_ordering_ranking(dft_ordering, fp_ordering, group_name, fp_name,
 # still computed internally (available via the *_row helper functions below,
 # e.g. for anyone who wants it) but is not part of the displayed table.
 
-def _hull_metrics_row(dft_hull, fp_hull_one_fp, mode, dedupe_by_structure=True):
+def _hull_metrics_row(dft_hull, fp_hull_one_fp, mode, dedupe_by_structure=True,
+                       endpoint_reference="independent",
+                       composition_grouping="normalized_composition",
+                       hull_min_tie_policy="stable_intermediate"):
     """Numeric metrics for one FP, one mode. MAE/RMSE both returned (table
     builder below displays MAE only, per the manuscript's own convention).
+
+    `endpoint_reference` ("independent" default, or "shared_fp_legacy") is
+    passed straight through to within_phase_hull_min_agreement and
+    global_hull_min_agreement -- it controls BaseBest_Frac/Hull_Min_Match
+    only. ground_state_agreement_pooled does not use tie-line endpoint
+    normalization at all (it compares raw per-atom energies within a
+    composition group) and is unaffected by this argument either way.
+
+    `hull_min_tie_policy` ("stable_intermediate" default, or "legacy") is
+    passed straight through to global_hull_min_agreement only -- it controls
+    Hull_Min_Match's tie-breaking/no-stable-intermediate handling. See that
+    function's docstring. within_phase_hull_min_agreement (BaseBest_Frac)
+    does not use this argument.
+
+    `composition_grouping` ("normalized_composition" default, or
+    "exact_formula_legacy") is passed straight through to
+    ground_state_agreement_pooled -- it controls GP_Frac only. See that
+    function's docstring.
 
     `dedupe_by_structure` (default True) controls the MAE/RMSE sample pool
     only -- it does not affect GP_Frac/BaseBest_Frac/Hull_Min_Match below,
@@ -3567,29 +4237,68 @@ def _hull_metrics_row(dft_hull, fp_hull_one_fp, mode, dedupe_by_structure=True):
     arr = np.array(errors)
     mae, rmse = mae_rmse(arr)
 
-    gs = ground_state_agreement_pooled(dft_hull, fp_hull_one_fp, mode)
-    wp = within_phase_hull_min_agreement(dft_hull, fp_hull_one_fp, mode)
-    gh = global_hull_min_agreement(dft_hull, fp_hull_one_fp, mode)
+    gs = ground_state_agreement_pooled(dft_hull, fp_hull_one_fp, mode, composition_grouping=composition_grouping)
+    wp = within_phase_hull_min_agreement(dft_hull, fp_hull_one_fp, mode, endpoint_reference=endpoint_reference)
+    gh = global_hull_min_agreement(dft_hull, fp_hull_one_fp, mode, endpoint_reference=endpoint_reference,
+                                    hull_min_tie_policy=hull_min_tie_policy)
     return {"MAE": mae, "RMSE": rmse, "GP_Frac": gs["fraction"],
             "BaseBest_Frac": wp["fraction"], "Hull_Min_Match": gh["fraction"],
             "_gs": gs, "_wp": wp, "_gh": gh}
 
 
 def build_combined_hull_table(dft_hull, fp_hull, fps, model_names,
-                               decimal_places=1, mev_fmt="{:.0f}", dedupe_by_structure=True):
+                               decimal_places=1, mev_fmt="{:.0f}", dedupe_by_structure=True,
+                               endpoint_reference="independent",
+                               composition_grouping="normalized_composition",
+                               hull_min_tie_policy="stable_intermediate"):
     """
     Combined Full-FP-relaxation + Static hull results table, formatted for
     display. Returns (combined_table, rows_by_mode) -- rows_by_mode carries
     the raw numerator/denominator detail (_gs/_wp/_gh) for anyone who wants
     to print or inspect it separately.
 
+    Of the four displayed columns, three now have an explicit convention
+    choice; each is independent of the other two:
+      - Average energy error: controlled only by `dedupe_by_structure`.
+      - Ground-state agreement: controlled only by `composition_grouping`.
+      - Within-phase hull-minimum agreement: controlled only by
+        `endpoint_reference`.
+      - Hull-minimum agreement: controlled by `endpoint_reference` AND
+        `hull_min_tie_policy`.
+
+    `endpoint_reference` ("independent" default, or "shared_fp_legacy") is
+    passed straight through to _hull_metrics_row and controls only the
+    Within-phase hull-minimum agreement and Hull-minimum agreement columns'
+    tie-line reference lines:
+      "independent": DFT's reference line uses DFT's own lowest-DFT-energy
+        endpoint (from the full canonical DFT candidate set, independent of
+        any FP's availability); the FP's reference line uses this FP's own
+        lowest-FP-energy endpoint. See within_phase_hull_min_agreement /
+        global_hull_min_agreement / normalize_independent.
+      "shared_fp_legacy": both reference lines are anchored to the SAME
+        (FP-selected) endpoint candidate -- the exact original behaviour,
+        kept so previously published numbers stay reproducible from this
+        repository.
+
+    `hull_min_tie_policy` ("stable_intermediate" default, or "legacy") is
+    passed straight through to _hull_metrics_row/global_hull_min_agreement
+    and controls only the Hull-minimum agreement column's handling of a
+    system whose minimum-Erel composition sits at (or is indistinguishable
+    from) the endpoints -- see global_hull_min_agreement's docstring for the
+    full definition. It has no effect on any other column.
+
+    `composition_grouping` ("normalized_composition" default, or
+    "exact_formula_legacy") is passed straight through to
+    ground_state_agreement_pooled and controls only the Ground-state
+    agreement column -- see that function's docstring. It does not affect
+    Within-phase/Hull-minimum agreement (those never group by composition
+    string) or Average energy error.
+
     `dedupe_by_structure` (default True) is passed straight through to
     _hull_metrics_row and controls only the displayed "Average energy error"
     column's sample pool: one sample per unique structure (597 candidates,
     default) vs. one sample per per-system appearance (679, including
-    duplicate appearances of the 31 shared binary endpoints). The three
-    agreement columns (ground-state, within-phase, hull-minimum) are
-    unaffected either way -- see _hull_metrics_row's docstring.
+    duplicate appearances of the 31 shared binary endpoints).
     """
     fmt_pct = f"{{:.{decimal_places}f}}"
 
@@ -3610,7 +4319,10 @@ def build_combined_hull_table(dft_hull, fp_hull, fps, model_names,
         return out
 
     rows_by_mode = {
-        mode: {fp: _hull_metrics_row(dft_hull, fp_hull[fp], mode, dedupe_by_structure=dedupe_by_structure) for fp in fps}
+        mode: {fp: _hull_metrics_row(dft_hull, fp_hull[fp], mode, dedupe_by_structure=dedupe_by_structure,
+                                      endpoint_reference=endpoint_reference,
+                                      composition_grouping=composition_grouping,
+                                      hull_min_tie_policy=hull_min_tie_policy) for fp in fps}
         for mode in ("relax", "static")
     }
     combined = pd.concat(

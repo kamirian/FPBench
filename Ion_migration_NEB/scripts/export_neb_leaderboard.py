@@ -13,11 +13,12 @@ plain .json or gzip-compressed .json.gz), this script:
      notebook itself uses (`build_neb_analysis_results`, and the
      `barrier_error_summary_by_protocol` / `profile_summary_by_protocol`
      attributes it already computes -- never recomputed a second time here);
-  4. reproduces `compute_key_neb_metrics_summary`'s exact round-then-combine
-     order for the barrier-error MAE/RMSE columns, and cross-checks every
-     exported value against a fresh call to that function before writing
-     anything, so the export cannot silently drift from what the analysis
-     notebook itself displays;
+  4. calls `compute_key_neb_metrics_summary` once and parses its "MAE / RMSE"
+     barrier-error strings directly for the exported values (rather than
+     re-deriving the forward/backward combination a second, independent way
+     here), so the export always tracks whatever combination convention that
+     function's own default (`barrier_combination="pooled"`) computes and
+     cannot silently drift from what the analysis notebook itself displays;
   5. writes the compact per-FP summary to
      `<component-dir>/data/ion_migration_neb_leaderboard_summary.json` and an
      identical copy to `<repo-root>/docs/data/ion_migration_neb_leaderboard_summary.json`
@@ -93,8 +94,14 @@ EXPECTED_UNIQUE_ICSD = 109
 EXCLUDED_PATHWAY_KEY = "113548|10"
 
 
-def r(x):
-    return round(float(x), ROUND_DECIMALS)
+# r(x, na) rounds a final, about-to-be-exported value to ROUND_DECIMALS
+# using neb_analysis.py's house rule for display/formatting-time rounding
+# (round_half_away_from_zero: ties away from zero, not to even -- see that
+# function's docstring). Takes `na` explicitly (rather than a bare
+# module-level helper) since this script only imports neb_analysis lazily,
+# inside main(), after --component-dir is known.
+def r(x, na):
+    return na.round_half_away_from_zero(float(x), ROUND_DECIMALS)
 
 
 def sha256_of_file(path):
@@ -169,14 +176,14 @@ def compute_endpoint_rmsd_leaderboard_fields(analysis, na, fp_order):
             # as a failure against it.
             if not n_matched:
                 return None
-            return r(100.0 * sum(1 for v in matched if v < threshold) / n_matched)
+            return r(100.0 * sum(1 for v in matched if v < threshold) / n_matched, na)
 
         fields_by_fp[fp_key] = {
             "endpoint_rmsd_n_converged_paths": n_converged_paths,
             "endpoint_rmsd_n_endpoint_attempts": n_attempted,
-            "endpoint_rmsd_map_success_pct": r(100.0 * n_matched / n_attempted) if n_attempted else None,
-            "endpoint_rmsd_mean_angstrom": r(float(na.np.mean(matched))) if matched else None,
-            "endpoint_rmsd_max_angstrom": r(float(na.np.max(matched))) if matched else None,
+            "endpoint_rmsd_map_success_pct": r(100.0 * n_matched / n_attempted, na) if n_attempted else None,
+            "endpoint_rmsd_mean_angstrom": r(float(na.np.mean(matched)), na) if matched else None,
+            "endpoint_rmsd_max_angstrom": r(float(na.np.max(matched)), na) if matched else None,
             "endpoint_rmsd_lt_0_05_pct": pct_under(0.05),
             "endpoint_rmsd_lt_0_10_pct": pct_under(0.10),
             "endpoint_rmsd_lt_0_20_pct": pct_under(0.20),
@@ -184,7 +191,20 @@ def compute_endpoint_rmsd_leaderboard_fields(analysis, na, fp_order):
     return fields_by_fp
 
 
-def build_leaderboard(reference_path, results_path, na, area_between_curves, simplify_class):
+def build_leaderboard(reference_path, results_path, na, area_between_curves, simplify_class,
+                       barrier_combination="pooled"):
+    """barrier_combination: forwarded verbatim to compute_key_neb_metrics_summary
+    (see that function's docstring). "pooled" (default) is the only value
+    that should ever be used for a real published/leaderboard export;
+    "round_then_average_legacy" exists solely to regenerate historical
+    reproductions (e.g. the legacy-reproduction supplement in backups/) and
+    must never be passed by anything that writes to the live leaderboard
+    JSON files without an explicit, deliberate override at the call site."""
+    if barrier_combination not in ("pooled", "round_then_average_legacy"):
+        raise ValueError(
+            f"barrier_combination must be 'pooled' or 'round_then_average_legacy', "
+            f"got {barrier_combination!r}"
+        )
     with open(reference_path, "rb") as f:
         ref_sha256 = hashlib.sha256(f.read()).hexdigest() if Path(reference_path).suffix != ".gz" else None
     # For .gz inputs, record the compressed-file hash directly (what a user
@@ -207,12 +227,23 @@ def build_leaderboard(reference_path, results_path, na, area_between_curves, sim
     )
     assert analysis.validation_report.ok, "validation failed -- refusing to export"
 
+    # Only full_barrier_df's mean_RMSD_img0/mean_RMSD_img_last columns are
+    # still needed directly (the RMSD cross-check below) -- barrier MAE/RMSE
+    # itself now comes from key_df (see below), not from these DataFrames.
     full_barrier_df = analysis.barrier_error_summary_by_protocol[na.PROTOCOL_FULL_FP_NEB]
-    static_barrier_df = analysis.barrier_error_summary_by_protocol[na.PROTOCOL_FP_STATIC_ON_DFT_NEB]
     full_profile_df = analysis.profile_summary_by_protocol[na.PROTOCOL_FULL_FP_NEB].set_index("FP")
 
-    # Fresh call, used only for the cross-check assertions below -- never as
-    # a source of any exported value.
+    # Single source of truth for the combined barrier-error MAE/RMSE: calls
+    # compute_key_neb_metrics_summary with its own default
+    # (barrier_combination="pooled" -- this script does not override it, so
+    # it always tracks whatever that function's real default is) and parses
+    # its "MAE / RMSE" strings directly, rather than re-deriving the
+    # combination with a second, independent implementation here. A second
+    # implementation is exactly how this script silently fell out of sync
+    # with a real defect fix once before (it used to hardcode compute_key_
+    # neb_metrics_summary's OLD round-then-combine math directly, which
+    # would have kept exporting stale/wrong values -- or hit its own
+    # cross-check assertion -- the moment the library's default changed).
     key_df = na.compute_key_neb_metrics_summary(
         analysis.dft_valid_path_metrics_df, analysis.fp_path_metrics_by_protocol,
         analysis.dft_path_metrics_df, analysis.full_fp_neb_status_by_fp_path,
@@ -221,7 +252,7 @@ def build_leaderboard(reference_path, results_path, na, area_between_curves, sim
                           for k in reference_data["common_pathway_keys"]]),
         analysis.dft_neb_images_by_path, analysis.full_fp_neb_images_by_fp_path,
         analysis.fp_static_on_dft_neb_images_by_fp_path, fp_order, OUTLIER_THRESHOLD,
-        area_between_curves, simplify_class,
+        area_between_curves, simplify_class, barrier_combination=barrier_combination,
     )
 
     endpoint_rmsd_fields_by_fp = compute_endpoint_rmsd_leaderboard_fields(analysis, na, fp_order)
@@ -232,34 +263,16 @@ def build_leaderboard(reference_path, results_path, na, area_between_curves, sim
         n_total = int(conv["n_total"])
         n_not_conv = int(conv["n_neb_not_conv"])
 
-        # Same round-then-combine order as compute_key_neb_metrics_summary's
-        # internal _combined_barrier: round forward/backward MAE and RMSE to
-        # 2 decimals FIRST, then combine.
-        fwd_mae = round(float(full_barrier_df.loc[fp_key, "MAE_energy_forward_barrier"]), 2)
-        bwd_mae = round(float(full_barrier_df.loc[fp_key, "MAE_energy_backward_barrier"]), 2)
-        fwd_rmse = round(float(full_barrier_df.loc[fp_key, "RMSE_energy_forward_barrier"]), 2)
-        bwd_rmse = round(float(full_barrier_df.loc[fp_key, "RMSE_energy_backward_barrier"]), 2)
-        barrier_mae_full = (fwd_mae + bwd_mae) / 2
-        barrier_rmse_full = ((fwd_rmse ** 2 + bwd_rmse ** 2) / 2) ** 0.5
-
-        fwd_mae_s = round(float(static_barrier_df.loc[fp_key, "MAE_energy_forward_barrier"]), 2)
-        bwd_mae_s = round(float(static_barrier_df.loc[fp_key, "MAE_energy_backward_barrier"]), 2)
-        fwd_rmse_s = round(float(static_barrier_df.loc[fp_key, "RMSE_energy_forward_barrier"]), 2)
-        bwd_rmse_s = round(float(static_barrier_df.loc[fp_key, "RMSE_energy_backward_barrier"]), 2)
-        barrier_mae_static = (fwd_mae_s + bwd_mae_s) / 2
-        barrier_rmse_static = ((fwd_rmse_s ** 2 + bwd_rmse_s ** 2) / 2) ** 0.5
+        barrier_mae_full, barrier_rmse_full = (
+            float(v) for v in key_df.loc[fp_key, "Barrier error (eV) (full)"].split(" / "))
+        barrier_mae_static, barrier_rmse_static = (
+            float(v) for v in key_df.loc[fp_key, "Barrier error (eV) (static)"].split(" / "))
 
         ep_dE_mae = float(full_profile_df.loc[fp_key, "Endpoint ΔE MAE (eV)"])
         ep_dE_rmse = float(full_profile_df.loc[fp_key, "Endpoint ΔE RMSE (eV)"])
         ep_rank_pct = float(full_profile_df.loc[fp_key, "Endpoint Energy Ranking Accuracy (%)"])
         shape_pct = float(full_profile_df.loc[fp_key, "Pathway Topology Accuracy (%)"])
 
-        expected_barrier_full = key_df.loc[fp_key, "Barrier error (eV) (full)"]
-        got_barrier_full = f"{barrier_mae_full:.4f} / {barrier_rmse_full:.4f}"
-        assert got_barrier_full == expected_barrier_full, (fp_key, got_barrier_full, expected_barrier_full)
-        expected_barrier_static = key_df.loc[fp_key, "Barrier error (eV) (static)"]
-        got_barrier_static = f"{barrier_mae_static:.4f} / {barrier_rmse_static:.4f}"
-        assert got_barrier_static == expected_barrier_static, (fp_key, got_barrier_static, expected_barrier_static)
         expected_nonconv = key_df.loc[fp_key, "Non-conv. paths (n/total)"]
         assert expected_nonconv == f"{n_not_conv}/{n_total}", (fp_key, expected_nonconv, n_not_conv, n_total)
 
@@ -283,14 +296,14 @@ def build_leaderboard(reference_path, results_path, na, area_between_curves, sim
             "display_name": FP_DISPLAY_NAMES[fp_key],
             "n_nonconverged": n_not_conv,
             "n_total": n_total,
-            "barrier_mae_full_eV": r(barrier_mae_full),
-            "barrier_rmse_full_eV": r(barrier_rmse_full),
-            "barrier_mae_static_eV": r(barrier_mae_static),
-            "barrier_rmse_static_eV": r(barrier_rmse_static),
-            "endpoint_energy_diff_mae_eV": r(ep_dE_mae),
-            "endpoint_energy_diff_rmse_eV": r(ep_dE_rmse),
-            "endpoint_ranking_agreement_pct": r(ep_rank_pct),
-            "energy_profile_shape_agreement_pct": r(shape_pct),
+            "barrier_mae_full_eV": r(barrier_mae_full, na),
+            "barrier_rmse_full_eV": r(barrier_rmse_full, na),
+            "barrier_mae_static_eV": r(barrier_mae_static, na),
+            "barrier_rmse_static_eV": r(barrier_rmse_static, na),
+            "endpoint_energy_diff_mae_eV": r(ep_dE_mae, na),
+            "endpoint_energy_diff_rmse_eV": r(ep_dE_rmse, na),
+            "endpoint_ranking_agreement_pct": r(ep_rank_pct, na),
+            "energy_profile_shape_agreement_pct": r(shape_pct, na),
         }
         record.update(endpoint_rmsd_fields_by_fp[fp_key])
         records.append(record)
@@ -306,8 +319,10 @@ def build_leaderboard(reference_path, results_path, na, area_between_curves, sim
         "metric_columns": {
             "n_nonconverged": "Number of full FP-NEB paths (of n_total) that did not satisfy the NEB force-convergence criterion within the maximum optimization steps.",
             "n_total": "Total number of eligible full FP-NEB calculations entering the barrier-error analysis for this FP (common active pathways with a valid DFT-NEB classification and a full_fp_neb result).",
-            "barrier_mae_full_eV": "MAE of forward/backward migration-barrier errors (eV), full FP-NEB workflow over the converged full FP-NEB population, pooled and combined per compute_key_neb_metrics_summary's round-then-combine convention.",
-            "barrier_rmse_full_eV": "RMSE of forward/backward migration-barrier errors (eV), full FP-NEB workflow over the converged full FP-NEB population, same combination convention.",
+            "barrier_mae_full_eV": ("MAE of forward/backward migration-barrier errors (eV), full FP-NEB workflow over the converged full FP-NEB population: the true pooled MAE over the concatenated forward+backward per-path error array (compute_key_neb_metrics_summary's barrier_combination=\"pooled\", the default)."
+                                     if barrier_combination == "pooled" else
+                                     "MAE of forward/backward migration-barrier errors (eV), full FP-NEB workflow over the converged full FP-NEB population, reproduced under barrier_combination=\"round_then_average_legacy\" -- forward/backward MAE rounded to 2dp before averaging, matching the originally published (pre-fix) values, NOT the approved pooled convention. This export is a historical reproduction, not the live leaderboard."),
+            "barrier_rmse_full_eV": "RMSE of forward/backward migration-barrier errors (eV), full FP-NEB workflow over the converged full FP-NEB population, same pooled combination convention.",
             "barrier_mae_static_eV": "MAE of forward/backward migration-barrier errors (eV), static FP evaluations on the finalized DFT-NEB image structures (not filtered by full FP-NEB convergence).",
             "barrier_rmse_static_eV": "RMSE of forward/backward migration-barrier errors (eV), static FP evaluations on the finalized DFT-NEB image structures (not filtered by full FP-NEB convergence).",
             "endpoint_energy_diff_mae_eV": "MAE of the endpoint energy-difference error (eV, not per atom), full FP-NEB workflow, over the converged full FP-NEB population.",
@@ -367,6 +382,10 @@ def main():
     parser.add_argument("--results", required=True, help="Path to the all-FP results file (.json or .json.gz)")
     parser.add_argument("--component-dir", default=".", help="Path to the Ion_migration_NEB/ directory (default: current directory)")
     parser.add_argument("--force", action="store_true", help="Overwrite existing output files even if their content differs")
+    parser.add_argument("--legacy", action="store_true",
+                         help="Export under barrier_combination='round_then_average_legacy' instead of the "
+                              "default 'pooled'. NEVER pass this for a real leaderboard update -- it exists "
+                              "only to regenerate historical reproductions of the pre-fix published values.")
     args = parser.parse_args()
 
     component_dir = Path(args.component_dir).resolve()
@@ -375,7 +394,9 @@ def main():
     import neb_analysis as na
     from neb_plots import area_between_curves, simplify_class
 
-    leaderboard = build_leaderboard(args.reference, args.results, na, area_between_curves, simplify_class)
+    barrier_combination = "round_then_average_legacy" if args.legacy else "pooled"
+    leaderboard = build_leaderboard(args.reference, args.results, na, area_between_curves, simplify_class,
+                                     barrier_combination=barrier_combination)
 
     component_dest = component_dir / "data" / "ion_migration_neb_leaderboard_summary.json"
     docs_dest = component_dir.parent / "docs" / "data" / "ion_migration_neb_leaderboard_summary.json"

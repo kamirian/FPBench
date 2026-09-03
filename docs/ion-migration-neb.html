@@ -243,13 +243,13 @@
   <div class="protocol-table-wrap"><table class="gen">
     <tr><th>Name</th><th>Metrics</th></tr>
     <tr><td>Non-converged paths</td><td>Fraction of FP-NEB calculations that do not satisfy the NEB convergence criterion before reaching the maximum number of optimization steps.</td></tr>
-    <tr><td>Barrier error, full FP-NEB</td><td>The forward and backward barrier errors are computed relative to DFT for each path. The reported metric is the MAE/RMSE over all converged paths.</td></tr>
-    <tr><td>Barrier error, static FP evaluations on the DFT-NEB images</td><td>The same forward and backward barrier errors, computed from static FP evaluations on the DFT-NEB image structures. The reported metric is the MAE/RMSE over all paths.</td></tr>
+    <tr><td>Barrier error, full FP-NEB</td><td>The forward and backward barrier errors are computed relative to DFT for each path. The reported MAE/RMSE is the true pooled statistic over the combined forward+backward per-path error array (not each direction's own MAE/RMSE averaged separately), over all converged paths.</td></tr>
+    <tr><td>Barrier error, static FP evaluations on the DFT-NEB images</td><td>The same forward and backward barrier errors, computed from static FP evaluations on the DFT-NEB image structures, pooled the same way, over all paths.</td></tr>
     <tr><td>Endpoint energy ranking agreement</td><td>Fraction of converged paths for which FP and DFT identify the same lower-energy endpoint between the two endpoints of the migration path, or both classify the two endpoints as equal in energy.</td></tr>
     <tr><td>Endpoint energy-difference error</td><td>For each path, the error in the endpoint energy difference is computed relative to DFT. The reported metric is the MAE/RMSE over all converged paths.</td></tr>
     <tr><td>Energy-profile shape agreement</td><td>Fraction of converged paths for which the FP reproduces the Normal-Hill energy profile, as in DFT-NEBs.</td></tr>
     <tr><td>Integrated energy-profile difference</td><td>For each path, the integrated absolute energy difference between FP and DFT-NEB energy profiles along the normalized reaction coordinate is computed. The reported metric is the MAE/RMSE over all converged paths.</td></tr>
-    <tr><td>Endpoint structure relaxation error</td><td>For each endpoint structure, the RMSD between FP-relaxed and DFT-relaxed endpoint structures is computed. The reported metric is the mean/maximum over all endpoint structures of the converged paths.</td></tr>
+    <tr><td>Endpoint-structure relaxation error</td><td>For each endpoint structure, the RMSD between FP-relaxed and DFT-relaxed endpoint structures is computed. The reported metric is the mean/maximum over all endpoint structures of the converged paths.</td></tr>
     <tr><td>Map success</td><td>Fraction of endpoint-structure comparisons, over the converged paths, for which pymatgen's <code>StructureMatcher</code> found a valid structural mapping between the FP-relaxed and DFT-relaxed endpoint structure. A failed mapping is excluded from the mean/maximum RMSD, not counted as RMSD = 0.</td></tr>
     <tr><td>Force errors on FP-NEB path</td><td>Mean force-magnitude error |&Delta;|<i>F</i>|| and force-angle error &Delta;<i>&theta;</i> across all atoms for each image structure of the final FP-NEB path.</td></tr>
     <tr><td>Force errors on DFT-NEB path</td><td>Mean force magnitude error |&Delta;|<i>F</i>|| and force angle error &Delta;<i>&theta;</i> across all atoms for each image structure of the final DFT-NEB path.</td></tr>
@@ -276,8 +276,8 @@
       <div class="ds-name">Ion-migration pathways</div>
       <div class="ds-stat">Active pathways: <span>154</span></div>
       <div class="ds-stat">DFT-NEB images per pathway: <span>7</span></div>
-      <div class="ds-stat">Unique ICSD structures: <span>109</span></div>
-      <div class="ds-desc">154 Li- and Na-ion migration pathways across 109 unique ICSD structures, from the ion-migration dataset of Saravanan et al., spanning oxides, sulfides, halides, and multi-anion compounds. DFT-NEB reference calculations were performed for this work.</div>
+      <div class="ds-stat">Structurally distinct materials: <span>106</span></div>
+      <div class="ds-desc">154 Li- and Na-ion migration pathways spanning 106 structurally distinct materials and a range of chemistries, including oxides (32.1%), sulfides (20.8%), halides, and multi-anion compounds, from the ion-migration dataset of Saravanan et al. DFT-NEB reference calculations were performed for this work.</div>
     </div>
   </div>
   <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted);">

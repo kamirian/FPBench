@@ -38,6 +38,49 @@ MIGRATING_ATOM_INDEX = 0
 _ADAPTOR = AseAtomsAdaptor()
 
 
+def round_half_away_from_zero(x, ndigits):
+    """House rule for display/formatting-time rounding, established after
+    the round_then_average_legacy defect (see _combined_barrier): ties round
+    AWAY FROM ZERO (Decimal's ROUND_HALF_UP), not to even (Python/NumPy's
+    round()/.round() default). Returns a float rounded to `ndigits` decimal
+    places, or NaN for NaN/None input.
+
+    Do NOT use this inside round_then_average_legacy or any other legacy-
+    reproduction path -- those exist to reproduce previously published
+    values bit-exactly and must keep numpy's round-half-to-even behavior at
+    whatever internal rounding step defines that convention. This function
+    is only for a value about to be displayed (as a table cell, directly or
+    via a further format() call), not for any intermediate value a
+    calculation depends on.
+
+    Uses Decimal(repr(float(x))) rather than Decimal(x) directly: the
+    latter would round from the exact binary value of x (e.g. 0.1 is really
+    0.1000000000000000055511151231257827021181583404541015625 in binary),
+    reintroducing spurious precision that was never actually computed;
+    repr(x) is Python's own shortest round-tripping decimal string for x,
+    matching what a human would consider "the number" before rounding it
+    further for display."""
+    from decimal import Decimal, ROUND_HALF_UP
+    if x is None or (isinstance(x, float) and np.isnan(x)):
+        return float("nan")
+    quantum = Decimal(1).scaleb(-ndigits)
+    d = Decimal(repr(float(x))).quantize(quantum, rounding=ROUND_HALF_UP)
+    return float(d)
+
+
+def format_half_away_from_zero(x, ndigits):
+    """String-formatting counterpart of round_half_away_from_zero, for call
+    sites that build a display string directly (e.g. an "MAE / RMSE"
+    table cell) rather than storing a rounded numeric column. Returns
+    "nan" for NaN/None input; see round_half_away_from_zero's docstring for
+    the house-rule rationale (this function must not be used inside
+    round_then_average_legacy or any other legacy-reproduction path
+    either, for the same reason)."""
+    if x is None or (isinstance(x, float) and np.isnan(x)):
+        return "nan"
+    return f"{round_half_away_from_zero(x, ndigits):.{ndigits}f}"
+
+
 # ─────────────────────────────────────────────────────────────────────────
 # 1. Load / validate / coverage
 # ─────────────────────────────────────────────────────────────────────────
@@ -341,6 +384,62 @@ def build_material_metadata(dft_reference_data):
         seen.add(icsd_id)
         rows.append({"CollectionCode": icsd_id, "SumFormula": pdata["identifiers"]["sum_formula"]})
     return pd.DataFrame(rows)
+
+
+def count_structurally_distinct_materials(dft_reference_data, matcher=None):
+    """Number of structurally distinct materials in the DFT-NEB reference.
+
+    Two ICSD entries are treated as the same material when *any* of their
+    DFT-NEB endpoint structures match under StructureMatcher. Every pathway
+    participates, so the result does not depend on which pathway is chosen to
+    represent an entry, nor on whether the relaxed initial, relaxed final, or
+    unrelaxed source endpoints are used: all three give the same count and the
+    same merged groups.
+
+    This is distinct from the number of source ICSD entries, which is larger:
+    entries whose deposited structures are identical (for example a nominally
+    doped entry modelled without its minor dopant) collapse to one material.
+
+    Returns
+    -------
+    (n_materials, merged_groups)
+        n_materials : int
+        merged_groups : list of lists of ICSD ids found to be the same material
+    """
+    matcher = matcher or StructureMatcher(
+        ltol=0.2, stol=0.3, angle_tol=5,
+        primitive_cell=True, scale=True, attempt_supercell=False,
+    )
+
+    keys = list(dft_reference_data["pathways"])
+    structures = [
+        Structure.from_dict(
+            dft_reference_data["pathways"][k]["dft_neb_reference"]["images"][0]["structure"]
+        )
+        for k in keys
+    ]
+    owner = {id(s): k.split("|")[0] for s, k in zip(structures, keys)}
+
+    parent = {icsd: icsd for icsd in owner.values()}
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for group in matcher.group_structures(structures):
+        ids = [owner[id(s)] for s in group]
+        for other in ids[1:]:
+            a, b = find(ids[0]), find(other)
+            if a != b:
+                parent[a] = b
+
+    clusters = {}
+    for icsd in parent:
+        clusters.setdefault(find(icsd), set()).add(icsd)
+    merged = sorted(sorted(v) for v in clusters.values() if len(v) > 1)
+    return len(clusters), merged
 
 
 def _images_to_atoms(image_dicts, structure_key, energy_key, forces_key):
@@ -859,6 +958,11 @@ def validate_analysis_coverage(fp_static_on_dft_neb_images_by_fp_path, dft_neb_i
 
 BARRIER_METRIC_FIELDS = ["energy_forward_barrier", "energy_backward_barrier", "energy_range"]
 
+# The two directional barrier fields _combined_barrier pools/averages into
+# Figure 8's and Table 8's single "Barrier error (eV)" column. energy_range
+# is a distinct, non-directional diagnostic never fed into that combination.
+_BARRIER_COMBINE_FIELDS = ("energy_forward_barrier", "energy_backward_barrier")
+
 
 def compute_barrier_error_summaries(dft_valid_path_metrics_df, fp_path_metrics_by_protocol,
                                      full_fp_neb_status_by_fp_path, endpoint_rmsd_by_fp_protocol_path,
@@ -869,7 +973,11 @@ def compute_barrier_error_summaries(dft_valid_path_metrics_df, fp_path_metrics_b
     (full_fp_neb, fp_static_on_dft_neb), indexed by fp_key, with columns
     MAE_<field>, RMSE_<field>, MAE_<field>_<outlier_threshold,
     RMSE_<field>_<outlier_threshold, mean_RMSD_img0, mean_RMSD_img_last,
-    n_total, n_neb_not_conv.
+    n_total, n_neb_not_conv, plus (object dtype, not rounded)
+    _errors_energy_forward_barrier / _errors_energy_backward_barrier: the raw
+    per-path signed (FP - DFT) barrier errors underlying MAE_energy_
+    forward_barrier/MAE_energy_backward_barrier above, consumed only by
+    compute_key_neb_metrics_summary's pooled barrier_combination.
 
     full_fp_neb: n_neb_not_conv is an int count (from
     full_fp_neb_status_by_fp_path). fp_static_on_dft_neb: single-point
@@ -932,6 +1040,16 @@ def compute_barrier_error_summaries(dft_valid_path_metrics_df, fp_path_metrics_b
                 row[f"MAE_{m}"] = mean_absolute_error(y_true, y_pred)
                 row[f"RMSE_{m}"] = np.sqrt(mean_squared_error(y_true, y_pred))
                 err = y_pred - y_true
+                if m in _BARRIER_COMBINE_FIELDS:
+                    # Raw, full-precision, unrounded per-path signed errors
+                    # for the forward/backward barrier -- used only by
+                    # compute_key_neb_metrics_summary's _combined_barrier
+                    # (barrier_combination="pooled") to compute a true pooled
+                    # MAE/RMSE over the concatenated forward+backward error
+                    # array, rather than averaging the two already-aggregated
+                    # MAE_{m}/RMSE_{m} values above. Object-dtype column;
+                    # DataFrame.round(4) below leaves it untouched (verified).
+                    row[f"_errors_{m}"] = err.to_numpy(dtype=float)
                 mask = err.abs() <= outlier_threshold
                 if mask.sum() == 0:
                     mae_t = rmse_t = np.nan
@@ -1179,7 +1297,8 @@ def compute_key_neb_metrics_summary(dft_valid_path_metrics_df, fp_path_metrics_b
                                      endpoint_rmsd_by_fp_protocol_path, benchmark_pathways_df,
                                      dft_neb_images_by_path, full_fp_neb_images_by_fp_path,
                                      fp_static_on_dft_neb_images_by_fp_path,
-                                     fp_order, outlier_threshold, area_between_curves, simplify_class):
+                                     fp_order, outlier_threshold, area_between_curves, simplify_class,
+                                     barrier_combination="pooled"):
     """Compact key-NEB-metrics summary (manuscript Figure 8). Reuses
     compute_barrier_error_summaries and compute_profile_summaries internally
     for the per-path forward/backward barrier and profile calculations (same
@@ -1191,10 +1310,28 @@ def compute_key_neb_metrics_summary(dft_valid_path_metrics_df, fp_path_metrics_b
     available from compute_barrier_error_summaries/compute_profile_summaries
     directly for callers that need them.
 
+    barrier_combination: "pooled" (default) or "round_then_average_legacy" --
+    same two-convention pattern as convexhull_analysis_utils.py's
+    endpoint_reference/composition_grouping. "pooled" computes the "Barrier
+    error (eV)" MAE/RMSE over the concatenated forward+backward per-path
+    error array -- the correct pooled statistic, and the one Section 4.7.2
+    describes. "round_then_average_legacy" reproduces every previously
+    published Table 8/Figure 8 value exactly: it rounds the forward and
+    backward MAE/RMSE to 2dp *before* averaging them, which put every
+    published barrier value on a 0.005 lattice and manufactured four exact-
+    half-at-2dp rounding cases (0.065, 0.115, 0.155, 0.175) in the previously
+    published full-protocol MAEs. Raises ValueError on any other value.
+
     Returns key_neb_metrics_summary_df, indexed by fp_key, with columns:
       "Non-conv. paths (n/total)", "Barrier error (eV) (full)",
       "Barrier error (eV) (static)", "Endpoint energy-diff. error (eV) (full)",
       "Endpoint energy rank. agr. (%) (full)", "Energy-profile shape agr. (%) (full)"."""
+    if barrier_combination not in ("pooled", "round_then_average_legacy"):
+        raise ValueError(
+            f"barrier_combination must be 'pooled' or 'round_then_average_legacy', "
+            f"got {barrier_combination!r}"
+        )
+
     barrier_error_summary_by_protocol, full_fp_neb_convergence_summary = compute_barrier_error_summaries(
         dft_valid_path_metrics_df, fp_path_metrics_by_protocol, full_fp_neb_status_by_fp_path,
         endpoint_rmsd_by_fp_protocol_path, benchmark_pathways_df, fp_order, outlier_threshold,
@@ -1209,21 +1346,85 @@ def compute_key_neb_metrics_summary(dft_valid_path_metrics_df, fp_path_metrics_b
     )
     full_profile_df = profile_summary_by_protocol[PROTOCOL_FULL_FP_NEB].set_index("FP")
 
-    def _combined_barrier(df):
-        # Matches the original notebook's cell 24 -> cell 37 order of operations:
-        # forward/backward MAE and RMSE are rounded to 2 decimal places FIRST
-        # (cell 24's df_full_cleaned = df_full...round(2)), and only then
-        # combined (cell 37). Combining at full precision and rounding only
-        # for display gives a numerically different (if arguably "cleaner")
-        # result that does not match the manuscript-verified values, so the
-        # round-then-combine order must be preserved exactly here.
-        fwd_mae = df["MAE_energy_forward_barrier"].round(2)
-        bwd_mae = df["MAE_energy_backward_barrier"].round(2)
-        fwd_rmse = df["RMSE_energy_forward_barrier"].round(2)
-        bwd_rmse = df["RMSE_energy_backward_barrier"].round(2)
-        mae = (fwd_mae + bwd_mae) / 2
-        rmse = np.sqrt((fwd_rmse ** 2 + bwd_rmse ** 2) / 2)
-        return mae.map(lambda x: f"{x:.4f}") + " / " + rmse.map(lambda x: f"{x:.4f}")
+    def _combined_barrier(df, barrier_combination):
+        # Combines the per-FP forward and backward barrier MAE/RMSE
+        # (compute_barrier_error_summaries) into Figure 8's/Table 8's single
+        # "Barrier error (eV)" column. Two conventions (see this function's
+        # own docstring for the full history):
+        #
+        # "round_then_average_legacy" matches the original notebook's cell
+        # 24 -> cell 37 order of operations: forward/backward MAE and RMSE
+        # were rounded to 2 decimal places FIRST (cell 24's df_full_cleaned =
+        # df_full...round(2)), and only then combined (cell 37). This is a
+        # defect, not a deliberate choice -- rounding before combining put
+        # every published barrier value on a 0.005 lattice and manufactured
+        # exact-half-at-2dp rounding-instability cases that do not exist in
+        # the underlying, unrounded data. Kept only so previously published
+        # values stay exactly reproducible from this repository.
+        #
+        # "pooled" (default) computes the correct pooled MAE/RMSE directly
+        # over the concatenated forward+backward per-path error array, using
+        # the raw, full-precision _errors_energy_forward_barrier/
+        # _errors_energy_backward_barrier columns compute_barrier_error_
+        # summaries attaches for exactly this purpose -- not by averaging the
+        # two already-aggregated MAE_energy_forward_barrier/MAE_energy_
+        # backward_barrier values. Averaging the two aggregated MAEs is
+        # mathematically identical to true pooling ONLY when the forward and
+        # backward sample counts match; concatenation stays correct even if a
+        # future path ever has one barrier defined and not the other, where
+        # the averaged shortcut would silently give the wrong answer instead.
+        if barrier_combination == "round_then_average_legacy":
+            fwd_mae = df["MAE_energy_forward_barrier"].round(2)
+            bwd_mae = df["MAE_energy_backward_barrier"].round(2)
+            fwd_rmse = df["RMSE_energy_forward_barrier"].round(2)
+            bwd_rmse = df["RMSE_energy_backward_barrier"].round(2)
+            mae = (fwd_mae + bwd_mae) / 2
+            rmse = np.sqrt((fwd_rmse ** 2 + bwd_rmse ** 2) / 2)
+        else:  # "pooled"
+            mae_by_fp, rmse_by_fp = {}, {}
+            for fp_key, row in df.iterrows():
+                fwd = np.asarray(row["_errors_energy_forward_barrier"], dtype=float)
+                bwd = np.asarray(row["_errors_energy_backward_barrier"], dtype=float)
+                assert len(fwd) == len(bwd), (
+                    f"{fp_key}: forward ({len(fwd)}) and backward ({len(bwd)}) barrier "
+                    f"populations differ in size -- currently expected to always match "
+                    f"(both come from the same merged_conv population in "
+                    f"compute_barrier_error_summaries). The pooled statistic below is "
+                    f"computed by concatenation and stays correct either way, but this "
+                    f"currently-unconditional equality is exactly what makes the legacy "
+                    f"(MAE_fwd + MAE_bwd)/2 shortcut equivalent to true pooling today; if "
+                    f"this assertion ever fires, that equivalence no longer holds and "
+                    f"should be investigated, not silenced."
+                )
+                combined = np.concatenate([fwd, bwd])
+                m = float(np.mean(np.abs(combined)))
+                r = float(np.sqrt(np.mean(combined ** 2)))
+                # Full-precision cross-check: with equal-size forward/backward
+                # arrays (asserted above), true pooling is mathematically
+                # identical to averaging the two directions' own MAE/RMSE
+                # computed independently -- verify that identity holds here
+                # rather than merely asserting it in a comment.
+                naive_mae = (float(np.mean(np.abs(fwd))) + float(np.mean(np.abs(bwd)))) / 2
+                naive_rmse = float(np.sqrt((float(np.mean(fwd ** 2)) + float(np.mean(bwd ** 2))) / 2))
+                assert abs(m - naive_mae) < 1e-9, (
+                    f"{fp_key}: pooled MAE ({m!r}) does not match the equal-size-shortcut "
+                    f"MAE ({naive_mae!r}) at full precision"
+                )
+                assert abs(r - naive_rmse) < 1e-9, (
+                    f"{fp_key}: pooled RMSE ({r!r}) does not match the equal-size-shortcut "
+                    f"RMSE ({naive_rmse!r}) at full precision"
+                )
+                mae_by_fp[fp_key] = m
+                rmse_by_fp[fp_key] = r
+            mae = pd.Series(mae_by_fp)
+            rmse = pd.Series(rmse_by_fp)
+        # Display-time formatting (house rule: ties round away from zero,
+        # not to even -- see format_half_away_from_zero) applies identically
+        # to both conventions here, since it only affects the final string a
+        # reader sees, never the value round_then_average_legacy computes
+        # (that computation is entirely above, in the if/else branches).
+        return (mae.map(lambda x: format_half_away_from_zero(x, 4))
+                + " / " + rmse.map(lambda x: format_half_away_from_zero(x, 4)))
 
     index = full_barrier_df.index
     non_conv_labels = []
@@ -1234,13 +1435,13 @@ def compute_key_neb_metrics_summary(dft_valid_path_metrics_df, fp_path_metrics_b
 
     ep_dE_mae = full_profile_df["Endpoint ΔE MAE (eV)"].reindex(index)
     ep_dE_rmse = full_profile_df["Endpoint ΔE RMSE (eV)"].reindex(index)
-    ep_dE_tri = (ep_dE_mae.map(lambda x: f"{x:.4f}" if pd.notna(x) else "nan")
-                 + " / " + ep_dE_rmse.map(lambda x: f"{x:.4f}" if pd.notna(x) else "nan"))
+    ep_dE_tri = (ep_dE_mae.map(lambda x: format_half_away_from_zero(x, 4))
+                 + " / " + ep_dE_rmse.map(lambda x: format_half_away_from_zero(x, 4)))
 
     key_neb_metrics_summary_df = pd.DataFrame({
         "Non-conv. paths (n/total)": non_conv_labels,
-        "Barrier error (eV) (full)": _combined_barrier(full_barrier_df).values,
-        "Barrier error (eV) (static)": _combined_barrier(static_barrier_df).reindex(index).values,
+        "Barrier error (eV) (full)": _combined_barrier(full_barrier_df, barrier_combination).values,
+        "Barrier error (eV) (static)": _combined_barrier(static_barrier_df, barrier_combination).reindex(index).values,
         "Endpoint energy-diff. error (eV) (full)": ep_dE_tri.values,
         "Endpoint energy rank. agr. (%) (full)": full_profile_df["Endpoint Energy Ranking Accuracy (%)"].reindex(index).values,
         "Energy-profile shape agr. (%) (full)": full_profile_df["Pathway Topology Accuracy (%)"].reindex(index).values,

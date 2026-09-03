@@ -29,6 +29,55 @@ import matplotlib.patches as patches
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Display-time rounding (house rule: ties round away from zero, not to even)
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Deliberately duplicated here rather than imported from neb_analysis.py's
+# round_half_away_from_zero/format_half_away_from_zero (same logic, same
+# Decimal(repr(x))-based reasoning) -- this module has zero cross-module
+# imports today (it is meant to be reusable table-drawing machinery, not
+# NEB-specific), and neb_analysis.py already lazily imports FROM neb_plots.py
+# (which imports FROM this module) inside build_neb_analysis_results;
+# importing this module's formatter back from neb_analysis.py would be a
+# fresh, unnecessary coupling in the other direction. Never used for any
+# legacy-reproduction calculation -- this is display formatting only, applied
+# at the point a value becomes cell text.
+
+def round_half_away_from_zero(x, ndigits):
+    """Round x to ndigits decimal places, ties away from zero (not to even).
+    Returns NaN for NaN/None input."""
+    from decimal import Decimal, ROUND_HALF_UP
+    if x is None or (isinstance(x, float) and np.isnan(x)):
+        return float("nan")
+    quantum = Decimal(1).scaleb(-ndigits)
+    return float(Decimal(repr(float(x))).quantize(quantum, rounding=ROUND_HALF_UP))
+
+
+def fmt_half_away_from_zero(ndigits):
+    """Return a callable cell-text formatter (for the fmt/fmt_lower/fmt_upper
+    parameters below, which accept either a plain format string or a
+    callable) that rounds ties away from zero at `ndigits` decimal places.
+    NaN/non-finite values format as "" (matching this module's existing
+    plain-format-string behavior, which is never asked to format a
+    non-finite value -- see draw_triangular_cell/draw_rectangular_cell,
+    both of which only format finite values)."""
+    def _fmt(x):
+        r = round_half_away_from_zero(x, ndigits)
+        return f"{r:.{ndigits}f}" if np.isfinite(r) else ""
+    return _fmt
+
+
+def _apply_fmt(fmt, value):
+    """fmt may be a plain format string (e.g. "{:.2f}", this module's
+    original, still-default behavior -- Python's own round-half-to-even) or
+    a callable value -> str (e.g. fmt_half_away_from_zero(2)). Every
+    existing caller that passes a plain string is completely unaffected by
+    this change; only a caller that explicitly opts in by passing a
+    callable gets the house-rule rounding."""
+    return fmt(value) if callable(fmt) else fmt.format(value)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Internal helper
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -103,7 +152,7 @@ def draw_triangular_cell(
         tcolor = _text_color_for_bg(rgba, lum_threshold) if auto_text_color else "black"
         ax.text(
             x + lower_text_pos[0], y + lower_text_pos[1],
-            fmt_lower.format(val_lower),
+            _apply_fmt(fmt_lower, val_lower),
             ha="center", va="center", fontsize=text_size, color=tcolor,
         )
 
@@ -118,7 +167,7 @@ def draw_triangular_cell(
         tcolor = _text_color_for_bg(rgba, lum_threshold) if auto_text_color else "black"
         ax.text(
             x + upper_text_pos[0], y + upper_text_pos[1],
-            fmt_upper.format(val_upper),
+            _apply_fmt(fmt_upper, val_upper),
             ha="center", va="center", fontsize=text_size, color=tcolor,
         )
 
@@ -186,7 +235,7 @@ def draw_rectangular_cell(
     else:
         try:
             fval = float(val)
-            label = fmt.format(fval) if np.isfinite(fval) else ""
+            label = _apply_fmt(fmt, fval) if np.isfinite(fval) else ""
         except (TypeError, ValueError):
             label = str(val) if val is not None else ""
 

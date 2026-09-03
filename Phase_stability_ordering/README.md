@@ -188,7 +188,7 @@ See [`data/README.md`](data/README.md) for the full field-level schema, checksum
 | Average energy error | Energy error relative to DFT, reported as the MAE over all structures in the convex-hull benchmark. |
 | Ground-state agreement: lowest-energy phase at each composition. | For each composition, the FP-predicted ground-state phase is compared with DFT. The reported metric is the fraction of compositions, across all tie-line systems, for which the two agree. |
 | Within-phase hull-minimum agreement: lowest-energy composition within each phase. | For each phase, the FP-predicted minimum-energy composition is compared with DFT. The reported metric is the fraction of phases, across all tie-line systems, for which the two agree. |
-| Hull-minimum agreement: global convex-hull minimum across the tie-line. | For each tie-line system, the FP-predicted convex-hull minimum is compared with DFT. The reported metric is the fraction of systems for which the two agree. |
+| Hull-minimum agreement: global convex-hull minimum across the tie-line. | For each tie-line system, the FP-predicted convex-hull minimum is compared with DFT. A system with no structure below the tie line has no stable intermediate. The reported metric is the fraction of systems for which the two agree: they identify the same stable intermediate, or both find none and their tie lines are anchored on the same endpoint structures. |
 
 ### Energy rankings of elemental orderings
 

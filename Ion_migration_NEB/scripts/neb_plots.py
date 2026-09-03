@@ -34,7 +34,7 @@ from pymatgen.core import Composition
 from ase.utils.forcecurve import fit_images
 from heatmap_table import (
     create_figure, draw_triangular_column, draw_rectangular_column,
-    setup_frame, setup_ticks_and_labels,
+    setup_frame, setup_ticks_and_labels, fmt_half_away_from_zero,
 )
 
 logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
@@ -1148,7 +1148,7 @@ def plot_3col_triangular(
             vals_lower=mae_vals[:, j], vals_upper=rmse_vals[:, j],
             cmap_lower=mae_cmap,  norm_lower=mae_norm,
             cmap_upper=rmse_cmap, norm_upper=rmse_norm,
-            fmt_lower="{:.2f}", fmt_upper="{:.2f}", text_size=text_size,
+            fmt_lower=fmt_half_away_from_zero(2), fmt_upper=fmt_half_away_from_zero(2), text_size=text_size,
         )
 
     if rect_cols:
