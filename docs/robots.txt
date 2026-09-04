@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mogroupumd.github.io/FPBench/sitemap.xml
