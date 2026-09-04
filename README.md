@@ -1,8 +1,15 @@
 # FPBench
 
-FPBench is an application-oriented benchmark for foundation potentials (FPs). It evaluates FPs on
-representative computational materials tasks rather than on average energy and force errors alone,
-and provides the reference datasets, the evaluation code, and a public leaderboard for three
+**Application-Oriented Error Decomposition for Foundation Potentials**
+
+FPBench introduces application-oriented error decomposition through metrics that resolve
+performance according to the physically consequential quantities and configurations governing
+computational tasks, including the fractions of highly accurate and large-force-error atoms,
+far-from-equilibrium atoms, relative phase-stability and convex-hull agreement, and along-path
+errors in ion migration. These metrics from error decompositions identify where FP errors arise
+within specific computational tasks, providing targeted guidance for model development.
+
+FPBench provides the reference datasets, the evaluation code, and a public leaderboard for three
 components: force prediction, phase stability and elemental ordering, and ion migration by NEB.
 
 **Leaderboard: https://mogroupumd.github.io/FPBench/**

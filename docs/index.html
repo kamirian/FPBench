@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="5pK13K2RclhC91JU0y3HVxyg9ny5Kujt7pJMzuO2uZ0" />
   <title>FPBench: Application-Oriented Error Decomposition for Foundation Potentials</title>
-  <meta name="description" content="FPBench benchmarks foundation potentials (universal machine-learning interatomic potentials) on application-oriented tasks: force prediction on MatPES-PBE and OMat24, convex-hull phase stability and elemental ordering, and Li/Na ion-migration barriers by NEB." />
+  <meta name="description" content="FPBench applies application-oriented error decomposition to foundation potentials (universal machine-learning interatomic potentials), resolving where errors arise across three tasks: force prediction on MatPES-PBE and OMat24, convex-hull phase stability and elemental ordering, and Li/Na ion-migration barriers by NEB." />
   <link rel="canonical" href="https://mogroupumd.github.io/FPBench/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="FPBench" />
   <meta property="og:title" content="FPBench: Application-Oriented Error Decomposition for Foundation Potentials" />
-  <meta property="og:description" content="FPBench benchmarks foundation potentials (universal machine-learning interatomic potentials) on application-oriented tasks: force prediction on MatPES-PBE and OMat24, convex-hull phase stability and elemental ordering, and Li/Na ion-migration barriers by NEB." />
+  <meta property="og:description" content="FPBench applies application-oriented error decomposition to foundation potentials (universal machine-learning interatomic potentials), resolving where errors arise across three tasks: force prediction on MatPES-PBE and OMat24, convex-hull phase stability and elemental ordering, and Li/Na ion-migration barriers by NEB." />
   <meta property="og:url" content="https://mogroupumd.github.io/FPBench/" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="FPBench: Application-Oriented Error Decomposition for Foundation Potentials" />
-  <meta name="twitter:description" content="FPBench benchmarks foundation potentials (universal machine-learning interatomic potentials) on application-oriented tasks: force prediction on MatPES-PBE and OMat24, convex-hull phase stability and elemental ordering, and Li/Na ion-migration barriers by NEB." />
+  <meta name="twitter:description" content="FPBench applies application-oriented error decomposition to foundation potentials (universal machine-learning interatomic potentials), resolving where errors arise across three tasks: force prediction on MatPES-PBE and OMat24, convex-hull phase stability and elemental ordering, and Li/Na ion-migration barriers by NEB." />
   <style>
     :root {
       --bg:       #0d1117;
@@ -126,12 +126,14 @@
 </nav>
 
 <div class="hero">
-  <div class="tag-line">Foundation Potential Benchmark</div>
+  <div class="tag-line">Application-Oriented Error Decomposition for Foundation Potentials</div>
   <h1>FPBench</h1>
   <p>
-    FPBench evaluates foundation potentials (FPs) using application-oriented metrics across three
-    computational materials workflows: force prediction, phase stability and elemental ordering,
-    and ion migration by NEB calculations.
+    FPBench introduces application-oriented error decomposition through metrics that resolve performance according to the physically consequential quantities and configurations governing computational tasks, including the fractions of highly accurate and large-force-error atoms, far-from-equilibrium atoms, relative phase-stability and convex-hull agreement, and along-path errors in ion migration. These metrics from error decompositions identify where FP errors arise within specific computational tasks, providing targeted guidance for model development.
+  </p>
+  <p>
+    The benchmark spans three computational materials workflows: force prediction, phase stability
+    and elemental ordering, and ion migration by NEB calculations.
   </p>
 </div>
 
