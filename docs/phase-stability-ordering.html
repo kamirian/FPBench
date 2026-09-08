@@ -129,7 +129,6 @@
     table.dt tr:hover td { filter: brightness(1.08); }
     table.dt td.fp-name { text-align: left; }
     table.dt td.best { color: var(--accent2) !important; font-weight: 700; }
-    table.dt td.worst { color: var(--accent3) !important; }
 
     .split-pill { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 0.78rem; }
     .split-sep { color: var(--muted); margin: 0 2px; }
@@ -153,6 +152,39 @@
     footer { text-align: center; padding: 2.5rem 2rem; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
     footer a { color: var(--accent); text-decoration: none; }
     footer .affil { margin-top: 0.3rem; font-size: 0.8rem; }
+  
+    /* ---------- shared table affordances ---------- */
+    .scroll-shell { position: relative; }
+    .scroll-shell .scroll-hint { display: none; align-items: center; justify-content: flex-end;
+      gap: 0.4rem; font-size: 0.72rem; color: var(--muted); padding: 0 0.2rem 0.35rem; }
+    .scroll-shell.has-overflow .scroll-hint { display: flex; }
+    .scroll-shell.at-end .scroll-hint { opacity: 0.3; }
+    .scroll-shell .scroll-hint span { white-space: nowrap; }
+    .scroll-shell::after { content: ""; position: absolute; right: 0; bottom: 0; top: 1.5rem; width: 46px;
+      pointer-events: none; opacity: 0; transition: opacity 0.2s ease;
+      background: linear-gradient(to right, rgba(13,17,23,0), rgba(13,17,23,0.95)); }
+    .scroll-shell.has-overflow:not(.at-end)::after { opacity: 1; }
+    details .scroll-shell::after { background: linear-gradient(to right, rgba(22,27,34,0), rgba(22,27,34,0.95)); }
+
+    /* tabs read as controls, not labels */
+    .tab-bar { gap: 0.35rem; }
+    .tab-btn { background: var(--surface); border: 1px solid var(--border); border-bottom-width: 2px;
+      border-radius: 8px 8px 0 0; margin-bottom: -1px; }
+    .tab-btn:hover { background: var(--surface2); color: var(--text); }
+    .tab-btn.active { background: var(--surface2); color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* collapsible result sections: whole bar is the control */
+    details > summary { display: flex; align-items: center; gap: 0.5rem; background: var(--surface2); }
+    details > summary::before { color: var(--accent); }
+    details:not([open]) > summary::after { content: "View results"; margin-left: auto;
+      font-size: 0.72rem; font-weight: 600; color: var(--accent); }
+      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+      /* no left gutter: the inset belongs to the pinned first column itself,
+       so no cell can scroll into view to the left of it */
+    .table-scroll { padding-left: 0; padding-right: 0; }
+    table.dt th:first-child, table.dt td:first-child { padding-left: 1.1rem; }
+    table.dt th:last-child, table.dt td:last-child { padding-right: 1.1rem; }
   </style>
 </head>
 <body>
@@ -190,14 +222,12 @@
     Values below are read directly from the currently-executed
     <code>analysis/convexhull_ordering_analysis_all_models.ipynb</code>. FPBench does not publish
     a single overall ranking; each metric group below is a complementary, independent measurement.
-    Click any column heading to sort a table by that column; click again to reverse. Tables load in
-    a fixed, notebook-consistent order.
+    Click any column heading to sort a table by that column; click again to reverse. Each leaderboard loads sorted by its primary metric &mdash; average energy error ascending on the convex-hull tables, Top-1 accuracy descending on the ordering tables; the endpoint-structure table loads in a fixed, notebook-consistent order.
   </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
     <span><span class="arrow-up">&#9650;</span> higher is better</span>
     <span style="color:var(--accent2);font-weight:700">green = best in column</span>
-    <span style="color:var(--accent3)">red = worst in column</span>
     <span style="color:var(--muted)">identifiers are never colored</span>
   </div>
 
@@ -486,7 +516,7 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
     }
   }
 
-  // Discrete best/worst highlighting for every data column (skips only the
+  // Discrete best-in-column highlighting for every data column (skips only the
   // first, FP-name column). Direction per column comes from <th data-dir>.
   // For split-pair columns this highlights based on the first (data-val,
   // e.g. mean) value only.
@@ -508,10 +538,8 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
         if (isNaN(v)) return;
         if (higherBetter) {
           if (v === mx) cell.classList.add('best');
-          if (v === mn) cell.classList.add('worst');
         } else {
           if (v === mn) cell.classList.add('best');
-          if (v === mx) cell.classList.add('worst');
         }
       });
     }
@@ -520,8 +548,7 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
   // Attach click-to-sort to every sortable <th> of a table.dt. First column
   // sorts alphabetically by FP name; other columns sort numerically on
   // data-val (split-pair cells also carry data-val, so they sort correctly
-  // too). Rows load in the notebook-consistent order and are only reordered
-  // once a header is clicked.
+  // too). Rows are sorted on load by the default column above and reordered again on any header click.
   function makeSortable(tbl) {
     const thead = tbl.querySelector('thead');
     const tbody = tbl.querySelector('tbody');
@@ -555,6 +582,60 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
     document.querySelectorAll('table.orderingtable, table.rmsdtable').forEach(colorizeSplitPairs);
     document.querySelectorAll('table.dt').forEach(makeSortable);
     document.querySelectorAll('table.hulltable, table.orderingtable, table.rmsdtable').forEach(highlightBestGeneric);
+  });
+
+  /* ---------- shared table affordances: scroll cue, sticky offset, default sort ---------- */
+  function fpbShells() {
+    document.querySelectorAll('.table-scroll').forEach(sc => {
+      if (sc.parentElement && sc.parentElement.classList.contains('scroll-shell')) return;
+      const shell = document.createElement('div');
+      shell.className = 'scroll-shell';
+      sc.parentNode.insertBefore(shell, sc);
+      const hint = document.createElement('div');
+      hint.className = 'scroll-hint';
+      hint.innerHTML = '<span>&#8592;</span><span>scroll horizontally for more metrics</span><span>&#8594;</span>';
+      shell.appendChild(hint);
+      shell.appendChild(sc);
+      sc.addEventListener('scroll', () => fpbUpdateShell(shell), { passive: true });
+    });
+  }
+  function fpbUpdateShell(shell) {
+    const sc = shell.querySelector('.table-scroll');
+    if (!sc) return;
+    const room = sc.scrollWidth - sc.clientWidth;
+    shell.classList.toggle('has-overflow', room > 4);
+    shell.classList.toggle('at-end', sc.scrollLeft >= room - 4);
+  }
+  function fpbUpdateShells() { document.querySelectorAll('.scroll-shell').forEach(fpbUpdateShell); }
+  function fpbSticky() {
+    document.querySelectorAll('table.leaderboard').forEach(tbl => {
+      const th1 = tbl.querySelector('thead th');
+      if (!th1) return;
+      const w = th1.getBoundingClientRect().width;
+      if (!w) return;
+      const th2 = tbl.querySelectorAll('thead th')[1];
+      if (th2) th2.style.left = w + 'px';
+      tbl.querySelectorAll('td.fp-name').forEach(td => { td.style.left = w + 'px'; });
+    });
+  }
+  function fpbSortBy(tbl, colIndex, dir) {
+    const th = tbl.querySelectorAll('thead th')[colIndex];
+    if (!th || th.classList.contains('no-sort')) return;
+    th.dataset.sortDir = (dir === 'asc') ? 'desc' : 'asc';
+    th.click();
+  }
+  function fpbEnhance() { fpbShells(); fpbSticky(); fpbUpdateShells(); }
+  (function () {
+    const prev = window.switchTab;
+    window.switchTab = function (id, btn) { prev(id, btn); fpbSticky(); fpbUpdateShells(); };
+  })();
+  document.querySelectorAll('details').forEach(d => d.addEventListener('toggle', fpbUpdateShells));
+  window.addEventListener('resize', () => { fpbSticky(); fpbUpdateShells(); });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    fpbEnhance();
+    document.querySelectorAll('table.hulltable').forEach(t => fpbSortBy(t, 1, 'asc'));
+    document.querySelectorAll('table.orderingtable').forEach(t => fpbSortBy(t, 2, 'desc'));
   });
 </script>
 

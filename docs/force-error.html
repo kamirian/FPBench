@@ -129,12 +129,11 @@
     table.dt tr.frac-row td { font-style: italic; color: var(--muted); background: var(--surface2); font-family: inherit; font-size: 0.76rem; }
 
     table.leaderboard th:nth-child(1), table.leaderboard td.rank { min-width: 40px; }
-    table.leaderboard th:nth-child(3), table.leaderboard td.training-col { min-width: 190px; }
+    table.leaderboard th.ver-col, table.leaderboard td.training-col { min-width: 210px; max-width: 300px; white-space: normal; }
     table.leaderboard td.rank { font-family: inherit; color: var(--muted); text-align: center; position: static; }
     table.leaderboard td.fp-name { text-align: left; position: sticky; left: 0; background: var(--surface); font-family: inherit; font-weight: 600; color: var(--heading); min-width: 190px; }
     table.leaderboard td.training-col { text-align: left; color: var(--muted); font-family: inherit; font-size: 0.78rem; }
     table.leaderboard td.best { color: var(--accent2) !important; font-weight: 700; }
-    table.leaderboard td.worst { color: var(--accent3) !important; }
     .tag-training { display: inline-block; background: rgba(63,185,80,0.15); color: var(--accent2); border-radius: 3px; padding: 0.1rem 0.4rem; font-size: 0.68rem; font-weight: 700; margin-left: 4px; }
     .tag-ood { display: inline-block; background: rgba(247,129,102,0.15); color: var(--accent3); border-radius: 3px; padding: 0.1rem 0.4rem; font-size: 0.68rem; font-weight: 700; margin-left: 4px; }
     .tag-finetuned { display: inline-block; background: rgba(210,153,34,0.15); color: var(--accent4); border-radius: 3px; padding: 0.1rem 0.4rem; font-size: 0.68rem; font-weight: 700; margin-left: 4px; }
@@ -162,6 +161,53 @@
     footer { text-align: center; padding: 2.5rem 2rem; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
     footer a { color: var(--accent); text-decoration: none; }
     footer .affil { margin-top: 0.3rem; font-size: 0.8rem; }
+  
+    /* ---------- shared table affordances ---------- */
+    .scroll-shell { position: relative; }
+    .scroll-shell .scroll-hint { display: none; align-items: center; justify-content: flex-end;
+      gap: 0.4rem; font-size: 0.72rem; color: var(--muted); padding: 0 0.2rem 0.35rem; }
+    .scroll-shell.has-overflow .scroll-hint { display: flex; }
+    .scroll-shell.at-end .scroll-hint { opacity: 0.3; }
+    .scroll-shell .scroll-hint span { white-space: nowrap; }
+    .scroll-shell::after { content: ""; position: absolute; right: 0; bottom: 0; top: 1.5rem; width: 46px;
+      pointer-events: none; opacity: 0; transition: opacity 0.2s ease;
+      background: linear-gradient(to right, rgba(13,17,23,0), rgba(13,17,23,0.95)); }
+    .scroll-shell.has-overflow:not(.at-end)::after { opacity: 1; }
+    details .scroll-shell::after { background: linear-gradient(to right, rgba(22,27,34,0), rgba(22,27,34,0.95)); }
+
+    /* tabs read as controls, not labels */
+    .tab-bar { gap: 0.35rem; }
+    .tab-btn { background: var(--surface); border: 1px solid var(--border); border-bottom-width: 2px;
+      border-radius: 8px 8px 0 0; margin-bottom: -1px; }
+    .tab-btn:hover { background: var(--surface2); color: var(--text); }
+    .tab-btn.active { background: var(--surface2); color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* collapsible result sections: whole bar is the control */
+    details > summary { display: flex; align-items: center; gap: 0.5rem; background: var(--surface2); }
+    details > summary::before { color: var(--accent); }
+    details:not([open]) > summary::after { content: "View results"; margin-left: auto;
+      font-size: 0.72rem; font-weight: 600; color: var(--accent); }
+
+    /* leaderboard: rank + FP both pinned, offset computed in JS */
+    table.leaderboard th:nth-child(1), table.leaderboard td.rank { position: sticky; left: 0; z-index: 2; background: var(--surface); }
+    table.leaderboard th:nth-child(1) { background: var(--surface2); z-index: 3; }
+    table.leaderboard th:nth-child(2) { position: sticky; z-index: 3; background: var(--surface2); }
+    table.leaderboard td.fp-name { z-index: 2; }
+    @media (max-width: 640px) {
+      table.leaderboard th:nth-child(1), table.leaderboard td.rank { position: static !important; }
+      table.leaderboard th:nth-child(2), table.leaderboard td.fp-name { left: 0 !important; }
+    }
+    table.leaderboard td.training-col { text-align: left; }
+    table.leaderboard td.training-col .ver { display: block; color: var(--text);
+      font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.74rem; }
+    table.leaderboard td.training-col .trn { display: block; color: var(--muted); font-size: 0.72rem; margin-top: 2px; }
+      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+      /* no left gutter: the inset belongs to the pinned first column itself,
+       so no cell can scroll into view to the left of it */
+    .table-scroll { padding-left: 0; padding-right: 0; }
+    table.dt th:first-child, table.dt td:first-child { padding-left: 1.1rem; }
+    table.dt th:last-child, table.dt td:last-child { padding-right: 1.1rem; }
   </style>
 </head>
 <body>
@@ -198,13 +244,12 @@
     Results below are read directly from each dataset's current executed analysis notebook. FPBench
     does not publish a single overall ranking; the tables are complementary measurements, and which
     one matters most depends on the target application. Click any column heading to sort a table by
-    that column; click again to reverse. Tables load in a fixed, notebook-consistent order.
+    that column; click again to reverse. The leaderboard loads sorted by &Delta;|<i>F</i>| MAE, ascending; the supporting tables below it load in a fixed, notebook-consistent order.
   </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
     <span><span class="arrow-up">&#9650;</span> higher is better</span>
     <span style="color:var(--accent2);font-weight:700">green = best in column</span>
-    <span style="color:var(--accent3)">red = worst in column</span>
     <span style="color:var(--muted)">identifiers, badges, and thresholds are never colored</span>
   </div>
 
@@ -219,7 +264,7 @@
 
     <h3 style="margin-top:0;">Leaderboard</h3>
     <p style="font-size:0.85rem;color:var(--muted);">
-      Rank and per-column best/worst (green/red) update when you click a column header. FP badges
+      Rank and the per-column best value (green) update when you click a column header. FP badges
       show whether that FP's own training data included this dataset's functional/source
       (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
       or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
@@ -228,175 +273,186 @@
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
       <th class="no-sort">#</th>
       <th>FP</th>
-      <th>Training</th>
       <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;) &darr;</th>
-      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;) &darr;</th>
-      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), |&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
       <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01) (%) &uarr;</th>
       <th data-dir="high">Frac(&lt;0.01 &amp; &lt;1&deg;/20&deg;) (%) &uarr;</th>
+      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;) &darr;</th>
       <th data-dir="low">Frac(|&Delta;|<i>F</i>||&gt;1) (%) &darr;</th>
       <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), on FE atoms &darr;</th>
       <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;), on FE atoms &darr;</th>
-    </tr></thead><tbody><tr>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), |&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
+      <th class="ver-col">Version (training)</th>
+    </tr></thead><tbody>
+    <tr>
       <td class="rank">1</td>
       <td class="fp-name">Orb <span class="tag-ood">OOD</span></td>
-      <td class="training-col">OMat24</td>
       <td data-val="0.17">0.17 / 1.12</td>
-      <td data-val="30">30 / 52</td>
-      <td data-val="0.14">0.14 / 0.22</td>
       <td data-val="12.6">12.6</td>
       <td data-val="1.4">1.4 / 8.9</td>
+      <td data-val="30">30 / 52</td>
       <td data-val="2.00">2.00</td>
       <td data-val="0.31">0.31 / 2.09</td>
       <td data-val="12">12 / 24</td>
-    </tr><tr>
+      <td data-val="0.14">0.14 / 0.22</td>
+      <td class="training-col"><span class="ver">orb-v3-conservative-inf-omat-20250404</span><span class="trn">OMat24</span></td>
+    </tr>
+    <tr>
       <td class="rank">2</td>
       <td class="fp-name">SevenNet <span class="tag-ood">OOD</span></td>
-      <td class="training-col">OMat24 + sAlex + MPtrj</td>
       <td data-val="0.19">0.19 / 0.91</td>
-      <td data-val="33">33 / 55</td>
-      <td data-val="0.15">0.15 / 0.24</td>
       <td data-val="11.2">11.2</td>
       <td data-val="1.6">1.6 / 7.4</td>
+      <td data-val="33">33 / 55</td>
       <td data-val="2.63">2.63</td>
       <td data-val="0.39">0.39 / 1.70</td>
       <td data-val="15">15 / 28</td>
-    </tr><tr>
+      <td data-val="0.15">0.15 / 0.24</td>
+      <td class="training-col"><span class="ver">7net-mf-ompa (modal mpa)</span><span class="trn">OMat24 + sAlex + MPtrj</span></td>
+    </tr>
+    <tr>
       <td class="rank">3</td>
       <td class="fp-name">MatterSim<sup>*</sup> <span class="tag-ood">OOD</span></td>
-      <td class="training-col">MatterSim dataset (PBE)</td>
       <td data-val="0.21">0.21 / 1.29</td>
-      <td data-val="37">37 / 59</td>
-      <td data-val="0.17">0.17 / 0.26</td>
       <td data-val="7.9">7.9</td>
       <td data-val="1.00">1.00 / 4.5</td>
+      <td data-val="37">37 / 59</td>
       <td data-val="2.65">2.65</td>
       <td data-val="0.40">0.40 / 2.41</td>
       <td data-val="16">16 / 28</td>
+      <td data-val="0.17">0.17 / 0.26</td>
+      <td class="training-col"><span class="ver">MatterSim-v1.0.0-5M</span><span class="trn">MatterSim dataset (PBE)</span></td>
     </tr>
     <tr>
       <td class="rank">4</td>
       <td class="fp-name">Nequix<sup>&dagger;</sup> <span class="tag-ood">OOD</span></td>
-      <td class="training-col">OMat24 + sAlex + MPtrj<sup>&dagger;</sup></td>
       <td data-val="0.21">0.21 / 1.52</td>
-      <td data-val="33">33 / 55</td>
-      <td data-val="0.16">0.16 / 0.25</td>
       <td data-val="10.7">10.7</td>
       <td data-val="1.6">1.6 / 6.9</td>
+      <td data-val="33">33 / 55</td>
       <td data-val="2.83">2.83</td>
       <td data-val="0.43">0.43 / 2.86</td>
       <td data-val="15">15 / 27</td>
-    </tr><tr>
+      <td data-val="0.16">0.16 / 0.25</td>
+      <td class="training-col"><span class="ver">nequix-oam-1</span><span class="trn">OMat24 + sAlex + MPtrj<sup>&dagger;</sup></span></td>
+    </tr>
+    <tr>
       <td class="rank">5</td>
       <td class="fp-name">MACE <span class="tag-ood">OOD</span></td>
-      <td class="training-col">MPtrj + sAlex</td>
       <td data-val="0.23">0.23 / 1.93</td>
-      <td data-val="37">37 / 58</td>
-      <td data-val="0.17">0.17 / 0.27</td>
       <td data-val="8.34">8.34</td>
       <td data-val="1.07">1.07 / 4.51</td>
+      <td data-val="37">37 / 58</td>
       <td data-val="3.44">3.44</td>
       <td data-val="0.49">0.49 / 3.65</td>
       <td data-val="18">18 / 29</td>
-    </tr><tr>
+      <td data-val="0.17">0.17 / 0.27</td>
+      <td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span><span class="trn">MPtrj + sAlex</span></td>
+    </tr>
+    <tr>
       <td class="rank">6</td>
       <td class="fp-name">CHGNet <span class="tag-ood">OOD</span></td>
-      <td class="training-col">MPtrj</td>
       <td data-val="0.31">0.31 / 2.19</td>
-      <td data-val="45">45 / 66</td>
-      <td data-val="0.22">0.22 / 0.32</td>
       <td data-val="5.61">5.61</td>
       <td data-val="0.66">0.66 / 2.16</td>
+      <td data-val="45">45 / 66</td>
       <td data-val="5.71">5.71</td>
       <td data-val="0.7">0.70 / 4.14</td>
       <td data-val="24">24 / 36</td>
+      <td data-val="0.22">0.22 / 0.32</td>
+      <td class="training-col"><span class="ver">v0.3.0</span><span class="trn">MPtrj</span></td>
     </tr>
     <tr>
       <td class="rank">7</td>
       <td class="fp-name">GPTFF <span class="tag-ood">OOD</span></td>
-      <td class="training-col">Atomly (PBE)</td>
       <td data-val="0.42">0.42 / 1.89</td>
-      <td data-val="50">50 / 70</td>
-      <td data-val="0.26">0.26 / 0.36</td>
       <td data-val="4.7">4.7</td>
       <td data-val="0.59">0.59 / 1.4</td>
+      <td data-val="50">50 / 70</td>
       <td data-val="9.82">9.82</td>
       <td data-val="1.00">1.00 / 3.55</td>
       <td data-val="30">30 / 43</td>
-    </tr><tr>
+      <td data-val="0.26">0.26 / 0.36</td>
+      <td class="training-col"><span class="ver">gptff_v2</span><span class="trn">Atomly (PBE)</span></td>
+    </tr>
+    <tr>
       <td class="rank">8</td>
       <td class="fp-name">M3GNet <span class="tag-ood">OOD</span></td>
-      <td class="training-col">MP-2021.2.8</td>
       <td data-val="0.44">0.44 / 1.49</td>
-      <td data-val="56">56 / 76</td>
-      <td data-val="0.26">0.26 / 0.36</td>
       <td data-val="4.56">4.56</td>
       <td data-val="0.54">0.54 / 1.45</td>
+      <td data-val="56">56 / 76</td>
       <td data-val="10.79">10.79</td>
       <td data-val="0.98">0.98 / 2.76</td>
       <td data-val="40">40 / 56</td>
-    </tr><tr>
+      <td data-val="0.26">0.26 / 0.36</td>
+      <td class="training-col"><span class="ver">MP-2021.2.8-PES</span><span class="trn">MP-2021.2.8</span></td>
+    </tr>
+    <tr>
       <td class="rank">9</td>
       <td class="fp-name">UMA <span class="tag-ood">OOD</span></td>
-      <td class="training-col">OC20+ODAC23+OMat24+OMC25+OMol25</td>
       <td data-val="0.56">0.56 / 7.93</td>
-      <td data-val="28">28 / 51</td>
-      <td data-val="0.12">0.12 / 0.21</td>
       <td data-val="15.13">15.13</td>
       <td data-val="2.79">2.79 / 11.44</td>
+      <td data-val="28">28 / 51</td>
       <td data-val="2.69">2.69</td>
       <td data-val="1.13">1.13 / 11.89</td>
       <td data-val="12">12 / 25</td>
+      <td data-val="0.12">0.12 / 0.21</td>
+      <td class="training-col"><span class="ver">s-1p1</span><span class="trn">OC20+ODAC23+OMat24+OMC25+OMol25</span></td>
     </tr>
     <tr>
       <td class="rank">10</td>
       <td class="fp-name">ALIGNN<sup>&Dagger;</sup> <span class="tag-ood">OOD</span></td>
-      <td class="training-col">JARVIS-DFT<sup>&Dagger;</sup></td>
       <td data-val="2.08">2.08 / 24.80</td>
-      <td data-val="70">70 / 87</td>
-      <td data-val="0.31">0.31 / 0.40</td>
       <td data-val="2.5">2.5</td>
       <td data-val="0.20">0.20 / 0.55</td>
+      <td data-val="70">70 / 87</td>
       <td data-val="24.23">24.23</td>
       <td data-val="5.51">5.51 / 46.95</td>
       <td data-val="61">61 / 77</td>
-    </tr><tr>
+      <td data-val="0.31">0.31 / 0.40</td>
+      <td class="training-col"><span class="ver">alignnff_wt10</span><span class="trn">JARVIS-DFT<sup>&Dagger;</sup></span></td>
+    </tr>
+    <tr>
       <td class="rank">11</td>
       <td class="fp-name">M3GNet-MatPES <span class="tag-training">training</span></td>
-      <td class="training-col">MatPES-PBE</td>
       <td data-val="0.21">0.21 / 1.24</td>
-      <td data-val="34">34 / 53</td>
-      <td data-val="0.17">0.17 / 0.25</td>
       <td data-val="7.14">7.14</td>
       <td data-val="0.92">0.92 / 3.75</td>
+      <td data-val="34">34 / 53</td>
       <td data-val="2.35">2.35</td>
       <td data-val="0.43">0.43 / 2.34</td>
       <td data-val="18">18 / 27</td>
-    </tr><tr>
+      <td data-val="0.17">0.17 / 0.25</td>
+      <td class="training-col"><span class="ver">v2025.1</span><span class="trn">MatPES-PBE</span></td>
+    </tr>
+    <tr>
       <td class="rank">12</td>
       <td class="fp-name">TensorNet-MatPES <span class="tag-training">training</span></td>
-      <td class="training-col">MatPES-PBE</td>
       <td data-val="0.17">0.17 / 1.39</td>
-      <td data-val="29">29 / 49</td>
-      <td data-val="0.15">0.15 / 0.22</td>
       <td data-val="7.66">7.66</td>
       <td data-val="0.98">0.98 / 4.65</td>
+      <td data-val="29">29 / 49</td>
       <td data-val="1.2">1.20</td>
       <td data-val="0.33">0.33 / 2.63</td>
       <td data-val="12">12 / 18</td>
-    </tr><tr>
+      <td data-val="0.15">0.15 / 0.22</td>
+      <td class="training-col"><span class="ver">v2025.1</span><span class="trn">MatPES-PBE</span></td>
+    </tr>
+    <tr>
       <td class="rank">13</td>
       <td class="fp-name">MACE-MatPES <span class="tag-training">training</span></td>
-      <td class="training-col">MatPES-PBE (fine-tuned)</td>
       <td data-val="0.08">0.08 / 1.10</td>
-      <td data-val="16">16 / 32</td>
-      <td data-val="0.07">0.07 / 0.13</td>
       <td data-val="19.02">19.02</td>
       <td data-val="3.88">3.88 / 15.35</td>
+      <td data-val="16">16 / 32</td>
       <td data-val="0.25">0.25</td>
       <td data-val="0.16">0.16 / 2.09</td>
       <td data-val="6">6 / 10</td>
-    </tr></tbody></table>
+      <td data-val="0.07">0.07 / 0.13</td>
+      <td class="training-col"><span class="ver">&gt;=v0.3.10</span><span class="trn">MatPES-PBE (fine-tuned)</span></td>
+    </tr>
+  </tbody></table>
     <p class="lb-note" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>*</sup> MatterSim&rsquo;s training dataset is not publicly documented in detail. The model card states only that the released <code>MatterSim-v1.0.0-5M</code> checkpoint was trained on a PBE-based dataset of approximately 6M structures; the dataset is neither named nor released. Its <span class="tag-ood">OOD</span> label therefore reflects the absence of any documented MatPES or OMat24 training exposure, not a verified dataset composition.</p>
     <p class="lb-note" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>&dagger;</sup> Nequix&rsquo;s released checkpoint is <code>nequix-oam-1</code>. The Nequix paper (Koker, Kotak &amp; Smidt, <a href="https://arxiv.org/abs/2508.16067">arXiv:2508.16067</a>) describes a model trained on MPtrj and does not document this checkpoint; the OMat24 + sAlex + MPtrj corpus is inferred from the <code>oam</code> checkpoint identifier and is not confirmed in the paper. The parameter count is measured from the loaded checkpoint (707,569), consistent with the 700K&ndash;708K reported for the architecture.</p>
     <p class="lb-note" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>&Dagger;</sup> ALIGNN (<code>alignnff_wt10</code>) is trained on JARVIS-DFT at the <strong>OptB88vdW</strong> level, not PBE. It is the only potential on this board whose training reference functional differs from the evaluation reference, so its scores measure agreement with the FPBench MatPES-PBE reference rather than a functional-matched fitting error.</p>
@@ -448,7 +504,7 @@
 
     <h3 style="margin-top:0;">Leaderboard</h3>
     <p style="font-size:0.85rem;color:var(--muted);">
-      Rank and per-column best/worst (green/red) update when you click a column header. FP badges
+      Rank and the per-column best value (green) update when you click a column header. FP badges
       show whether that FP's own training data included this dataset's functional/source
       (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
       or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
@@ -457,52 +513,56 @@
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
       <th class="no-sort">#</th>
       <th>FP</th>
-      <th>Training</th>
       <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;) &darr;</th>
-      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;) &darr;</th>
-      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), |&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
       <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01) (%) &uarr;</th>
       <th data-dir="high">Frac(&lt;0.01 &amp; &lt;1&deg;/20&deg;) (%) &uarr;</th>
+      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;) &darr;</th>
       <th data-dir="low">Frac(|&Delta;|<i>F</i>||&gt;1) (%) &darr;</th>
       <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), on FE atoms &darr;</th>
       <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;), on FE atoms &darr;</th>
-    </tr></thead><tbody><tr>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), |&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
+      <th class="ver-col">Version (training)</th>
+    </tr></thead><tbody>
+    <tr>
       <td class="rank">1</td>
       <td class="fp-name">M3GNet-MatPES-r2SCAN <span class="tag-training">training</span></td>
-      <td class="training-col">MatPES-r2SCAN</td>
       <td data-val="0.23">0.23 / 0.65</td>
-      <td data-val="30">30 / 48</td>
-      <td data-val="0.19">0.19 / 0.27</td>
       <td data-val="5.93">5.93</td>
       <td data-val="0.8">0.80 / 3.48</td>
+      <td data-val="30">30 / 48</td>
       <td data-val="2.87">2.87</td>
       <td data-val="0.41">0.41 / 1.07</td>
       <td data-val="18">18 / 27</td>
-    </tr><tr>
+      <td data-val="0.19">0.19 / 0.27</td>
+      <td class="training-col"><span class="ver">v2025.1</span><span class="trn">MatPES-r2SCAN</span></td>
+    </tr>
+    <tr>
       <td class="rank">2</td>
       <td class="fp-name">TensorNet-MatPES-r2SCAN <span class="tag-training">training</span></td>
-      <td class="training-col">MatPES-r2SCAN</td>
       <td data-val="0.19">0.19 / 0.71</td>
-      <td data-val="26">26 / 45</td>
-      <td data-val="0.17">0.17 / 0.24</td>
       <td data-val="6.39">6.39</td>
       <td data-val="0.79">0.79 / 4.19</td>
+      <td data-val="26">26 / 45</td>
       <td data-val="1.64">1.64</td>
       <td data-val="0.33">0.33 / 1.17</td>
       <td data-val="13">13 / 19</td>
-    </tr><tr>
+      <td data-val="0.17">0.17 / 0.24</td>
+      <td class="training-col"><span class="ver">v2025.1</span><span class="trn">MatPES-r2SCAN</span></td>
+    </tr>
+    <tr>
       <td class="rank">3</td>
       <td class="fp-name">MACE-MatPES-r2SCAN <span class="tag-training">training</span></td>
-      <td class="training-col">MatPES-r2SCAN (fine-tuned)</td>
       <td data-val="0.12">0.12 / 1.34</td>
-      <td data-val="17">17 / 33</td>
-      <td data-val="0.1">0.10 / 0.17</td>
       <td data-val="12.82">12.82</td>
       <td data-val="2.33">2.33 / 10.35</td>
+      <td data-val="17">17 / 33</td>
       <td data-val="0.54">0.54</td>
       <td data-val="0.2">0.20 / 2.27</td>
       <td data-val="8">8 / 12</td>
-    </tr></tbody></table>
+      <td data-val="0.1">0.10 / 0.17</td>
+      <td class="training-col"><span class="ver">&gt;=v0.3.10</span><span class="trn">MatPES-r2SCAN (fine-tuned)</span></td>
+    </tr>
+  </tbody></table>
     </div>
 
     <details open>
@@ -551,7 +611,7 @@
 
     <h3 style="margin-top:0;">Leaderboard</h3>
     <p style="font-size:0.85rem;color:var(--muted);">
-      Rank and per-column best/worst (green/red) update when you click a column header. FP badges
+      Rank and the per-column best value (green) update when you click a column header. FP badges
       show whether that FP's own training data included this dataset's functional/source
       (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
       or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
@@ -560,100 +620,108 @@
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
       <th class="no-sort">#</th>
       <th>FP</th>
-      <th>Training</th>
       <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;) &darr;</th>
-      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;) &darr;</th>
-      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), |&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
       <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01) (%) &uarr;</th>
       <th data-dir="high">Frac(&lt;0.01 &amp; &lt;1&deg;/20&deg;) (%) &uarr;</th>
+      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;) &darr;</th>
       <th data-dir="low">Frac(|&Delta;|<i>F</i>||&gt;1) (%) &darr;</th>
       <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), on FE atoms &darr;</th>
       <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;), on FE atoms &darr;</th>
-    </tr></thead><tbody><tr>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), |&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
+      <th class="ver-col">Version (training)</th>
+    </tr></thead><tbody>
+    <tr>
       <td class="rank">1</td>
       <td class="fp-name">MACE <span class="tag-ood">OOD</span></td>
-      <td class="training-col">MPtrj + sAlex</td>
       <td data-val="0.34">0.34 / 2.83</td>
-      <td data-val="8">8 / 14</td>
-      <td data-val="0.21">0.21 / 0.30</td>
       <td data-val="4.08">4.08</td>
       <td data-val="0.27">0.27 / 3.71</td>
+      <td data-val="8">8 / 14</td>
       <td data-val="5.72">5.72</td>
       <td data-val="0.4">0.40 / 3.16</td>
       <td data-val="6">6 / 9</td>
-    </tr><tr>
+      <td data-val="0.21">0.21 / 0.30</td>
+      <td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span><span class="trn">MPtrj + sAlex</span></td>
+    </tr>
+    <tr>
       <td class="rank">2</td>
       <td class="fp-name">CHGNet <span class="tag-ood">OOD</span></td>
-      <td class="training-col">MPtrj</td>
       <td data-val="0.76">0.76 / 4.00</td>
-      <td data-val="13">13 / 22</td>
-      <td data-val="0.34">0.34 / 0.42</td>
       <td data-val="1.81">1.81</td>
       <td data-val="0.03">0.03 / 1.34</td>
+      <td data-val="13">13 / 22</td>
       <td data-val="18.5">18.50</td>
       <td data-val="0.9">0.90 / 4.46</td>
       <td data-val="9">9 / 15</td>
-    </tr><tr>
+      <td data-val="0.34">0.34 / 0.42</td>
+      <td class="training-col"><span class="ver">v0.3.0</span><span class="trn">MPtrj</span></td>
+    </tr>
+    <tr>
       <td class="rank">3</td>
       <td class="fp-name">M3GNet <span class="tag-ood">OOD</span></td>
-      <td class="training-col">MP-2021.2.8</td>
       <td data-val="0.91">0.91 / 1.96</td>
-      <td data-val="19">19 / 30</td>
-      <td data-val="0.37">0.37 / 0.46</td>
       <td data-val="1.3">1.30</td>
       <td data-val="0.01">0.01 / 0.81</td>
+      <td data-val="19">19 / 30</td>
       <td data-val="27.66">27.66</td>
       <td data-val="1.06">1.06 / 2.18</td>
       <td data-val="13">13 / 21</td>
-    </tr><tr>
+      <td data-val="0.37">0.37 / 0.46</td>
+      <td class="training-col"><span class="ver">MP-2021.2.8-PES</span><span class="trn">MP-2021.2.8</span></td>
+    </tr>
+    <tr>
       <td class="rank">4</td>
       <td class="fp-name">UMA <span class="tag-training">training</span></td>
-      <td class="training-col">OC20+ODAC23+OMat24+OMC25+OMol25</td>
       <td data-val="0.09">0.09 / 0.22</td>
-      <td data-val="4">4 / 8</td>
-      <td data-val="0.08">0.08 / 0.14</td>
       <td data-val="13.14">13.14</td>
       <td data-val="4.76">4.76 / 12.97</td>
+      <td data-val="4">4 / 8</td>
       <td data-val="0.51">0.51</td>
       <td data-val="0.1">0.10 / 0.24</td>
       <td data-val="2">2 / 5</td>
-    </tr><tr>
+      <td data-val="0.08">0.08 / 0.14</td>
+      <td class="training-col"><span class="ver">s-1p1</span><span class="trn">OC20+ODAC23+OMat24+OMC25+OMol25</span></td>
+    </tr>
+    <tr>
       <td class="rank">5</td>
       <td class="fp-name">M3GNet-MatPES <span class="tag-ood">OOD</span></td>
-      <td class="training-col">MatPES-PBE</td>
       <td data-val="0.55">0.55 / 2.18</td>
-      <td data-val="13">13 / 22</td>
-      <td data-val="0.29">0.29 / 0.38</td>
       <td data-val="2.3">2.30</td>
       <td data-val="0.06">0.06 / 1.79</td>
+      <td data-val="13">13 / 22</td>
       <td data-val="12.43">12.43</td>
       <td data-val="0.64">0.64 / 2.43</td>
       <td data-val="9">9 / 14</td>
-    </tr><tr>
+      <td data-val="0.29">0.29 / 0.38</td>
+      <td class="training-col"><span class="ver">v2025.1</span><span class="trn">MatPES-PBE</span></td>
+    </tr>
+    <tr>
       <td class="rank">6</td>
       <td class="fp-name">TensorNet-MatPES <span class="tag-ood">OOD</span></td>
-      <td class="training-col">MatPES-PBE</td>
       <td data-val="0.6">0.60 / 4.04</td>
-      <td data-val="11">11 / 19</td>
-      <td data-val="0.27">0.27 / 0.36</td>
       <td data-val="2.76">2.76</td>
       <td data-val="0.11">0.11 / 2.30</td>
+      <td data-val="11">11 / 19</td>
       <td data-val="12.19">12.19</td>
       <td data-val="0.7">0.70 / 4.52</td>
       <td data-val="8">8 / 12</td>
-    </tr><tr>
+      <td data-val="0.27">0.27 / 0.36</td>
+      <td class="training-col"><span class="ver">v2025.1</span><span class="trn">MatPES-PBE</span></td>
+    </tr>
+    <tr>
       <td class="rank">7</td>
       <td class="fp-name">MACE-MatPES <span class="tag-finetuned">fine-tuned</span></td>
-      <td class="training-col">MatPES-PBE (fine-tuned)</td>
       <td data-val="0.43">0.43 / 2.25</td>
-      <td data-val="8">8 / 15</td>
-      <td data-val="0.22">0.22 / 0.31</td>
       <td data-val="4.12">4.12</td>
       <td data-val="0.31">0.31 / 3.74</td>
+      <td data-val="8">8 / 15</td>
       <td data-val="8.94">8.94</td>
       <td data-val="0.51">0.51 / 2.51</td>
       <td data-val="6">6 / 9</td>
-    </tr></tbody></table>
+      <td data-val="0.22">0.22 / 0.31</td>
+      <td class="training-col"><span class="ver">&gt;=v0.3.10</span><span class="trn">MatPES-PBE (fine-tuned)</span></td>
+    </tr>
+  </tbody></table>
     </div>
 
     <details open>
@@ -870,7 +938,7 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
     }
   }
 
-  // Discrete best/worst highlighting for the leaderboard table only. Direction
+  // Discrete best-in-column highlighting for the leaderboard table only. Direction
   // per column comes from <th data-dir="high"/"low">. Skips the rank (#),
   // FP-name, and Training columns.
   function highlightBest(tbl) {
@@ -878,7 +946,10 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
     const rows = Array.from(tbl.querySelectorAll('tbody tr'));
     if (!rows.length) return;
     const ncols = rows[0].querySelectorAll('td').length;
-    for (let c = 3; c < ncols; c++) {
+    for (let c = 0; c < ncols; c++) {
+      const probe = rows[0].querySelectorAll('td')[c];
+      if (probe && (probe.classList.contains('rank') || probe.classList.contains('fp-name')
+                    || probe.classList.contains('training-col'))) continue;
       const cells = rows.map(r => r.querySelectorAll('td')[c]);
       const vals  = cells.map(cell => parseFloat(cell.dataset.val));
       const valid = vals.filter(v => !isNaN(v));
@@ -891,10 +962,8 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
         if (isNaN(v)) return;
         if (higherBetter) {
           if (v === mx) cell.classList.add('best');
-          if (v === mn) cell.classList.add('worst');
         } else {
           if (v === mn) cell.classList.add('best');
-          if (v === mx) cell.classList.add('worst');
         }
       });
     }
@@ -911,8 +980,8 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
   // e.g. the leaderboard's "#" column). First column sorts alphabetically by
   // FP name; other columns sort numerically on data-val (falls back to
   // data-val on split-pair cells too, since those also carry data-val).
-  // Rows load in the notebook-consistent order and are only reordered once a
-  // header is clicked.
+  // Rows are sorted on load by the default column above and reordered again
+  // on any header click.
   function makeSortable(tbl) {
     const thead = tbl.querySelector('thead');
     const tbody = tbl.querySelector('tbody');
@@ -953,6 +1022,59 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
     document.querySelectorAll('table.err-table').forEach(t => colorizeColumns(t, false));
     document.querySelectorAll('table.rf-table').forEach(t => colorizeColumns(t, true));
     document.querySelectorAll('table.joint-table, table.fdft-table, table.mae-rmse-table').forEach(colorizeSplitPairs);
+  });
+
+  /* ---------- shared table affordances: scroll cue, sticky offset, default sort ---------- */
+  function fpbShells() {
+    document.querySelectorAll('.table-scroll').forEach(sc => {
+      if (sc.parentElement && sc.parentElement.classList.contains('scroll-shell')) return;
+      const shell = document.createElement('div');
+      shell.className = 'scroll-shell';
+      sc.parentNode.insertBefore(shell, sc);
+      const hint = document.createElement('div');
+      hint.className = 'scroll-hint';
+      hint.innerHTML = '<span>&#8592;</span><span>scroll horizontally for more metrics</span><span>&#8594;</span>';
+      shell.appendChild(hint);
+      shell.appendChild(sc);
+      sc.addEventListener('scroll', () => fpbUpdateShell(shell), { passive: true });
+    });
+  }
+  function fpbUpdateShell(shell) {
+    const sc = shell.querySelector('.table-scroll');
+    if (!sc) return;
+    const room = sc.scrollWidth - sc.clientWidth;
+    shell.classList.toggle('has-overflow', room > 4);
+    shell.classList.toggle('at-end', sc.scrollLeft >= room - 4);
+  }
+  function fpbUpdateShells() { document.querySelectorAll('.scroll-shell').forEach(fpbUpdateShell); }
+  function fpbSticky() {
+    document.querySelectorAll('table.leaderboard').forEach(tbl => {
+      const th1 = tbl.querySelector('thead th');
+      if (!th1) return;
+      const w = th1.getBoundingClientRect().width;
+      if (!w) return;
+      const th2 = tbl.querySelectorAll('thead th')[1];
+      if (th2) th2.style.left = w + 'px';
+      tbl.querySelectorAll('td.fp-name').forEach(td => { td.style.left = w + 'px'; });
+    });
+  }
+  function fpbSortBy(tbl, colIndex, dir) {
+    const th = tbl.querySelectorAll('thead th')[colIndex];
+    if (!th || th.classList.contains('no-sort')) return;
+    th.dataset.sortDir = (dir === 'asc') ? 'desc' : 'asc';
+    th.click();
+  }
+  function fpbEnhance() { fpbShells(); fpbSticky(); fpbUpdateShells(); }
+  (function () {
+    const prev = window.switchTab;
+    window.switchTab = function (id, btn) { prev(id, btn); fpbSticky(); fpbUpdateShells(); };
+  })();
+  document.querySelectorAll('details').forEach(d => d.addEventListener('toggle', fpbUpdateShells));
+  window.addEventListener('resize', () => { fpbSticky(); fpbUpdateShells(); });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    fpbEnhance();
+    document.querySelectorAll('table.leaderboard').forEach(t => fpbSortBy(t, 2, 'asc'));
   });
 </script>
 
