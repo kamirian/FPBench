@@ -199,9 +199,10 @@
       table.leaderboard th:nth-child(2), table.leaderboard td.fp-name { left: 0 !important; }
     }
     table.leaderboard td.training-col { text-align: left; }
-    table.leaderboard td.training-col .ver { display: block; color: var(--text);
+    table.leaderboard td.training-col { line-height: 1.45; }
+    table.leaderboard td.training-col .ver { color: var(--text);
       font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.74rem; }
-    table.leaderboard td.training-col .trn { display: block; color: var(--muted); font-size: 0.72rem; margin-top: 2px; }
+    table.leaderboard td.training-col .trn { color: var(--muted); font-size: 0.74rem; }
       .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
       /* no left gutter: the inset belongs to the pinned first column itself,
        so no cell can scroll into view to the left of it */
@@ -294,7 +295,7 @@
       <td data-val="0.31">0.31 / 2.09</td>
       <td data-val="12">12 / 24</td>
       <td data-val="0.14">0.14 / 0.22</td>
-      <td class="training-col"><span class="ver">orb-v3-conservative-inf-omat-20250404</span><span class="trn">OMat24</span></td>
+      <td class="training-col"><span class="ver">orb-v3-conservative-inf-omat-20250404</span> <span class="trn">(OMat24)</span></td>
     </tr>
     <tr>
       <td class="rank">2</td>
@@ -307,7 +308,7 @@
       <td data-val="0.39">0.39 / 1.70</td>
       <td data-val="15">15 / 28</td>
       <td data-val="0.15">0.15 / 0.24</td>
-      <td class="training-col"><span class="ver">7net-mf-ompa (modal mpa)</span><span class="trn">OMat24 + sAlex + MPtrj</span></td>
+      <td class="training-col"><span class="ver">7net-mf-ompa (modal mpa)</span> <span class="trn">(OMat24 + sAlex + MPtrj)</span></td>
     </tr>
     <tr>
       <td class="rank">3</td>
@@ -320,7 +321,7 @@
       <td data-val="0.40">0.40 / 2.41</td>
       <td data-val="16">16 / 28</td>
       <td data-val="0.17">0.17 / 0.26</td>
-      <td class="training-col"><span class="ver">MatterSim-v1.0.0-5M</span><span class="trn">MatterSim dataset (PBE)</span></td>
+      <td class="training-col"><span class="ver">MatterSim-v1.0.0-5M</span> <span class="trn">(MatterSim dataset (PBE))</span></td>
     </tr>
     <tr>
       <td class="rank">4</td>
@@ -333,7 +334,7 @@
       <td data-val="0.43">0.43 / 2.86</td>
       <td data-val="15">15 / 27</td>
       <td data-val="0.16">0.16 / 0.25</td>
-      <td class="training-col"><span class="ver">nequix-oam-1</span><span class="trn">OMat24 + sAlex + MPtrj<sup>&dagger;</sup></span></td>
+      <td class="training-col"><span class="ver">nequix-oam-1</span> <span class="trn">(OMat24 + sAlex + MPtrj<sup>&dagger;</sup>)</span></td>
     </tr>
     <tr>
       <td class="rank">5</td>
@@ -346,7 +347,7 @@
       <td data-val="0.49">0.49 / 3.65</td>
       <td data-val="18">18 / 29</td>
       <td data-val="0.17">0.17 / 0.27</td>
-      <td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span><span class="trn">MPtrj + sAlex</span></td>
+      <td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span> <span class="trn">(MPtrj + sAlex)</span></td>
     </tr>
     <tr>
       <td class="rank">6</td>
@@ -359,7 +360,7 @@
       <td data-val="0.7">0.70 / 4.14</td>
       <td data-val="24">24 / 36</td>
       <td data-val="0.22">0.22 / 0.32</td>
-      <td class="training-col"><span class="ver">v0.3.0</span><span class="trn">MPtrj</span></td>
+      <td class="training-col"><span class="ver">v0.3.0</span> <span class="trn">(MPtrj)</span></td>
     </tr>
     <tr>
       <td class="rank">7</td>
@@ -372,7 +373,7 @@
       <td data-val="1.00">1.00 / 3.55</td>
       <td data-val="30">30 / 43</td>
       <td data-val="0.26">0.26 / 0.36</td>
-      <td class="training-col"><span class="ver">gptff_v2</span><span class="trn">Atomly (PBE)</span></td>
+      <td class="training-col"><span class="ver">gptff_v2</span> <span class="trn">(Atomly (PBE))</span></td>
     </tr>
     <tr>
       <td class="rank">8</td>
@@ -385,7 +386,7 @@
       <td data-val="0.98">0.98 / 2.76</td>
       <td data-val="40">40 / 56</td>
       <td data-val="0.26">0.26 / 0.36</td>
-      <td class="training-col"><span class="ver">MP-2021.2.8-PES</span><span class="trn">MP-2021.2.8</span></td>
+      <td class="training-col"><span class="ver">MP-2021.2.8-PES</span> <span class="trn">(MP-2021.2.8)</span></td>
     </tr>
     <tr>
       <td class="rank">9</td>
@@ -398,7 +399,7 @@
       <td data-val="1.13">1.13 / 11.89</td>
       <td data-val="12">12 / 25</td>
       <td data-val="0.12">0.12 / 0.21</td>
-      <td class="training-col"><span class="ver">s-1p1</span><span class="trn">OC20+ODAC23+OMat24+OMC25+OMol25</span></td>
+      <td class="training-col"><span class="ver">s-1p1</span> <span class="trn">(OC20+ODAC23+OMat24+OMC25+OMol25)</span></td>
     </tr>
     <tr>
       <td class="rank">10</td>
@@ -411,7 +412,7 @@
       <td data-val="5.51">5.51 / 46.95</td>
       <td data-val="61">61 / 77</td>
       <td data-val="0.31">0.31 / 0.40</td>
-      <td class="training-col"><span class="ver">alignnff_wt10</span><span class="trn">JARVIS-DFT<sup>&Dagger;</sup></span></td>
+      <td class="training-col"><span class="ver">alignnff_wt10</span> <span class="trn">(JARVIS-DFT<sup>&Dagger;</sup>)</span></td>
     </tr>
     <tr>
       <td class="rank">11</td>
@@ -424,7 +425,7 @@
       <td data-val="0.43">0.43 / 2.34</td>
       <td data-val="18">18 / 27</td>
       <td data-val="0.17">0.17 / 0.25</td>
-      <td class="training-col"><span class="ver">v2025.1</span><span class="trn">MatPES-PBE</span></td>
+      <td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td>
     </tr>
     <tr>
       <td class="rank">12</td>
@@ -437,7 +438,7 @@
       <td data-val="0.33">0.33 / 2.63</td>
       <td data-val="12">12 / 18</td>
       <td data-val="0.15">0.15 / 0.22</td>
-      <td class="training-col"><span class="ver">v2025.1</span><span class="trn">MatPES-PBE</span></td>
+      <td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td>
     </tr>
     <tr>
       <td class="rank">13</td>
@@ -450,7 +451,7 @@
       <td data-val="0.16">0.16 / 2.09</td>
       <td data-val="6">6 / 10</td>
       <td data-val="0.07">0.07 / 0.13</td>
-      <td class="training-col"><span class="ver">&gt;=v0.3.10</span><span class="trn">MatPES-PBE (fine-tuned)</span></td>
+      <td class="training-col"><span class="ver">&gt;=v0.3.10</span> <span class="trn">(MatPES-PBE (fine-tuned))</span></td>
     </tr>
   </tbody></table>
     <p class="lb-note" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>*</sup> MatterSim&rsquo;s training dataset is not publicly documented in detail. The model card states only that the released <code>MatterSim-v1.0.0-5M</code> checkpoint was trained on a PBE-based dataset of approximately 6M structures; the dataset is neither named nor released. Its <span class="tag-ood">OOD</span> label therefore reflects the absence of any documented MatPES or OMat24 training exposure, not a verified dataset composition.</p>
@@ -534,7 +535,7 @@
       <td data-val="0.41">0.41 / 1.07</td>
       <td data-val="18">18 / 27</td>
       <td data-val="0.19">0.19 / 0.27</td>
-      <td class="training-col"><span class="ver">v2025.1</span><span class="trn">MatPES-r2SCAN</span></td>
+      <td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-r2SCAN)</span></td>
     </tr>
     <tr>
       <td class="rank">2</td>
@@ -547,7 +548,7 @@
       <td data-val="0.33">0.33 / 1.17</td>
       <td data-val="13">13 / 19</td>
       <td data-val="0.17">0.17 / 0.24</td>
-      <td class="training-col"><span class="ver">v2025.1</span><span class="trn">MatPES-r2SCAN</span></td>
+      <td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-r2SCAN)</span></td>
     </tr>
     <tr>
       <td class="rank">3</td>
@@ -560,7 +561,7 @@
       <td data-val="0.2">0.20 / 2.27</td>
       <td data-val="8">8 / 12</td>
       <td data-val="0.1">0.10 / 0.17</td>
-      <td class="training-col"><span class="ver">&gt;=v0.3.10</span><span class="trn">MatPES-r2SCAN (fine-tuned)</span></td>
+      <td class="training-col"><span class="ver">&gt;=v0.3.10</span> <span class="trn">(MatPES-r2SCAN (fine-tuned))</span></td>
     </tr>
   </tbody></table>
     </div>
@@ -641,7 +642,7 @@
       <td data-val="0.4">0.40 / 3.16</td>
       <td data-val="6">6 / 9</td>
       <td data-val="0.21">0.21 / 0.30</td>
-      <td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span><span class="trn">MPtrj + sAlex</span></td>
+      <td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span> <span class="trn">(MPtrj + sAlex)</span></td>
     </tr>
     <tr>
       <td class="rank">2</td>
@@ -654,7 +655,7 @@
       <td data-val="0.9">0.90 / 4.46</td>
       <td data-val="9">9 / 15</td>
       <td data-val="0.34">0.34 / 0.42</td>
-      <td class="training-col"><span class="ver">v0.3.0</span><span class="trn">MPtrj</span></td>
+      <td class="training-col"><span class="ver">v0.3.0</span> <span class="trn">(MPtrj)</span></td>
     </tr>
     <tr>
       <td class="rank">3</td>
@@ -667,7 +668,7 @@
       <td data-val="1.06">1.06 / 2.18</td>
       <td data-val="13">13 / 21</td>
       <td data-val="0.37">0.37 / 0.46</td>
-      <td class="training-col"><span class="ver">MP-2021.2.8-PES</span><span class="trn">MP-2021.2.8</span></td>
+      <td class="training-col"><span class="ver">MP-2021.2.8-PES</span> <span class="trn">(MP-2021.2.8)</span></td>
     </tr>
     <tr>
       <td class="rank">4</td>
@@ -680,7 +681,7 @@
       <td data-val="0.1">0.10 / 0.24</td>
       <td data-val="2">2 / 5</td>
       <td data-val="0.08">0.08 / 0.14</td>
-      <td class="training-col"><span class="ver">s-1p1</span><span class="trn">OC20+ODAC23+OMat24+OMC25+OMol25</span></td>
+      <td class="training-col"><span class="ver">s-1p1</span> <span class="trn">(OC20+ODAC23+OMat24+OMC25+OMol25)</span></td>
     </tr>
     <tr>
       <td class="rank">5</td>
@@ -693,7 +694,7 @@
       <td data-val="0.64">0.64 / 2.43</td>
       <td data-val="9">9 / 14</td>
       <td data-val="0.29">0.29 / 0.38</td>
-      <td class="training-col"><span class="ver">v2025.1</span><span class="trn">MatPES-PBE</span></td>
+      <td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td>
     </tr>
     <tr>
       <td class="rank">6</td>
@@ -706,7 +707,7 @@
       <td data-val="0.7">0.70 / 4.52</td>
       <td data-val="8">8 / 12</td>
       <td data-val="0.27">0.27 / 0.36</td>
-      <td class="training-col"><span class="ver">v2025.1</span><span class="trn">MatPES-PBE</span></td>
+      <td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td>
     </tr>
     <tr>
       <td class="rank">7</td>
@@ -719,7 +720,7 @@
       <td data-val="0.51">0.51 / 2.51</td>
       <td data-val="6">6 / 9</td>
       <td data-val="0.22">0.22 / 0.31</td>
-      <td class="training-col"><span class="ver">&gt;=v0.3.10</span><span class="trn">MatPES-PBE (fine-tuned)</span></td>
+      <td class="training-col"><span class="ver">&gt;=v0.3.10</span> <span class="trn">(MatPES-PBE (fine-tuned))</span></td>
     </tr>
   </tbody></table>
     </div>
@@ -1033,7 +1034,7 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
       sc.parentNode.insertBefore(shell, sc);
       const hint = document.createElement('div');
       hint.className = 'scroll-hint';
-      hint.innerHTML = '<span>&#8592;</span><span>scroll horizontally for more metrics</span><span>&#8594;</span>';
+      hint.innerHTML = '<span>&#8592;</span><span>Scroll horizontally to view all metrics.</span><span>&#8594;</span>';
       shell.appendChild(hint);
       shell.appendChild(sc);
       sc.addEventListener('scroll', () => fpbUpdateShell(shell), { passive: true });

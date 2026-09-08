@@ -230,9 +230,6 @@
       finalized DFT-NEB image structures and are not filtered by full FP-NEB convergence. Exact
       denominators are those implemented in <code>neb_analysis.py</code>.
     </p>
-    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">
-      Scroll horizontally to view all metrics.
-    </p>
 
     <div id="leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
 
@@ -640,7 +637,7 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
       sc.parentNode.insertBefore(shell, sc);
       const hint = document.createElement('div');
       hint.className = 'scroll-hint';
-      hint.innerHTML = '<span>&#8592;</span><span>scroll horizontally for more metrics</span><span>&#8594;</span>';
+      hint.innerHTML = '<span>&#8592;</span><span>Scroll horizontally to view all metrics.</span><span>&#8594;</span>';
       shell.appendChild(hint);
       shell.appendChild(sc);
       sc.addEventListener('scroll', () => fpbUpdateShell(shell), { passive: true });
