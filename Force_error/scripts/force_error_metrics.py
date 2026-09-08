@@ -1986,6 +1986,8 @@ def triangular_heatmap_with_fraction_row_word_style(
     rmse_text_y_nudge=0.0,     # shift RMSE text down(-) / up(+) within cell
     cbar_labelpad_mae=4,        # padding between MAE colorbar and its label
     cbar_labelpad_rmse=4,       # padding between RMSE colorbar and its label
+    mae_cbar_label=None,        # override the MAE colorbar label (default: "MAE (eV/Å)")
+    rmse_cbar_label=None,       # override the RMSE colorbar label (default: "RMSE (eV/Å)")
     savepath=None,
 ):
     """
@@ -2024,6 +2026,9 @@ def triangular_heatmap_with_fraction_row_word_style(
     cmap_mae, cmap_rmse : str – Matplotlib colormap names
     figsize         : (w, h) in inches
     fmt_mae, fmt_rmse : str – format strings for cell annotations
+    mae_cbar_label, rmse_cbar_label : str or None – colorbar label text;
+        default "MAE (eV/Å)" / "RMSE (eV/Å)" assumes a force-magnitude-error
+        table. Pass e.g. "MAE (°)" / "RMSE (°)" for an angle (Δθ) table.
     text_size       : int  – base font size
     cbar_side       : bool – False = colorbars below (horizontal), True = right (vertical)
     savepath        : str or None
@@ -2034,6 +2039,10 @@ def triangular_heatmap_with_fraction_row_word_style(
     """
     if sig_figs is not None:
         fmt_mae = fmt_rmse = _sigfig_formatter(sig_figs)
+    if mae_cbar_label is None:
+        mae_cbar_label = "MAE (eV/Å)"
+    if rmse_cbar_label is None:
+        rmse_cbar_label = "RMSE (eV/Å)"
     from heatmap_table import (
         draw_rectangular_row, draw_triangular_column,
         setup_frame, setup_ticks_and_labels,
@@ -2108,8 +2117,8 @@ def triangular_heatmap_with_fraction_row_word_style(
         x_mae  = ax_pos.x1 + cbar_gap_right
         x_rmse = x_mae + cbar_width_right + cbar_between_gap_right
         for cbar_x, cmap_k, norm_k, label_k, lpad in [
-            (x_mae,  mae_cmap,  mae_norm,  "MAE (eV/Å)",  cbar_labelpad_mae),
-            (x_rmse, rmse_cmap, rmse_norm, "RMSE (eV/Å)", cbar_labelpad_rmse),
+            (x_mae,  mae_cmap,  mae_norm,  mae_cbar_label,  cbar_labelpad_mae),
+            (x_rmse, rmse_cmap, rmse_norm, rmse_cbar_label, cbar_labelpad_rmse),
         ]:
             cax = fig.add_axes([cbar_x, ax_pos.y0, cbar_width_right, ax_pos.height])
             sm  = mpl.cm.ScalarMappable(norm=norm_k, cmap=cmap_k)
@@ -2124,8 +2133,8 @@ def triangular_heatmap_with_fraction_row_word_style(
         cbar_y_mae  = ax_pos.y0 - cbar_gap - cbar_height
         cbar_y_rmse = cbar_y_mae - cbar_between_gap - cbar_height
         for cbar_y, cmap_k, norm_k, label_k in [
-            (cbar_y_mae,  mae_cmap,  mae_norm,  "MAE (eV/Å)"),
-            (cbar_y_rmse, rmse_cmap, rmse_norm, "RMSE (eV/Å)"),
+            (cbar_y_mae,  mae_cmap,  mae_norm,  mae_cbar_label),
+            (cbar_y_rmse, rmse_cmap, rmse_norm, rmse_cbar_label),
         ]:
             cax = fig.add_axes([cbar_x0, cbar_y, cbar_w, cbar_height])
             sm  = mpl.cm.ScalarMappable(norm=norm_k, cmap=cmap_k)
