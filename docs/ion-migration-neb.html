@@ -140,7 +140,7 @@
   
     /* ---------- shared table affordances ---------- */
     .scroll-shell { position: relative; }
-    .scroll-shell::after { content: ""; position: absolute; right: 0; bottom: 0; top: var(--fade-top, 0px); width: 46px;
+    .scroll-shell::after { content: ""; position: absolute; right: 0; top: var(--fade-top, 0px); bottom: var(--fade-bottom, 0px); width: 46px;
       pointer-events: none; opacity: 0; transition: opacity 0.2s ease;
       background: linear-gradient(to right, rgba(13,17,23,0), rgba(13,17,23,0.95)); }
     .scroll-shell.has-overflow:not(.at-end)::after { opacity: 1; }
@@ -165,25 +165,42 @@
     table.dt td.training-col .ver { color: var(--text);
       font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.74rem; }
     table.dt td.training-col .trn { color: var(--muted); font-size: 0.74rem; }
-      /* richer horizontal-overflow affordance */
-    .scroll-shell::before { content: ""; position: absolute; left: 0; bottom: 0; top: var(--fade-top, 0px); width: 46px;
-      pointer-events: none; opacity: 0; transition: opacity 0.2s ease;
+      /* horizontal-overflow affordance -- one blue accent means "more this way" */
+    .scroll-shell::before { content: ""; position: absolute; left: 0; top: var(--fade-top, 0px);
+      bottom: var(--fade-bottom, 0px); width: 46px; pointer-events: none; opacity: 0;
+      transition: opacity 0.2s ease;
       background: linear-gradient(to left, rgba(13,17,23,0), rgba(13,17,23,0.95)); }
     .scroll-shell.has-overflow:not(.at-start)::before { opacity: 1; }
     details .scroll-shell::before { background: linear-gradient(to left, rgba(22,27,34,0), rgba(22,27,34,0.95)); }
-    .scroll-nudge { position: static; display: none; width: 32px; height: 32px; border-radius: 50%;
-      border: 1px solid var(--border); background: var(--surface2); color: var(--text);
-      font-size: 1.25rem; line-height: 1; padding: 0; cursor: pointer; z-index: 4;
-      align-items: center; justify-content: center; font-family: inherit;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.5); opacity: 1;
-      transition: color .15s, border-color .15s, background .15s, opacity .15s; }
-    .scroll-nudge:hover { color: var(--accent); border-color: var(--accent); background: var(--surface); opacity: 1; }
+
+    .scroll-hint { display: none; align-items: center; justify-content: flex-end; gap: 0.35rem;
+      font-size: 0.76rem; font-weight: 600; letter-spacing: 0.2px; color: var(--accent);
+      padding: 0 1.1rem 0.5rem; }
+    .scroll-shell.has-overflow:not(.at-end) .scroll-hint { display: flex; }
+    .scroll-hint span { white-space: nowrap; }
+
+    .scroll-nudge { position: absolute; display: none; width: 36px; height: 36px; border-radius: 50%;
+      transform: translateY(-50%); padding: 0; cursor: pointer; z-index: 4; font-family: inherit;
+      border: 1px solid rgba(88,166,255,0.35); background: var(--surface2); color: var(--accent);
+      align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.45);
+      transition: color .15s, border-color .15s, background .15s, box-shadow .15s; }
+    .scroll-nudge:hover { border-color: var(--accent); background: var(--surface);
+      box-shadow: 0 2px 14px rgba(88,166,255,0.28); }
     .scroll-nudge:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .scroll-nav { display: none; justify-content: flex-end; gap: 0.4rem; padding: 0 1.1rem 0.5rem; }
-    .scroll-shell.has-overflow .scroll-nav { display: flex; }
+    .scroll-nudge.prev { left: 8px; }
+    .scroll-nudge.next { right: 8px; }
     .scroll-shell.has-overflow .scroll-nudge { display: flex; }
     .scroll-shell.at-start .scroll-nudge.prev { display: none; }
     .scroll-shell.at-end .scroll-nudge.next { display: none; }
+
+    /* horizontal scrollbar: neutral track, accent-blue draggable thumb */
+    .table-scroll { scrollbar-width: thin; scrollbar-color: var(--accent) var(--surface2); }
+    .table-scroll::-webkit-scrollbar { height: 10px; }
+    .table-scroll::-webkit-scrollbar-track { background: var(--surface2); border-radius: 5px; }
+    .table-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 5px;
+      border: 2px solid var(--surface2); }
+    .table-scroll::-webkit-scrollbar-thumb:hover,
+    .table-scroll::-webkit-scrollbar-thumb:active { background: #79b8ff; }
   </style>
 </head>
 <body>
@@ -681,20 +698,21 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
       const shell = document.createElement('div');
       shell.className = 'scroll-shell';
       sc.parentNode.insertBefore(shell, sc);
+      const hint = document.createElement('div');
+      hint.className = 'scroll-hint';
+      hint.innerHTML = '<span>More metrics</span><span aria-hidden="true">&#8594;</span>';
+      shell.appendChild(hint);
       shell.appendChild(sc);
-      const nav = document.createElement('div');
-      nav.className = 'scroll-nav';
       ['prev', 'next'].forEach(dir => {
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'scroll-nudge ' + dir;
         b.setAttribute('aria-label', dir === 'prev' ? 'Scroll table left' : 'Scroll table right');
-        b.innerHTML = dir === 'prev' ? '&#8249;' : '&#8250;';
+        b.innerHTML = dir === 'prev' ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>' : '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
         b.addEventListener('click', () => sc.scrollBy(
           { left: (dir === 'prev' ? -1 : 1) * sc.clientWidth * 0.6, behavior: 'smooth' }));
-        nav.appendChild(b);
+        shell.appendChild(b);
       });
-      shell.insertBefore(nav, sc);
       sc.addEventListener('scroll', () => fpbUpdateShell(shell), { passive: true });
     });
   }
@@ -705,7 +723,17 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
     shell.classList.toggle('has-overflow', room > 4);
     shell.classList.toggle('at-end', sc.scrollLeft >= room - 4);
     shell.classList.toggle('at-start', sc.scrollLeft <= 4);
-    shell.style.setProperty('--fade-top', sc.offsetTop + 'px');
+    // Everything is measured against the <table> box itself, so the "More metrics"
+    // line above the scroller, the scroller's own padding, the horizontal scrollbar
+    // below it, and anything outside the shell (section header, dataset description,
+    // notes) are all excluded. The buttons are centred on the table's midpoint and
+    // pulled back by half their own height via translateY(-50%).
+    const tbl = sc.querySelector('table');
+    if (!tbl) return;
+    const top = tbl.offsetTop, h = tbl.offsetHeight;
+    shell.style.setProperty('--fade-top', top + 'px');
+    shell.style.setProperty('--fade-bottom', (shell.offsetHeight - (top + h)) + 'px');
+    shell.querySelectorAll('.scroll-nudge').forEach(b => { b.style.top = (top + h / 2) + 'px'; });
   }
   function fpbUpdateShells() { document.querySelectorAll('.scroll-shell').forEach(fpbUpdateShell); }
   function fpbSticky() {
