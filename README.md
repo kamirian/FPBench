@@ -25,8 +25,7 @@ FPBench supports three modes of use.
 - **Reported results.** The [leaderboard](https://mogroupumd.github.io/FPBench/) gives the
   current metrics for every evaluated FP and requires no installation.
 - **Evaluation of an additional potential.** The FP is registered in the relevant generator
-  notebook and run against the provided reference datasets. See
-  [Adding a potential](ADDING_A_POTENTIAL.md).
+  notebook and run against the provided reference datasets. See [Contribute](#contribute).
 - **Application to an independent dataset.** The analysis functions in each component's
   `scripts/` directory accept standardized inputs directly.
 
@@ -92,25 +91,6 @@ tables and figures are produced by the analysis notebooks.
 pip install jupyterlab
 jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb
 ```
-
----
-
-## Evaluating a new potential
-
-The procedure is the same for all three components.
-
-1. **Register the potential.** Add one entry to the `POTENTIAL_REGISTRY` in the component's
-   generator notebook, specifying the environment to use and the code that constructs an ASE
-   calculator. See [Adding a potential](ADDING_A_POTENTIAL.md).
-2. **Run the calculations.** The generator notebook writes job and submission scripts for the
-   target cluster. Running the generation cells does not submit any job; submission is a separate
-   step.
-3. **Merge and analyse.** The generator merges the completed jobs into a standardized results
-   file, which the analysis notebook converts into the metric tables.
-
-Requirements are specified per component in the corresponding `requirements.txt`. A separate
-virtual environment per FP family is recommended, since their PyTorch and ASE version
-requirements frequently conflict.
 
 ---
 
@@ -251,12 +231,13 @@ models above.
 
 ---
 
-## Contributing
+## Contribute
 
 Interested in evaluating a new foundation potential, or having it considered for inclusion in
-FPBench? See [Adding a potential](ADDING_A_POTENTIAL.md) to run FPBench with a new model. For
-inclusion in the public leaderboard, please contact Prof. Yifei Mo at <yfmo@umd.edu> with the model name,
-version/checkpoint, and a link to the official implementation or model weights.
+FPBench? See [Adding a Potential](ADDING_A_POTENTIAL.md) to integrate and evaluate a new model
+with FPBench; requirements are specified per component in the corresponding `requirements.txt`.
+For inclusion in the public leaderboard, please contact Prof. Yifei Mo at <yfmo@umd.edu> with the
+model name, version/checkpoint, and a link to the official implementation or model weights.
 
 ---
 

@@ -114,9 +114,8 @@ sections of the component README.
 
 ## Public leaderboard
 
-Running FPBench yourself and having an FP listed on the public leaderboard are separate things.
-Everything above lets you evaluate any FP against the FPBench reference data and reproduce the
-published metrics on your own machine; no permission or coordination is needed.
+Everything above lets you evaluate any FP against the FPBench reference data on your own machine;
+no permission or coordination is needed. Being listed on the public leaderboard is separate.
 
 For a new FP to be considered for inclusion in the public leaderboard, please contact
 Prof. Yifei Mo at <yfmo@umd.edu> with:
