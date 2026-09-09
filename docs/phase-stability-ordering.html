@@ -155,12 +155,7 @@
   
     /* ---------- shared table affordances ---------- */
     .scroll-shell { position: relative; }
-    .scroll-shell .scroll-hint { display: none; align-items: center; justify-content: flex-end;
-      gap: 0.4rem; font-size: 0.72rem; color: var(--muted); padding: 0 0.2rem 0.35rem; }
-    .scroll-shell.has-overflow .scroll-hint { display: flex; }
-    .scroll-shell.at-end .scroll-hint { opacity: 0.3; }
-    .scroll-shell .scroll-hint span { white-space: nowrap; }
-    .scroll-shell::after { content: ""; position: absolute; right: 0; bottom: 0; top: 1.5rem; width: 46px;
+    .scroll-shell::after { content: ""; position: absolute; right: 0; bottom: 0; top: var(--fade-top, 0px); width: 46px;
       pointer-events: none; opacity: 0; transition: opacity 0.2s ease;
       background: linear-gradient(to right, rgba(13,17,23,0), rgba(13,17,23,0.95)); }
     .scroll-shell.has-overflow:not(.at-end)::after { opacity: 1; }
@@ -191,22 +186,21 @@
       font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.74rem; }
     table.dt td.training-col .trn { color: var(--muted); font-size: 0.74rem; }
       /* richer horizontal-overflow affordance */
-    .scroll-shell::before { content: ""; position: absolute; left: 0; bottom: 0; top: 1.5rem; width: 46px;
+    .scroll-shell::before { content: ""; position: absolute; left: 0; bottom: 0; top: var(--fade-top, 0px); width: 46px;
       pointer-events: none; opacity: 0; transition: opacity 0.2s ease;
       background: linear-gradient(to left, rgba(13,17,23,0), rgba(13,17,23,0.95)); }
     .scroll-shell.has-overflow:not(.at-start)::before { opacity: 1; }
     details .scroll-shell::before { background: linear-gradient(to left, rgba(22,27,34,0), rgba(22,27,34,0.95)); }
-    .scroll-shell.has-overflow.at-end .scroll-hint { visibility: hidden; }
-    .scroll-nudge { position: absolute; display: none; width: 30px; height: 30px; border-radius: 50%;
+    .scroll-nudge { position: static; display: none; width: 32px; height: 32px; border-radius: 50%;
       border: 1px solid var(--border); background: var(--surface2); color: var(--text);
-      font-size: 1.1rem; line-height: 1; padding: 0; cursor: pointer; z-index: 4;
+      font-size: 1.25rem; line-height: 1; padding: 0; cursor: pointer; z-index: 4;
       align-items: center; justify-content: center; font-family: inherit;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.5); opacity: 0.82;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5); opacity: 1;
       transition: color .15s, border-color .15s, background .15s, opacity .15s; }
     .scroll-nudge:hover { color: var(--accent); border-color: var(--accent); background: var(--surface); opacity: 1; }
     .scroll-nudge:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .scroll-nudge.prev { left: 6px; }
-    .scroll-nudge.next { right: 6px; }
+    .scroll-nav { display: none; justify-content: flex-end; gap: 0.4rem; padding: 0 1.1rem 0.5rem; }
+    .scroll-shell.has-overflow .scroll-nav { display: flex; }
     .scroll-shell.has-overflow .scroll-nudge { display: flex; }
     .scroll-shell.at-start .scroll-nudge.prev { display: none; }
     .scroll-shell.at-end .scroll-nudge.next { display: none; }
@@ -616,11 +610,9 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
       const shell = document.createElement('div');
       shell.className = 'scroll-shell';
       sc.parentNode.insertBefore(shell, sc);
-      const hint = document.createElement('div');
-      hint.className = 'scroll-hint';
-      hint.innerHTML = '<span>More metrics</span><span>&#8594;</span>';
-      shell.appendChild(hint);
       shell.appendChild(sc);
+      const nav = document.createElement('div');
+      nav.className = 'scroll-nav';
       ['prev', 'next'].forEach(dir => {
         const b = document.createElement('button');
         b.type = 'button';
@@ -629,8 +621,9 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
         b.innerHTML = dir === 'prev' ? '&#8249;' : '&#8250;';
         b.addEventListener('click', () => sc.scrollBy(
           { left: (dir === 'prev' ? -1 : 1) * sc.clientWidth * 0.6, behavior: 'smooth' }));
-        shell.appendChild(b);
+        nav.appendChild(b);
       });
+      shell.insertBefore(nav, sc);
       sc.addEventListener('scroll', () => fpbUpdateShell(shell), { passive: true });
     });
   }
@@ -641,8 +634,7 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
     shell.classList.toggle('has-overflow', room > 4);
     shell.classList.toggle('at-end', sc.scrollLeft >= room - 4);
     shell.classList.toggle('at-start', sc.scrollLeft <= 4);
-    const y = sc.offsetTop + Math.min(sc.clientHeight / 2, 110);
-    shell.querySelectorAll('.scroll-nudge').forEach(b => { b.style.top = y + 'px'; });
+    shell.style.setProperty('--fade-top', sc.offsetTop + 'px');
   }
   function fpbUpdateShells() { document.querySelectorAll('.scroll-shell').forEach(fpbUpdateShell); }
   function fpbSticky() {
