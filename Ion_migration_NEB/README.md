@@ -213,6 +213,14 @@ Every pathway/image is identified by natural identifiers throughout -- `icsd_id`
 index. See [`data/README.md`](data/README.md) for the full field-level schema,
 checksums, and file sizes.
 
+### Data availability
+
+The 154-pathway DFT-NEB reference dataset used in FPBench is archived on
+[Figshare](https://doi.org/10.6084/m9.figshare.33332610). The migration pathways were selected
+from the ion-migration dataset of Saravanan et al., available in the
+[original data release](https://doi.org/10.6084/m9.figshare.32221506); the DFT-NEB reference
+calculations were performed for this work.
+
 ---
 
 ## Metrics

@@ -177,6 +177,13 @@ positional index.
 
 See [`data/README.md`](data/README.md) for the full field-level schema, checksums, and file sizes.
 
+### Data availability
+
+The FPBench convex-hull and elemental-ordering benchmark subsets are archived on
+[Figshare](https://doi.org/10.6084/m9.figshare.33334329). The underlying ternary chalcogenide DFT
+data are available from Adams et al. on [Dryad](https://doi.org/10.5061/dryad.xd2547dxn) and
+should be cited as the source dataset.
+
 ---
 
 ## Metrics
