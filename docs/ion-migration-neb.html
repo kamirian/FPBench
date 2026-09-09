@@ -108,7 +108,7 @@
     .tab-panel.active { display: block; }
 
     table.dt { border-collapse: collapse; font-size: 0.82rem; }
-    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 100px; }
+    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 76px; }
     table.dt th { background: var(--surface2); color: var(--muted); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.3px; cursor: pointer; user-select: none; }
     table.dt th.no-sort { cursor: default; }
     table.dt th:hover:not(.no-sort) { color: var(--accent); }
@@ -120,7 +120,7 @@
     table.dt th:first-child, table.dt td:first-child {
       position: sticky; left: 0; background: var(--surface); text-align: left;
       font-family: inherit; font-weight: 600; color: var(--heading); z-index: 2;
-      min-width: 170px;
+      min-width: 150px;
     }
     table.dt th:first-child { background: var(--surface2); z-index: 3; }
     table.dt tr:hover td { filter: brightness(1.08); }
@@ -160,7 +160,7 @@
     details:not([open]) > summary::after { content: "View results"; margin-left: auto;
       font-size: 0.72rem; font-weight: 600; color: var(--accent); }
       .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-        table.dt th.ver-col, table.dt td.training-col { min-width: 210px; max-width: 300px;
+        table.dt th.ver-col, table.dt td.training-col { min-width: 150px; max-width: 200px;
       white-space: normal; text-align: left; line-height: 1.45; }
     table.dt td.training-col .ver { color: var(--text);
       font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.74rem; }

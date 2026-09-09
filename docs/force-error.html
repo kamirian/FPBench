@@ -110,7 +110,7 @@
     .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0.8rem 1.1rem 1.1rem; scrollbar-width: thin; }
 
     table.dt { border-collapse: collapse; font-size: 0.82rem; }
-    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 100px; }
+    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 76px; }
     table.dt th { background: var(--surface2); color: var(--muted); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.3px; cursor: pointer; user-select: none; }
     table.dt th.no-sort { cursor: default; }
     table.dt th:hover:not(.no-sort) { color: var(--accent); }
@@ -122,14 +122,14 @@
     table.dt th:first-child, table.dt td:first-child {
       position: sticky; left: 0; background: var(--surface); text-align: left;
       font-family: inherit; font-weight: 600; color: var(--heading); z-index: 2;
-      min-width: 170px;
+      min-width: 150px;
     }
     table.dt th:first-child { background: var(--surface2); z-index: 3; }
     table.dt tr:hover td { filter: brightness(1.08); }
     table.dt tr.frac-row td { font-style: italic; color: var(--muted); background: var(--surface2); font-family: inherit; font-size: 0.76rem; }
 
     table.leaderboard th:nth-child(1), table.leaderboard td.rank { min-width: 40px; }
-    table.leaderboard th.ver-col, table.leaderboard td.training-col { min-width: 210px; max-width: 300px; white-space: normal; }
+    table.leaderboard th.ver-col, table.leaderboard td.training-col { min-width: 150px; max-width: 200px; white-space: normal; }
     table.leaderboard td.rank { font-family: inherit; color: var(--muted); text-align: center; position: static; }
     table.leaderboard td.fp-name { text-align: left; position: sticky; left: 0; background: var(--surface); font-family: inherit; font-weight: 600; color: var(--heading); min-width: 190px; }
     table.leaderboard td.training-col { text-align: left; color: var(--muted); font-family: inherit; font-size: 0.78rem; }
