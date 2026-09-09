@@ -112,24 +112,25 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb
 MatPES-PBE, MatPES-r2SCAN, and OMat24 rattled-1000. In addition to average MAE and RMSE, it
 reports the fraction of highly accurate force predictions, joint force magnitude-angle accuracy,
 large-force-error atoms, and errors on far-from-equilibrium atoms.
-[Results](https://mogroupumd.github.io/FPBench/force-error.html)
+[Leaderboard](https://mogroupumd.github.io/FPBench/force-error.html)
 
 **[Phase stability and elemental ordering](Phase_stability_ordering/README.md)** evaluates whether
 an FP reproduces the relative energies of competing phases, compositions, and elemental orderings,
-using a chalcogenide phase-change-material dataset of 597 unique hull structures across 22
-tie-line systems and 305 ordering groups. It reports ground-state agreement, within-phase and
-global hull-minimum agreement, Top-1 accuracy, Recall@k, Spearman rank correlation, and
-relaxation RMSD against the DFT-relaxed structure.
-[Results](https://mogroupumd.github.io/FPBench/phase-stability-ordering.html)
+using the FPBench convex-hull and elemental-ordering benchmark subsets: 597 unique hull structures
+across 22 ternary chalcogenide tie-line systems, and 305 elemental-ordering groups of 20
+candidates each. It reports ground-state agreement, within-phase and global hull-minimum
+agreement, Top-1 accuracy, Recall@k, Spearman rank correlation, and relaxation RMSD against the
+DFT-relaxed structure.
+[Leaderboard](https://mogroupumd.github.io/FPBench/phase-stability-ordering.html)
 
 **[Ion migration by NEB](Ion_migration_NEB/README.md)** applies the nudged elastic band method to
-154 Li- and Na-ion migration pathways spanning 106 structurally distinct materials. It reports non-converged
-FP-NEB calculations, forward and backward barrier errors, endpoint energy ranking and
-energy-difference errors, energy-profile shape agreement, endpoint relaxation error, and
+154 Li- and Na-ion migration pathways spanning 106 structurally distinct materials. It reports
+non-converged FP-NEB calculations, forward and backward barrier errors, endpoint energy ranking
+and energy-difference errors, energy-profile shape agreement, endpoint relaxation error, and
 along-path force errors. Comparing the full FP-NEB workflow with static FP evaluations on the
-DFT-NEB images separates intrinsic potential-energy-surface error from error introduced by FP
-endpoint relaxation and pathway optimization.
-[Results](https://mogroupumd.github.io/FPBench/ion-migration-neb.html)
+DFT-NEB image structures separates intrinsic potential-energy-surface error from error introduced
+by FP endpoint relaxation and pathway optimization.
+[Leaderboard](https://mogroupumd.github.io/FPBench/ion-migration-neb.html)
 
 ---
 
