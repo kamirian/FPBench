@@ -298,7 +298,22 @@ duplicated here.
 
 ## Citation and license
 
-The manuscript this work supports is not yet publicly available. Final citation
-information will be added here once it is.
+If you use FPBench, please cite:
+
+Kiyan Amirian, Ramanuja Srinivasan Saravanan, Felix Adams, Charles E Schwarz and Yifei Mo,
+"FPBench: Application-Oriented Error Decomposition for Foundation Potentials",
+arXiv:2609.05714 (2026). <https://arxiv.org/abs/2609.05714>
+
+```bibtex
+@misc{amirian2026fpbench,
+  author        = {Kiyan Amirian and Ramanuja Srinivasan Saravanan and Felix Adams and Charles E Schwarz and Yifei Mo},
+  title         = {FPBench: Application-Oriented Error Decomposition for Foundation Potentials},
+  year          = {2026},
+  eprint        = {2609.05714},
+  archivePrefix = {arXiv},
+  primaryClass  = {cond-mat.mtrl-sci},
+  url           = {https://arxiv.org/abs/2609.05714}
+}
+```
 
 MIT license. See the [repository-level LICENSE](../LICENSE).

@@ -77,6 +77,11 @@
     .btn:hover { opacity: 0.85; }
     .btn-primary { background: var(--accent); color: #0d1117; }
     .btn-disabled { background: var(--surface2); color: var(--muted); cursor: default; pointer-events: none; }
+    .btn-outline { border: 1px solid var(--border); color: var(--heading); background: var(--surface); }
+    .hero-cta { margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .cite-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.9rem 1.1rem; overflow-x: auto; font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.78rem; line-height: 1.6; color: var(--text); white-space: pre; margin: 0.9rem 0 0; }
 
     section.wide h2 { text-align: left; }
     section.wide p { color: var(--text); font-size: 0.92rem; margin-bottom: 0.9rem; }
@@ -112,6 +117,12 @@
     "license": "https://opensource.org/licenses/MIT",
     "isAccessibleForFree": true,
     "codeRepository": "https://github.com/mogroupumd/FPBench",
+    "citation": {
+      "@type": "ScholarlyArticle",
+      "name": "FPBench: Application-Oriented Error Decomposition for Foundation Potentials",
+      "identifier": "arXiv:2609.05714",
+      "url": "https://arxiv.org/abs/2609.05714"
+    },
     "distribution": [
       {"@type": "DataDownload",
        "name": "FPBench DFT-NEB reference: 154 Li- and Na-ion migration pathways",
@@ -148,6 +159,9 @@
     The benchmark spans three computational materials workflows: force prediction, phase stability
     and elemental ordering, and ion migration by NEB calculations.
   </p>
+  <div class="hero-cta">
+    <a class="btn btn-outline" href="https://arxiv.org/abs/2609.05714">Paper (arXiv)</a>
+  </div>
 </div>
 
 <section>
@@ -353,9 +367,29 @@
   <p class="note"><strong style="color:var(--heading);">The "Phase Stability/Ordering &amp; Ion Migration (NEB)" column reflects evaluation in the manuscript.</strong> Public code and results for both are now available -- see <a href="phase-stability-ordering.html" style="color:var(--accent);">Phase Stability &amp; Ordering</a> and <a href="ion-migration-neb.html" style="color:var(--accent);">Ion Migration (NEB)</a>.</p>
 </section>
 
+<section id="citation">
+  <h2>Citation</h2>
+  <p>If you use FPBench, please cite:</p>
+  <p style="color:var(--text);">
+    Kiyan Amirian, Ramanuja Srinivasan Saravanan, Felix Adams, Charles E Schwarz and Yifei Mo,
+    &ldquo;FPBench: Application-Oriented Error Decomposition for Foundation Potentials&rdquo;,
+    arXiv:2609.05714 (2026).
+    <a href="https://arxiv.org/abs/2609.05714" style="color:var(--accent);">arxiv.org/abs/2609.05714</a>
+  </p>
+  <div class="cite-block">@misc{amirian2026fpbench,
+  author        = {Kiyan Amirian and Ramanuja Srinivasan Saravanan and Felix Adams and Charles E Schwarz and Yifei Mo},
+  title         = {FPBench: Application-Oriented Error Decomposition for Foundation Potentials},
+  year          = {2026},
+  eprint        = {2609.05714},
+  archivePrefix = {arXiv},
+  primaryClass  = {cond-mat.mtrl-sci},
+  url           = {https://arxiv.org/abs/2609.05714}
+}</div>
+</section>
+
 <footer>
   <p><strong>Kiyan Amirian</strong> &amp; <strong>Yifei Mo</strong> &middot; <a href="https://github.com/mogroupumd/FPBench">github.com/mogroupumd/FPBench</a></p>
-  <p class="affil">University of Maryland &middot; MIT License</p>
+  <p class="affil">University of Maryland &middot; MIT License &middot; <a href="https://arxiv.org/abs/2609.05714" style="color:var(--accent);">arXiv:2609.05714</a></p>
 </footer>
 
 </body>
