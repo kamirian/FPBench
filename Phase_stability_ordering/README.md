@@ -6,6 +6,8 @@ metrics for foundation potentials (FPs).
 
 Leaderboard: **https://mogroupumd.github.io/FPBench/phase-stability-ordering.html**
 
+**Contents:** [Using FPBench](#using-fpbench) &middot; [Quick start](#quick-start) &middot; [Metrics](#metrics) &middot; [Standardized data](#standardized-data) &middot; [Registering a potential](#registering-a-potential) &middot; [Citation and license](#citation-and-license)
+
 ---
 
 ## Using FPBench
