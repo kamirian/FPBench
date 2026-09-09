@@ -6,7 +6,20 @@ migration-pathway metrics for foundation potentials (FPs), using the nudged elas
 
 Leaderboard: **https://mogroupumd.github.io/FPBench/ion-migration-neb.html**
 
-**Contents:** [Using FPBench](#using-fpbench) &middot; [What this component evaluates](#what-this-component-evaluates) &middot; [Quick start](#quick-start) &middot; [Metrics](#metrics) &middot; [Standardized data](#standardized-data) &middot; [Registering a potential](#registering-a-potential) &middot; [Citation and license](#citation-and-license)
+## Contents
+
+- [Using FPBench](#using-fpbench)
+- [What this component evaluates](#what-this-component-evaluates)
+- [Required inputs and outputs](#required-inputs-and-outputs)
+- [Quick start](#quick-start)
+- [Files and scripts](#files-and-scripts)
+- [Standardized data](#standardized-data)
+  - [Data availability](#data-availability)
+- [Metrics](#metrics)
+- [Failure and convergence records](#failure-and-convergence-records)
+- [Registering a potential](#registering-a-potential)
+- [Reproducing the provided benchmark](#reproducing-the-provided-benchmark)
+- [Citation and license](#citation-and-license)
 
 ---
 

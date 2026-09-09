@@ -5,7 +5,17 @@ metrics for foundation potentials (FPs) against DFT reference forces.
 
 Leaderboard: **https://mogroupumd.github.io/FPBench/force-error.html**
 
-**Contents:** [Using FPBench](#using-fpbench) &middot; [Quick start](#quick-start) &middot; [Metrics](#metrics) &middot; [Standardized data](#standardized-data) &middot; [Registering a potential](#registering-a-potential) &middot; [Citation and license](#citation-and-license)
+## Contents
+
+- [Using FPBench](#using-fpbench)
+- [Required inputs and outputs](#required-inputs-and-outputs)
+- [Quick start](#quick-start)
+- [Files and scripts](#files-and-scripts)
+- [Standardized data](#standardized-data)
+- [Metrics](#metrics)
+- [Registering a potential](#registering-a-potential)
+- [Reproducing the provided benchmark](#reproducing-the-provided-benchmark)
+- [Citation and license](#citation-and-license)
 
 ---
 
