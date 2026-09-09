@@ -197,6 +197,14 @@
     /* Both arrows stay in place; an arrow lights up only while scrolling that
        way is still possible, so nothing appears or disappears mid-scroll and
        the table never shifts. */
+    .scroll-hint { display: none; align-items: center; justify-content: flex-end; gap: 0.4rem;
+      font-size: 0.76rem; font-weight: 600; letter-spacing: 0.2px; color: var(--accent);
+      padding: 0 1.1rem 0.5rem; }
+    .scroll-shell.has-overflow .scroll-hint { display: flex; }
+    .scroll-hint span { white-space: nowrap; }
+    .scroll-hint .ar { color: var(--muted); opacity: 0.5;
+      transition: color .18s ease, opacity .18s ease; }
+    .scroll-hint .ar.lit { color: var(--accent); opacity: 1; }
     .scroll-nudge { position: absolute; display: none; width: 36px; height: 36px; border-radius: 50%;
       transform: translateY(-50%); padding: 0; cursor: default; z-index: 4; font-family: inherit;
       border: 1px solid var(--border); background: var(--surface2); color: var(--muted);
@@ -491,7 +499,7 @@ pip install jupyterlab
 jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
   <p style="margin-top:0.8rem;">See the <a href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering" style="color:var(--accent);">Phase_stability_ordering README</a> for the full quick start, the generator and analysis notebooks for complete operational detail, and <a href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering/examples" style="color:var(--accent);">examples/</a> for a small runnable slice of real data.</p>
 
-  <p style="margin-top:0.8rem;">To have a new FP considered for the public leaderboard, see <a href="index.html#contribute" style="color:var(--accent);">Contribute</a> on the FPBench home page.</p>
+  <p style="margin-top:0.8rem;">Adding a new FP? See <a href="https://github.com/mogroupumd/FPBench/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a> for the shared setup and registration workflow. To have results considered for inclusion in the public leaderboard, see <a href="index.html#contribute" style="color:var(--accent);">Contribute</a> on the FPBench home page.</p>
 </section>
 
 <footer>
@@ -634,6 +642,12 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
       const shell = document.createElement('div');
       shell.className = 'scroll-shell';
       sc.parentNode.insertBefore(shell, sc);
+      const hint = document.createElement('div');
+      hint.className = 'scroll-hint';
+      hint.innerHTML = '<span class="ar ar-l" aria-hidden="true">&#8592;</span>'
+                     + '<span>More metrics</span>'
+                     + '<span class="ar ar-r" aria-hidden="true">&#8594;</span>';
+      shell.appendChild(hint);
       shell.appendChild(sc);
       ['prev', 'next'].forEach(dir => {
         const b = document.createElement('button');
@@ -661,6 +675,10 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
     const next = shell.querySelector('.scroll-nudge.next');
     if (prev) { prev.classList.toggle('lit', canLeft); prev.disabled = !canLeft; }
     if (next) { next.classList.toggle('lit', canRight); next.disabled = !canRight; }
+    const hintL = shell.querySelector('.scroll-hint .ar-l');
+    const hintR = shell.querySelector('.scroll-hint .ar-r');
+    if (hintL) hintL.classList.toggle('lit', canLeft);
+    if (hintR) hintR.classList.toggle('lit', canRight);
     // Everything is measured against the <table> box itself, so the scroller's own
     // padding, the horizontal scrollbar below it, and anything outside the shell
     // (section header, dataset description, notes) are all excluded. The buttons are
