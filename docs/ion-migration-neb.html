@@ -248,14 +248,7 @@
 <section id="results">
   <h2>Results</h2>
   <p>
-    Values below are fetched at page load directly from
-    <code>data/ion_migration_neb_leaderboard_summary.json</code>, generated deterministically from
-    the same <code>neb_analysis.py</code> functions the analysis notebook itself uses
-    (<code>build_neb_analysis_results</code>, <code>compute_key_neb_metrics_summary</code>),
-    cross-checked against the notebook's own <code>key_neb_metrics_summary_df</code> before export.
-    Nothing in the table below is hand-transcribed. FPBench does not publish a single overall
-    ranking; each column below is a complementary, independent measurement. Click any column heading
-    to sort by that column (paired MAE/RMSE columns sort by MAE); click again to reverse. Rows load sorted by full FP-NEB barrier MAE, ascending; the endpoint-structure table loads in a fixed, notebook-consistent order.
+    Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.
   </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
@@ -276,8 +269,7 @@
       and is not included in the table. "Non-conv. paths" is reported over eligible full FP-NEB
       calculations for each FP. Full FP-NEB barrier, endpoint, and profile metrics use the converged
       full FP-NEB population; static FP barrier errors use valid static FP evaluations on the
-      finalized DFT-NEB image structures and are not filtered by full FP-NEB convergence. Exact
-      denominators are those implemented in <code>neb_analysis.py</code>.
+      finalized DFT-NEB image structures and are not filtered by full FP-NEB convergence.
     </p>
 
     <div id="leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
@@ -320,7 +312,6 @@
 <!-- ============== METRIC DESCRIPTIONS ============== -->
 <section id="metrics">
   <h2>Metrics</h2>
-  <p>Table 8 in the manuscript; full methodological details in Methods Section 4.7.</p>
   <div class="protocol-table-wrap"><table class="gen">
     <tr><th>Name</th><th>Metrics</th></tr>
     <tr><td>Non-converged paths</td><td>Fraction of FP-NEB calculations that do not satisfy the NEB convergence criterion before reaching the maximum number of optimization steps.</td></tr>

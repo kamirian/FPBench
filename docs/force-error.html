@@ -295,10 +295,7 @@
 <section id="results">
   <h2>Results</h2>
   <p>
-    Results below are read directly from each dataset's current executed analysis notebook. FPBench
-    does not publish a single overall ranking; the tables are complementary measurements, and which
-    one matters most depends on the target application. Click any column heading to sort a table by
-    that column; click again to reverse. The leaderboard loads sorted by &Delta;|<i>F</i>| MAE, ascending; the supporting tables below it load in a fixed, notebook-consistent order.
+    Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.
   </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
@@ -314,7 +311,7 @@
   </div>
 
   <div id="tab-pbe" class="tab-panel active">
-    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Dataset: MatPES-PBE. Values are read directly from the currently-executed <code>analysis/force_error_analysis_matpes_pbe.ipynb</code>.</p>
+    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Dataset: MatPES-PBE.</p>
 
     <h3 style="margin-top:0;">Leaderboard</h3>
     <p style="font-size:0.85rem;color:var(--muted);">
@@ -559,7 +556,7 @@
   </div>
 
 <div id="tab-r2scan" class="tab-panel">
-    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Dataset: MatPES-r2SCAN. Values are read directly from the currently-executed <code>analysis/force_error_analysis_matpes_r2scan.ipynb</code>.</p>
+    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Dataset: MatPES-r2SCAN.</p>
 
     <h3 style="margin-top:0;">Leaderboard</h3>
     <p style="font-size:0.85rem;color:var(--muted);">
@@ -666,7 +663,7 @@
   </div>
 
 <div id="tab-rattled" class="tab-panel">
-    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Dataset: OMat24 rattled-1000. Values are read directly from the currently-executed <code>analysis/force_error_analysis_omat24_rattled_1000.ipynb</code>.</p>
+    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Dataset: OMat24 rattled-1000.</p>
 
     <h3 style="margin-top:0;">Leaderboard</h3>
     <p style="font-size:0.85rem;color:var(--muted);">
@@ -828,7 +825,7 @@
 <!-- ============== METRICS ============== -->
 <section id="metrics">
   <h2>Metrics</h2>
-  <p>Evaluated for atoms with |<i>F</i><sub>DFT</sub>| &gt; 0.01 eV/&Aring; (except the all-atom average-error analysis, which uses every atom); far-from-equilibrium (FE) atoms are |<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;. See the paper for complete methodological detail.</p>
+  <p>Evaluated for atoms with |<i>F</i><sub>DFT</sub>| &gt; 0.01 eV/&Aring; (except the all-atom average-error analysis, which uses every atom); far-from-equilibrium (FE) atoms are |<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;.</p>
 
   <div class="table-scroll-plain"><table class="gen">
     <tr><th>Name</th><th>Metrics</th></tr>
