@@ -110,7 +110,7 @@
     .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0.8rem 1.1rem 1.1rem; scrollbar-width: thin; }
 
     table.dt { border-collapse: collapse; font-size: 0.82rem; }
-    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 128px; }
+    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 100px; }
     table.dt th { background: var(--surface2); color: var(--muted); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.3px; cursor: pointer; user-select: none; }
     table.dt th.no-sort { cursor: default; }
     table.dt th:hover:not(.no-sort) { color: var(--accent); }
@@ -249,6 +249,11 @@
     p.lb-note { scroll-margin-top: 90px; }
     p.lb-note:target { background: rgba(88,166,255,0.10); border-radius: 6px;
       box-shadow: 0 0 0 8px rgba(88,166,255,0.10); }
+      /* shared leaderboard header treatment: long headers wrap, data cells never do */
+    table.dt { width: max-content; }
+    table.dt th { white-space: nowrap; vertical-align: middle; line-height: 1.35;
+      padding-top: 0.55rem; padding-bottom: 0.55rem; }
+    table.dt td { white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -315,14 +320,14 @@
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
       <th class="no-sort">#</th>
       <th>FP</th>
-      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;) &darr;</th>
-      <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01) (%) &uarr;</th>
-      <th data-dir="high">Frac(&lt;0.01 &amp; &lt;1&deg;/20&deg;) (%) &uarr;</th>
-      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;) &darr;</th>
-      <th data-dir="low">Frac(|&Delta;|<i>F</i>||&gt;1) (%) &darr;</th>
-      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), on FE atoms &darr;</th>
-      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;), on FE atoms &darr;</th>
-      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), |&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE<br>(eV/&Aring;) &darr;</th>
+      <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01)<br>(%) &uarr;</th>
+      <th data-dir="high">Frac(&lt;0.01 &amp; &lt;1&deg;/20&deg;)<br>(%) &uarr;</th>
+      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE<br>(&deg;) &darr;</th>
+      <th data-dir="low">Frac(|&Delta;|<i>F</i>||&gt;1)<br>(%) &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;),<br>on FE atoms &darr;</th>
+      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;),<br>on FE atoms &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;),<br>|&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
       <th class="ver-col">Version (training)</th>
     </tr></thead><tbody>
     <tr>
@@ -560,14 +565,14 @@
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
       <th class="no-sort">#</th>
       <th>FP</th>
-      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;) &darr;</th>
-      <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01) (%) &uarr;</th>
-      <th data-dir="high">Frac(&lt;0.01 &amp; &lt;1&deg;/20&deg;) (%) &uarr;</th>
-      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;) &darr;</th>
-      <th data-dir="low">Frac(|&Delta;|<i>F</i>||&gt;1) (%) &darr;</th>
-      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), on FE atoms &darr;</th>
-      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;), on FE atoms &darr;</th>
-      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), |&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE<br>(eV/&Aring;) &darr;</th>
+      <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01)<br>(%) &uarr;</th>
+      <th data-dir="high">Frac(&lt;0.01 &amp; &lt;1&deg;/20&deg;)<br>(%) &uarr;</th>
+      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE<br>(&deg;) &darr;</th>
+      <th data-dir="low">Frac(|&Delta;|<i>F</i>||&gt;1)<br>(%) &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;),<br>on FE atoms &darr;</th>
+      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;),<br>on FE atoms &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;),<br>|&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
       <th class="ver-col">Version (training)</th>
     </tr></thead><tbody>
     <tr>
@@ -667,14 +672,14 @@
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
       <th class="no-sort">#</th>
       <th>FP</th>
-      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;) &darr;</th>
-      <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01) (%) &uarr;</th>
-      <th data-dir="high">Frac(&lt;0.01 &amp; &lt;1&deg;/20&deg;) (%) &uarr;</th>
-      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;) &darr;</th>
-      <th data-dir="low">Frac(|&Delta;|<i>F</i>||&gt;1) (%) &darr;</th>
-      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), on FE atoms &darr;</th>
-      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;), on FE atoms &darr;</th>
-      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;), |&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE<br>(eV/&Aring;) &darr;</th>
+      <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01)<br>(%) &uarr;</th>
+      <th data-dir="high">Frac(&lt;0.01 &amp; &lt;1&deg;/20&deg;)<br>(%) &uarr;</th>
+      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE<br>(&deg;) &darr;</th>
+      <th data-dir="low">Frac(|&Delta;|<i>F</i>||&gt;1)<br>(%) &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;),<br>on FE atoms &darr;</th>
+      <th data-dir="low">&Delta;<i>&theta;</i> MAE/RMSE (&deg;),<br>on FE atoms &darr;</th>
+      <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE (eV/&Aring;),<br>|&Delta;|<i>F</i>||&lt;1 eV/&Aring; &darr;</th>
       <th class="ver-col">Version (training)</th>
     </tr></thead><tbody>
     <tr>

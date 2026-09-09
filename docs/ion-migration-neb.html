@@ -108,7 +108,7 @@
     .tab-panel.active { display: block; }
 
     table.dt { border-collapse: collapse; font-size: 0.82rem; }
-    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 148px; }
+    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 100px; }
     table.dt th { background: var(--surface2); color: var(--muted); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.3px; cursor: pointer; user-select: none; }
     table.dt th.no-sort { cursor: default; }
     table.dt th:hover:not(.no-sort) { color: var(--accent); }
@@ -201,6 +201,11 @@
       border: 2px solid var(--surface2); }
     .table-scroll::-webkit-scrollbar-thumb:hover,
     .table-scroll::-webkit-scrollbar-thumb:active { background: #79b8ff; }
+      /* shared leaderboard header treatment: long headers wrap, data cells never do */
+    table.dt { width: max-content; }
+    table.dt th { white-space: nowrap; vertical-align: middle; line-height: 1.35;
+      padding-top: 0.55rem; padding-bottom: 0.55rem; }
+    table.dt td { white-space: nowrap; }
   </style>
 </head>
 <body>

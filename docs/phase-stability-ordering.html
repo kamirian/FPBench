@@ -111,7 +111,7 @@
     .breakdown-pre { padding: 0.4rem 1.1rem 1rem; font-size: 0.78rem; color: var(--muted); white-space: pre; overflow-x: auto; font-family: "SFMono-Regular", Consolas, monospace; }
 
     table.dt { border-collapse: collapse; font-size: 0.82rem; }
-    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 128px; }
+    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 100px; }
     table.dt th { background: var(--surface2); color: var(--muted); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.3px; cursor: pointer; user-select: none; }
     table.dt th.no-sort { cursor: default; }
     table.dt th:hover:not(.no-sort) { color: var(--accent); }
@@ -221,6 +221,11 @@
       border: 2px solid var(--surface2); }
     .table-scroll::-webkit-scrollbar-thumb:hover,
     .table-scroll::-webkit-scrollbar-thumb:active { background: #79b8ff; }
+      /* shared leaderboard header treatment: long headers wrap, data cells never do */
+    table.dt { width: max-content; }
+    table.dt th { white-space: nowrap; vertical-align: middle; line-height: 1.35;
+      padding-top: 0.55rem; padding-bottom: 0.55rem; }
+    table.dt td { white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -284,10 +289,10 @@
     <div class="table-scroll">
       <table class="dt hulltable"><thead><tr>
       <th>FP</th>
-      <th data-dir="low">Average energy error (meV/atom) &darr;</th>
-      <th data-dir="high">Ground-state agreement (%) &uarr;</th>
-      <th data-dir="high">Within-phase hull-minimum agreement (%) &uarr;</th>
-      <th data-dir="high">Hull-minimum agreement (%) &uarr;</th>
+      <th data-dir="low">Average energy error<br>(meV/atom) &darr;</th>
+      <th data-dir="high">Ground-state agreement<br>(%) &uarr;</th>
+      <th data-dir="high">Within-phase hull-minimum<br>agreement (%) &uarr;</th>
+      <th data-dir="high">Hull-minimum agreement<br>(%) &uarr;</th>
     <th class="ver-col">Version (training)</th></tr></thead><tbody>
     <tr><td class="fp-name">MACE</td><td data-val="53">53</td><td data-val="68.3">68.3</td><td data-val="62.0">62.0</td><td data-val="40.9">40.9</td><td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span> <span class="trn">(MPtrj + sAlex)</span></td></tr>
     <tr><td class="fp-name">CHGNet</td><td data-val="242">242</td><td data-val="53.4">53.4</td><td data-val="40.5">40.5</td><td data-val="18.2">18.2</td><td class="training-col"><span class="ver">v0.3.0</span> <span class="trn">(MPtrj)</span></td></tr>
@@ -303,10 +308,10 @@
     <div class="table-scroll">
       <table class="dt hulltable"><thead><tr>
       <th>FP</th>
-      <th data-dir="low">Average energy error (meV/atom) &darr;</th>
-      <th data-dir="high">Ground-state agreement (%) &uarr;</th>
-      <th data-dir="high">Within-phase hull-minimum agreement (%) &uarr;</th>
-      <th data-dir="high">Hull-minimum agreement (%) &uarr;</th>
+      <th data-dir="low">Average energy error<br>(meV/atom) &darr;</th>
+      <th data-dir="high">Ground-state agreement<br>(%) &uarr;</th>
+      <th data-dir="high">Within-phase hull-minimum<br>agreement (%) &uarr;</th>
+      <th data-dir="high">Hull-minimum agreement<br>(%) &uarr;</th>
     </tr></thead><tbody>
     <tr><td class="fp-name">MACE</td><td data-val="15">15</td><td data-val="70.2">70.2</td><td data-val="73.6">73.6</td><td data-val="40.9">40.9</td></tr>
     <tr><td class="fp-name">CHGNet</td><td data-val="246">246</td><td data-val="55.9">55.9</td><td data-val="48.8">48.8</td><td data-val="22.7">22.7</td></tr>
@@ -330,13 +335,13 @@
     <div class="table-scroll">
       <table class="dt orderingtable"><thead><tr>
       <th>FP</th>
-      <th data-dir="low">Average energy error (meV/atom) &darr;</th>
+      <th data-dir="low">Average energy error<br>(meV/atom) &darr;</th>
       <th data-dir="high">Top-1 accuracy (%) &uarr;</th>
       <th data-dir="high">Recall@3 (%) &uarr;</th>
       <th data-dir="high">Recall@10 (%) &uarr;</th>
       <th data-dir="high">Spearman &rho; &uarr;</th>
-      <th data-dir="low">Rate of ranking errors (%) &darr;</th>
-      <th data-dir="low">Mean/max &Delta;E<sub>DFT</sub> (meV/atom) &darr;</th>
+      <th data-dir="low">Rate of ranking errors<br>(%) &darr;</th>
+      <th data-dir="low">Mean/max &Delta;E<sub>DFT</sub><br>(meV/atom) &darr;</th>
     <th class="ver-col">Version (training)</th></tr></thead><tbody>
     <tr><td class="fp-name">MACE</td><td data-val="43">43</td><td data-val="23.6">23.6</td><td data-val="32.8">32.8</td><td data-val="60.9">60.9</td><td data-val="0.28">0.28</td><td data-val="38.9">38.9</td><td data-val="12" data-val2="34" data-pair="1" data-fmt="int"></td><td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span> <span class="trn">(MPtrj + sAlex)</span></td></tr>
     <tr><td class="fp-name">CHGNet</td><td data-val="272">272</td><td data-val="8.2">8.2</td><td data-val="20.1">20.1</td><td data-val="52.8">52.8</td><td data-val="0.09">0.09</td><td data-val="46.8">46.8</td><td data-val="13" data-val2="39" data-pair="1" data-fmt="int"></td><td class="training-col"><span class="ver">v0.3.0</span> <span class="trn">(MPtrj)</span></td></tr>
@@ -352,13 +357,13 @@
     <div class="table-scroll">
       <table class="dt orderingtable"><thead><tr>
       <th>FP</th>
-      <th data-dir="low">Average energy error (meV/atom) &darr;</th>
+      <th data-dir="low">Average energy error<br>(meV/atom) &darr;</th>
       <th data-dir="high">Top-1 accuracy (%) &uarr;</th>
       <th data-dir="high">Recall@3 (%) &uarr;</th>
       <th data-dir="high">Recall@10 (%) &uarr;</th>
       <th data-dir="high">Spearman &rho; &uarr;</th>
-      <th data-dir="low">Rate of ranking errors (%) &darr;</th>
-      <th data-dir="low">Mean/max &Delta;E<sub>DFT</sub> (meV/atom) &darr;</th>
+      <th data-dir="low">Rate of ranking errors<br>(%) &darr;</th>
+      <th data-dir="low">Mean/max &Delta;E<sub>DFT</sub><br>(meV/atom) &darr;</th>
     </tr></thead><tbody>
     <tr><td class="fp-name">MACE</td><td data-val="14">14</td><td data-val="46.6">46.6</td><td data-val="54.5">54.5</td><td data-val="72.7">72.7</td><td data-val="0.56">0.56</td><td data-val="26.6">26.6</td><td data-val="5" data-val2="15" data-pair="1" data-fmt="int"></td></tr>
     <tr><td class="fp-name">CHGNet</td><td data-val="270">270</td><td data-val="20.3">20.3</td><td data-val="29.7">29.7</td><td data-val="59.0">59.0</td><td data-val="0.24">0.24</td><td data-val="40.6">40.6</td><td data-val="10" data-val2="29" data-pair="1" data-fmt="int"></td></tr>
