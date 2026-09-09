@@ -209,6 +209,35 @@
     .table-scroll { padding-left: 0; padding-right: 0; }
     table.dt th:first-child, table.dt td:first-child { padding-left: 1.1rem; }
     table.dt th:last-child, table.dt td:last-child { padding-right: 1.1rem; }
+      /* richer horizontal-overflow affordance */
+    .scroll-shell::before { content: ""; position: absolute; left: 0; bottom: 0; top: 1.5rem; width: 46px;
+      pointer-events: none; opacity: 0; transition: opacity 0.2s ease;
+      background: linear-gradient(to left, rgba(13,17,23,0), rgba(13,17,23,0.95)); }
+    .scroll-shell.has-overflow:not(.at-start)::before { opacity: 1; }
+    details .scroll-shell::before { background: linear-gradient(to left, rgba(22,27,34,0), rgba(22,27,34,0.95)); }
+    .scroll-shell.has-overflow.at-end .scroll-hint { visibility: hidden; }
+    .scroll-nudge { position: absolute; display: none; width: 30px; height: 30px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--surface2); color: var(--text);
+      font-size: 1.1rem; line-height: 1; padding: 0; cursor: pointer; z-index: 4;
+      align-items: center; justify-content: center; font-family: inherit;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5); opacity: 0.82;
+      transition: color .15s, border-color .15s, background .15s, opacity .15s; }
+    .scroll-nudge:hover { color: var(--accent); border-color: var(--accent); background: var(--surface); opacity: 1; }
+    .scroll-nudge:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .scroll-nudge.prev { left: 6px; }
+    .scroll-nudge.next { right: 6px; }
+    .scroll-shell.has-overflow .scroll-nudge { display: flex; }
+    .scroll-shell.at-start .scroll-nudge.prev { display: none; }
+    .scroll-shell.at-end .scroll-nudge.next { display: none; }
+    /* footnotes live outside the scroller and are linked from their markers */
+    .notes { margin-top: 1rem; padding: 0.2rem 0 0.2rem 1rem; border-left: 2px solid var(--border); }
+    .notes-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 0.3rem; }
+    a.fn-ref { color: var(--accent); text-decoration: none; }
+    a.fn-ref:hover { text-decoration: underline; }
+    p.lb-note { scroll-margin-top: 90px; }
+    p.lb-note:target { background: rgba(88,166,255,0.10); border-radius: 6px;
+      box-shadow: 0 0 0 8px rgba(88,166,255,0.10); }
   </style>
 </head>
 <body>
@@ -312,7 +341,7 @@
     </tr>
     <tr>
       <td class="rank">3</td>
-      <td class="fp-name">MatterSim<sup>*</sup> <span class="tag-ood">OOD</span></td>
+      <td class="fp-name">MatterSim<sup><a class="fn-ref" href="#note-mattersim">*</a></sup> <span class="tag-ood">OOD</span></td>
       <td data-val="0.21">0.21 / 1.29</td>
       <td data-val="7.9">7.9</td>
       <td data-val="1.00">1.00 / 4.5</td>
@@ -325,7 +354,7 @@
     </tr>
     <tr>
       <td class="rank">4</td>
-      <td class="fp-name">Nequix<sup>&dagger;</sup> <span class="tag-ood">OOD</span></td>
+      <td class="fp-name">Nequix<sup><a class="fn-ref" href="#note-nequix">&dagger;</a></sup> <span class="tag-ood">OOD</span></td>
       <td data-val="0.21">0.21 / 1.52</td>
       <td data-val="10.7">10.7</td>
       <td data-val="1.6">1.6 / 6.9</td>
@@ -334,7 +363,7 @@
       <td data-val="0.43">0.43 / 2.86</td>
       <td data-val="15">15 / 27</td>
       <td data-val="0.16">0.16 / 0.25</td>
-      <td class="training-col"><span class="ver">nequix-oam-1</span> <span class="trn">(OMat24 + sAlex + MPtrj<sup>&dagger;</sup>)</span></td>
+      <td class="training-col"><span class="ver">nequix-oam-1</span> <span class="trn">(OMat24 + sAlex + MPtrj<sup><a class="fn-ref" href="#note-nequix">&dagger;</a></sup>)</span></td>
     </tr>
     <tr>
       <td class="rank">5</td>
@@ -403,7 +432,7 @@
     </tr>
     <tr>
       <td class="rank">10</td>
-      <td class="fp-name">ALIGNN<sup>&Dagger;</sup> <span class="tag-ood">OOD</span></td>
+      <td class="fp-name">ALIGNN<sup><a class="fn-ref" href="#note-alignn">&Dagger;</a></sup> <span class="tag-ood">OOD</span></td>
       <td data-val="2.08">2.08 / 24.80</td>
       <td data-val="2.5">2.5</td>
       <td data-val="0.20">0.20 / 0.55</td>
@@ -412,7 +441,7 @@
       <td data-val="5.51">5.51 / 46.95</td>
       <td data-val="61">61 / 77</td>
       <td data-val="0.31">0.31 / 0.40</td>
-      <td class="training-col"><span class="ver">alignnff_wt10</span> <span class="trn">(JARVIS-DFT<sup>&Dagger;</sup>)</span></td>
+      <td class="training-col"><span class="ver">alignnff_wt10</span> <span class="trn">(JARVIS-DFT<sup><a class="fn-ref" href="#note-alignn">&Dagger;</a></sup>)</span></td>
     </tr>
     <tr>
       <td class="rank">11</td>
@@ -454,10 +483,15 @@
       <td class="training-col"><span class="ver">&gt;=v0.3.10</span> <span class="trn">(MatPES-PBE (fine-tuned))</span></td>
     </tr>
   </tbody></table>
-    <p class="lb-note" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>*</sup> MatterSim&rsquo;s training dataset is not publicly documented in detail. The model card states only that the released <code>MatterSim-v1.0.0-5M</code> checkpoint was trained on a PBE-based dataset of approximately 6M structures; the dataset is neither named nor released. Its <span class="tag-ood">OOD</span> label therefore reflects the absence of any documented MatPES or OMat24 training exposure, not a verified dataset composition.</p>
-    <p class="lb-note" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>&dagger;</sup> Nequix&rsquo;s released checkpoint is <code>nequix-oam-1</code>. The Nequix paper (Koker, Kotak &amp; Smidt, <a href="https://arxiv.org/abs/2508.16067">arXiv:2508.16067</a>) describes a model trained on MPtrj and does not document this checkpoint; the OMat24 + sAlex + MPtrj corpus is inferred from the <code>oam</code> checkpoint identifier and is not confirmed in the paper. The parameter count is measured from the loaded checkpoint (707,569), consistent with the 700K&ndash;708K reported for the architecture.</p>
-    <p class="lb-note" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>&Dagger;</sup> ALIGNN (<code>alignnff_wt10</code>) is trained on JARVIS-DFT at the <strong>OptB88vdW</strong> level, not PBE. It is the only potential on this board whose training reference functional differs from the evaluation reference, so its scores measure agreement with the FPBench MatPES-PBE reference rather than a functional-matched fitting error.</p>
     </div>
+
+    <div class="notes">
+      <div class="notes-title">Notes</div>
+      <p class="lb-note" id="note-mattersim" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>*</sup> MatterSim&rsquo;s training dataset is not publicly documented in detail. The model card states only that the released <code>MatterSim-v1.0.0-5M</code> checkpoint was trained on a PBE-based dataset of approximately 6M structures; the dataset is neither named nor released. Its <span class="tag-ood">OOD</span> label therefore reflects the absence of any documented MatPES or OMat24 training exposure, not a verified dataset composition.</p>
+    <p class="lb-note" id="note-nequix" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>&dagger;</sup> Nequix&rsquo;s released checkpoint is <code>nequix-oam-1</code>. The Nequix paper (Koker, Kotak &amp; Smidt, <a href="https://arxiv.org/abs/2508.16067">arXiv:2508.16067</a>) describes a model trained on MPtrj and does not document this checkpoint; the OMat24 + sAlex + MPtrj corpus is inferred from the <code>oam</code> checkpoint identifier and is not confirmed in the paper. The parameter count is measured from the loaded checkpoint (707,569), consistent with the 700K&ndash;708K reported for the architecture.</p>
+    <p class="lb-note" id="note-alignn" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>&Dagger;</sup> ALIGNN (<code>alignnff_wt10</code>) is trained on JARVIS-DFT at the <strong>OptB88vdW</strong> level, not PBE. It is the only potential on this board whose training reference functional differs from the evaluation reference, so its scores measure agreement with the FPBench MatPES-PBE reference rather than a functional-matched fitting error.</p>
+    </div>
+
 
     <details open>
       <summary>Highly accurate force predictions</summary>
@@ -1034,9 +1068,19 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
       sc.parentNode.insertBefore(shell, sc);
       const hint = document.createElement('div');
       hint.className = 'scroll-hint';
-      hint.innerHTML = '<span>&#8592;</span><span>Scroll horizontally to view all metrics.</span><span>&#8594;</span>';
+      hint.innerHTML = '<span>More metrics</span><span>&#8594;</span>';
       shell.appendChild(hint);
       shell.appendChild(sc);
+      ['prev', 'next'].forEach(dir => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'scroll-nudge ' + dir;
+        b.setAttribute('aria-label', dir === 'prev' ? 'Scroll table left' : 'Scroll table right');
+        b.innerHTML = dir === 'prev' ? '&#8249;' : '&#8250;';
+        b.addEventListener('click', () => sc.scrollBy(
+          { left: (dir === 'prev' ? -1 : 1) * sc.clientWidth * 0.6, behavior: 'smooth' }));
+        shell.appendChild(b);
+      });
       sc.addEventListener('scroll', () => fpbUpdateShell(shell), { passive: true });
     });
   }
@@ -1046,6 +1090,9 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
     const room = sc.scrollWidth - sc.clientWidth;
     shell.classList.toggle('has-overflow', room > 4);
     shell.classList.toggle('at-end', sc.scrollLeft >= room - 4);
+    shell.classList.toggle('at-start', sc.scrollLeft <= 4);
+    const y = sc.offsetTop + Math.min(sc.clientHeight / 2, 110);
+    shell.querySelectorAll('.scroll-nudge').forEach(b => { b.style.top = y + 'px'; });
   }
   function fpbUpdateShells() { document.querySelectorAll('.scroll-shell').forEach(fpbUpdateShell); }
   function fpbSticky() {

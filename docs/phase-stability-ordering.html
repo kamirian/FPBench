@@ -185,6 +185,31 @@
     .table-scroll { padding-left: 0; padding-right: 0; }
     table.dt th:first-child, table.dt td:first-child { padding-left: 1.1rem; }
     table.dt th:last-child, table.dt td:last-child { padding-right: 1.1rem; }
+      table.dt th.ver-col, table.dt td.training-col { min-width: 210px; max-width: 300px;
+      white-space: normal; text-align: left; line-height: 1.45; }
+    table.dt td.training-col .ver { color: var(--text);
+      font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.74rem; }
+    table.dt td.training-col .trn { color: var(--muted); font-size: 0.74rem; }
+      /* richer horizontal-overflow affordance */
+    .scroll-shell::before { content: ""; position: absolute; left: 0; bottom: 0; top: 1.5rem; width: 46px;
+      pointer-events: none; opacity: 0; transition: opacity 0.2s ease;
+      background: linear-gradient(to left, rgba(13,17,23,0), rgba(13,17,23,0.95)); }
+    .scroll-shell.has-overflow:not(.at-start)::before { opacity: 1; }
+    details .scroll-shell::before { background: linear-gradient(to left, rgba(22,27,34,0), rgba(22,27,34,0.95)); }
+    .scroll-shell.has-overflow.at-end .scroll-hint { visibility: hidden; }
+    .scroll-nudge { position: absolute; display: none; width: 30px; height: 30px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--surface2); color: var(--text);
+      font-size: 1.1rem; line-height: 1; padding: 0; cursor: pointer; z-index: 4;
+      align-items: center; justify-content: center; font-family: inherit;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5); opacity: 0.82;
+      transition: color .15s, border-color .15s, background .15s, opacity .15s; }
+    .scroll-nudge:hover { color: var(--accent); border-color: var(--accent); background: var(--surface); opacity: 1; }
+    .scroll-nudge:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .scroll-nudge.prev { left: 6px; }
+    .scroll-nudge.next { right: 6px; }
+    .scroll-shell.has-overflow .scroll-nudge { display: flex; }
+    .scroll-shell.at-start .scroll-nudge.prev { display: none; }
+    .scroll-shell.at-end .scroll-nudge.next { display: none; }
   </style>
 </head>
 <body>
@@ -251,14 +276,14 @@
       <th data-dir="high">Ground-state agreement (%) &uarr;</th>
       <th data-dir="high">Within-phase hull-minimum agreement (%) &uarr;</th>
       <th data-dir="high">Hull-minimum agreement (%) &uarr;</th>
-    </tr></thead><tbody>
-    <tr><td class="fp-name">MACE</td><td data-val="53">53</td><td data-val="68.3">68.3</td><td data-val="62.0">62.0</td><td data-val="40.9">40.9</td></tr>
-    <tr><td class="fp-name">CHGNet</td><td data-val="242">242</td><td data-val="53.4">53.4</td><td data-val="40.5">40.5</td><td data-val="18.2">18.2</td></tr>
-    <tr><td class="fp-name">M3GNet</td><td data-val="49">49</td><td data-val="55.3">55.3</td><td data-val="47.1">47.1</td><td data-val="22.7">22.7</td></tr>
-    <tr><td class="fp-name">UMA</td><td data-val="83">83</td><td data-val="62.7">62.7</td><td data-val="60.3">60.3</td><td data-val="36.4">36.4</td></tr>
-    <tr><td class="fp-name">M3GNet-MatPES</td><td data-val="117">117</td><td data-val="50.3">50.3</td><td data-val="55.4">55.4</td><td data-val="22.7">22.7</td></tr>
-    <tr><td class="fp-name">TensorNet-MatPES</td><td data-val="89">89</td><td data-val="52.8">52.8</td><td data-val="58.7">58.7</td><td data-val="13.6">13.6</td></tr>
-    <tr><td class="fp-name">MACE-MatPES</td><td data-val="89">89</td><td data-val="49.7">49.7</td><td data-val="59.5">59.5</td><td data-val="18.2">18.2</td></tr>
+    <th class="ver-col">Version (training)</th></tr></thead><tbody>
+    <tr><td class="fp-name">MACE</td><td data-val="53">53</td><td data-val="68.3">68.3</td><td data-val="62.0">62.0</td><td data-val="40.9">40.9</td><td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span> <span class="trn">(MPtrj + sAlex)</span></td></tr>
+    <tr><td class="fp-name">CHGNet</td><td data-val="242">242</td><td data-val="53.4">53.4</td><td data-val="40.5">40.5</td><td data-val="18.2">18.2</td><td class="training-col"><span class="ver">v0.3.0</span> <span class="trn">(MPtrj)</span></td></tr>
+    <tr><td class="fp-name">M3GNet</td><td data-val="49">49</td><td data-val="55.3">55.3</td><td data-val="47.1">47.1</td><td data-val="22.7">22.7</td><td class="training-col"><span class="ver">MP-2021.2.8-PES</span> <span class="trn">(MP-2021.2.8)</span></td></tr>
+    <tr><td class="fp-name">UMA</td><td data-val="83">83</td><td data-val="62.7">62.7</td><td data-val="60.3">60.3</td><td data-val="36.4">36.4</td><td class="training-col"><span class="ver">s-1p1</span> <span class="trn">(OC20+ODAC23+OMat24+OMC25+OMol25)</span></td></tr>
+    <tr><td class="fp-name">M3GNet-MatPES</td><td data-val="117">117</td><td data-val="50.3">50.3</td><td data-val="55.4">55.4</td><td data-val="22.7">22.7</td><td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td></tr>
+    <tr><td class="fp-name">TensorNet-MatPES</td><td data-val="89">89</td><td data-val="52.8">52.8</td><td data-val="58.7">58.7</td><td data-val="13.6">13.6</td><td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td></tr>
+    <tr><td class="fp-name">MACE-MatPES</td><td data-val="89">89</td><td data-val="49.7">49.7</td><td data-val="59.5">59.5</td><td data-val="18.2">18.2</td><td class="training-col"><span class="ver">&gt;=v0.3.10</span> <span class="trn">(MatPES-PBE (fine-tuned))</span></td></tr>
     </tbody></table>
     </div>
 
@@ -300,14 +325,14 @@
       <th data-dir="high">Spearman &rho; &uarr;</th>
       <th data-dir="low">Rate of ranking errors (%) &darr;</th>
       <th data-dir="low">Mean/max &Delta;E<sub>DFT</sub> (meV/atom) &darr;</th>
-    </tr></thead><tbody>
-    <tr><td class="fp-name">MACE</td><td data-val="43">43</td><td data-val="23.6">23.6</td><td data-val="32.8">32.8</td><td data-val="60.9">60.9</td><td data-val="0.28">0.28</td><td data-val="38.9">38.9</td><td data-val="12" data-val2="34" data-pair="1" data-fmt="int"></td></tr>
-    <tr><td class="fp-name">CHGNet</td><td data-val="272">272</td><td data-val="8.2">8.2</td><td data-val="20.1">20.1</td><td data-val="52.8">52.8</td><td data-val="0.09">0.09</td><td data-val="46.8">46.8</td><td data-val="13" data-val2="39" data-pair="1" data-fmt="int"></td></tr>
-    <tr><td class="fp-name">M3GNet</td><td data-val="56">56</td><td data-val="7.2">7.2</td><td data-val="18.6">18.6</td><td data-val="51.3">51.3</td><td data-val="0.05">0.05</td><td data-val="48.1">48.1</td><td data-val="14" data-val2="42" data-pair="1" data-fmt="int"></td></tr>
-    <tr><td class="fp-name">UMA</td><td data-val="65">65</td><td data-val="24.3">24.3</td><td data-val="34.6">34.6</td><td data-val="61.9">61.9</td><td data-val="0.31">0.31</td><td data-val="37.6">37.6</td><td data-val="12" data-val2="35" data-pair="1" data-fmt="int"></td></tr>
-    <tr><td class="fp-name">M3GNet-MatPES</td><td data-val="95">95</td><td data-val="10.2">10.2</td><td data-val="21.0">21.0</td><td data-val="54.8">54.8</td><td data-val="0.12">0.12</td><td data-val="45.7">45.7</td><td data-val="13" data-val2="39" data-pair="1" data-fmt="int"></td></tr>
-    <tr><td class="fp-name">TensorNet-MatPES</td><td data-val="69">69</td><td data-val="12.8">12.8</td><td data-val="25.4">25.4</td><td data-val="56.1">56.1</td><td data-val="0.17">0.17</td><td data-val="43.6">43.6</td><td data-val="12" data-val2="37" data-pair="1" data-fmt="int"></td></tr>
-    <tr><td class="fp-name">MACE-MatPES</td><td data-val="69">69</td><td data-val="21.3">21.3</td><td data-val="32.7">32.7</td><td data-val="60.5">60.5</td><td data-val="0.28">0.28</td><td data-val="39.1">39.1</td><td data-val="11" data-val2="35" data-pair="1" data-fmt="int"></td></tr>
+    <th class="ver-col">Version (training)</th></tr></thead><tbody>
+    <tr><td class="fp-name">MACE</td><td data-val="43">43</td><td data-val="23.6">23.6</td><td data-val="32.8">32.8</td><td data-val="60.9">60.9</td><td data-val="0.28">0.28</td><td data-val="38.9">38.9</td><td data-val="12" data-val2="34" data-pair="1" data-fmt="int"></td><td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span> <span class="trn">(MPtrj + sAlex)</span></td></tr>
+    <tr><td class="fp-name">CHGNet</td><td data-val="272">272</td><td data-val="8.2">8.2</td><td data-val="20.1">20.1</td><td data-val="52.8">52.8</td><td data-val="0.09">0.09</td><td data-val="46.8">46.8</td><td data-val="13" data-val2="39" data-pair="1" data-fmt="int"></td><td class="training-col"><span class="ver">v0.3.0</span> <span class="trn">(MPtrj)</span></td></tr>
+    <tr><td class="fp-name">M3GNet</td><td data-val="56">56</td><td data-val="7.2">7.2</td><td data-val="18.6">18.6</td><td data-val="51.3">51.3</td><td data-val="0.05">0.05</td><td data-val="48.1">48.1</td><td data-val="14" data-val2="42" data-pair="1" data-fmt="int"></td><td class="training-col"><span class="ver">MP-2021.2.8-PES</span> <span class="trn">(MP-2021.2.8)</span></td></tr>
+    <tr><td class="fp-name">UMA</td><td data-val="65">65</td><td data-val="24.3">24.3</td><td data-val="34.6">34.6</td><td data-val="61.9">61.9</td><td data-val="0.31">0.31</td><td data-val="37.6">37.6</td><td data-val="12" data-val2="35" data-pair="1" data-fmt="int"></td><td class="training-col"><span class="ver">s-1p1</span> <span class="trn">(OC20+ODAC23+OMat24+OMC25+OMol25)</span></td></tr>
+    <tr><td class="fp-name">M3GNet-MatPES</td><td data-val="95">95</td><td data-val="10.2">10.2</td><td data-val="21.0">21.0</td><td data-val="54.8">54.8</td><td data-val="0.12">0.12</td><td data-val="45.7">45.7</td><td data-val="13" data-val2="39" data-pair="1" data-fmt="int"></td><td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td></tr>
+    <tr><td class="fp-name">TensorNet-MatPES</td><td data-val="69">69</td><td data-val="12.8">12.8</td><td data-val="25.4">25.4</td><td data-val="56.1">56.1</td><td data-val="0.17">0.17</td><td data-val="43.6">43.6</td><td data-val="12" data-val2="37" data-pair="1" data-fmt="int"></td><td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td></tr>
+    <tr><td class="fp-name">MACE-MatPES</td><td data-val="69">69</td><td data-val="21.3">21.3</td><td data-val="32.7">32.7</td><td data-val="60.5">60.5</td><td data-val="0.28">0.28</td><td data-val="39.1">39.1</td><td data-val="11" data-val2="35" data-pair="1" data-fmt="int"></td><td class="training-col"><span class="ver">&gt;=v0.3.10</span> <span class="trn">(MatPES-PBE (fine-tuned))</span></td></tr>
     </tbody></table>
     </div>
 
@@ -351,14 +376,14 @@
       <th data-dir="high">RMSD &lt; 0.05 &Aring; (%) &uarr;</th>
       <th data-dir="high">RMSD &lt; 0.10 &Aring; (%) &uarr;</th>
       <th data-dir="high">RMSD &lt; 0.20 &Aring; (%) &uarr;</th>
-    </tr></thead><tbody>
-    <tr><td class="fp-name">MACE</td><td data-val="89.9">89.9</td><td data-val="0.28" data-val2="1.92" data-pair="1"></td><td data-val="24.0">24.0</td><td data-val="44.5">44.5</td><td data-val="65.5">65.5</td></tr>
-    <tr><td class="fp-name">CHGNet</td><td data-val="87.3">87.3</td><td data-val="0.37" data-val2="2.28" data-pair="1"></td><td data-val="11.9">11.9</td><td data-val="26.5">26.5</td><td data-val="49.5">49.5</td></tr>
-    <tr><td class="fp-name">M3GNet</td><td data-val="88.8">88.8</td><td data-val="0.37" data-val2="2.02" data-pair="1"></td><td data-val="10.2">10.2</td><td data-val="21.1">21.1</td><td data-val="39.4">39.4</td></tr>
-    <tr><td class="fp-name">UMA</td><td data-val="89.9">89.9</td><td data-val="0.29" data-val2="2.69" data-pair="1"></td><td data-val="24.4">24.4</td><td data-val="45.4">45.4</td><td data-val="66.1">66.1</td></tr>
-    <tr><td class="fp-name">M3GNet-MatPES</td><td data-val="89.8">89.8</td><td data-val="0.36" data-val2="2.41" data-pair="1"></td><td data-val="12.3">12.3</td><td data-val="26.3">26.3</td><td data-val="51.3">51.3</td></tr>
-    <tr><td class="fp-name">TensorNet-MatPES</td><td data-val="89.9">89.9</td><td data-val="0.29" data-val2="2.19" data-pair="1"></td><td data-val="15.6">15.6</td><td data-val="36.7">36.7</td><td data-val="63.1">63.1</td></tr>
-    <tr><td class="fp-name">MACE-MatPES</td><td data-val="89.6">89.6</td><td data-val="0.27" data-val2="2.31" data-pair="1"></td><td data-val="23.6">23.6</td><td data-val="44.5">44.5</td><td data-val="64.5">64.5</td></tr>
+    <th class="ver-col">Version (training)</th></tr></thead><tbody>
+    <tr><td class="fp-name">MACE</td><td data-val="89.9">89.9</td><td data-val="0.28" data-val2="1.92" data-pair="1"></td><td data-val="24.0">24.0</td><td data-val="44.5">44.5</td><td data-val="65.5">65.5</td><td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span> <span class="trn">(MPtrj + sAlex)</span></td></tr>
+    <tr><td class="fp-name">CHGNet</td><td data-val="87.3">87.3</td><td data-val="0.37" data-val2="2.28" data-pair="1"></td><td data-val="11.9">11.9</td><td data-val="26.5">26.5</td><td data-val="49.5">49.5</td><td class="training-col"><span class="ver">v0.3.0</span> <span class="trn">(MPtrj)</span></td></tr>
+    <tr><td class="fp-name">M3GNet</td><td data-val="88.8">88.8</td><td data-val="0.37" data-val2="2.02" data-pair="1"></td><td data-val="10.2">10.2</td><td data-val="21.1">21.1</td><td data-val="39.4">39.4</td><td class="training-col"><span class="ver">MP-2021.2.8-PES</span> <span class="trn">(MP-2021.2.8)</span></td></tr>
+    <tr><td class="fp-name">UMA</td><td data-val="89.9">89.9</td><td data-val="0.29" data-val2="2.69" data-pair="1"></td><td data-val="24.4">24.4</td><td data-val="45.4">45.4</td><td data-val="66.1">66.1</td><td class="training-col"><span class="ver">s-1p1</span> <span class="trn">(OC20+ODAC23+OMat24+OMC25+OMol25)</span></td></tr>
+    <tr><td class="fp-name">M3GNet-MatPES</td><td data-val="89.8">89.8</td><td data-val="0.36" data-val2="2.41" data-pair="1"></td><td data-val="12.3">12.3</td><td data-val="26.3">26.3</td><td data-val="51.3">51.3</td><td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td></tr>
+    <tr><td class="fp-name">TensorNet-MatPES</td><td data-val="89.9">89.9</td><td data-val="0.29" data-val2="2.19" data-pair="1"></td><td data-val="15.6">15.6</td><td data-val="36.7">36.7</td><td data-val="63.1">63.1</td><td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td></tr>
+    <tr><td class="fp-name">MACE-MatPES</td><td data-val="89.6">89.6</td><td data-val="0.27" data-val2="2.31" data-pair="1"></td><td data-val="23.6">23.6</td><td data-val="44.5">44.5</td><td data-val="64.5">64.5</td><td class="training-col"><span class="ver">&gt;=v0.3.10</span> <span class="trn">(MatPES-PBE (fine-tuned))</span></td></tr>
     </tbody></table>
     </div>
 
@@ -593,9 +618,19 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
       sc.parentNode.insertBefore(shell, sc);
       const hint = document.createElement('div');
       hint.className = 'scroll-hint';
-      hint.innerHTML = '<span>&#8592;</span><span>Scroll horizontally to view all metrics.</span><span>&#8594;</span>';
+      hint.innerHTML = '<span>More metrics</span><span>&#8594;</span>';
       shell.appendChild(hint);
       shell.appendChild(sc);
+      ['prev', 'next'].forEach(dir => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'scroll-nudge ' + dir;
+        b.setAttribute('aria-label', dir === 'prev' ? 'Scroll table left' : 'Scroll table right');
+        b.innerHTML = dir === 'prev' ? '&#8249;' : '&#8250;';
+        b.addEventListener('click', () => sc.scrollBy(
+          { left: (dir === 'prev' ? -1 : 1) * sc.clientWidth * 0.6, behavior: 'smooth' }));
+        shell.appendChild(b);
+      });
       sc.addEventListener('scroll', () => fpbUpdateShell(shell), { passive: true });
     });
   }
@@ -605,6 +640,9 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
     const room = sc.scrollWidth - sc.clientWidth;
     shell.classList.toggle('has-overflow', room > 4);
     shell.classList.toggle('at-end', sc.scrollLeft >= room - 4);
+    shell.classList.toggle('at-start', sc.scrollLeft <= 4);
+    const y = sc.offsetTop + Math.min(sc.clientHeight / 2, 110);
+    shell.querySelectorAll('.scroll-nudge').forEach(b => { b.style.top = y + 'px'; });
   }
   function fpbUpdateShells() { document.querySelectorAll('.scroll-shell').forEach(fpbUpdateShell); }
   function fpbSticky() {
