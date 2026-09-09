@@ -232,6 +232,12 @@
     table.dt th { white-space: nowrap; vertical-align: middle; line-height: 1.35;
       padding-top: 0.55rem; padding-bottom: 0.55rem; }
     table.dt td { white-space: nowrap; }
+      .page-nav { max-width: 1080px; margin: 0 auto; padding: 1.1rem 2rem 0; display: flex;
+      flex-wrap: wrap; align-items: baseline; gap: 0.35rem 1rem; font-size: 0.8rem; }
+    .page-nav b { text-transform: uppercase; letter-spacing: 0.6px; font-size: 0.68rem;
+      font-weight: 700; color: var(--muted); }
+    .page-nav a { color: var(--accent); text-decoration: none; }
+    .page-nav a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -263,12 +269,20 @@
   </div>
 </div>
 
+<nav class="page-nav" aria-label="On this page">
+    <b>On this page</b>
+    <a href="#metrics">Metrics</a>
+    <a href="#dataset">Benchmark Dataset</a>
+    <a href="#use-fpbench">Use FPBench</a>
+    <a href="#contribute">Contribute</a>
+  </nav>
+
 <!-- ============== RESULTS ============== -->
 <section id="results">
-  <h2>Results</h2>
-  <p>
-    Performance of foundation potentials for phase stability, structural relaxation, and
-    energetic ordering across the benchmark systems.
+  <p class="section-lede">
+    Application-oriented evaluation of relative-energy prediction for phase stability and
+    elemental ordering, including convex-hull construction, phase-stability prediction,
+    elemental-ordering ranking, and structural relaxation.
   </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
@@ -286,11 +300,10 @@
   <div id="tab-hull" class="tab-panel active">
     <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
       Convex-hull metrics across 22 ternary chalcogenide tie-line systems, shown separately for
-      full FP relaxation and static evaluation on the DFT-relaxed structures.
+      full FP relaxation and static FP evaluations on the DFT-relaxed structures.
     </p>
 
 <h3 style="margin-top:0;">Full FP relaxation</h3>
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
     <div class="table-scroll">
       <table class="dt hulltable"><thead><tr>
       <th>FP</th>
@@ -333,11 +346,10 @@
   <div id="tab-ordering" class="tab-panel">
     <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
       Energy-ranking metrics for elemental orderings at fixed composition and phase, shown
-      separately for full FP relaxation and static evaluation on the DFT-relaxed structures.
+      separately for full FP relaxation and static FP evaluations on the DFT-relaxed structures.
     </p>
 
 <h3 style="margin-top:0;">Full FP relaxation</h3>
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
     <div class="table-scroll">
       <table class="dt orderingtable"><thead><tr>
       <th>FP</th>
@@ -391,7 +403,6 @@
       volume.
     </p>
 
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
 <div class="table-scroll">
       <table class="dt rmsdtable"><thead><tr>
       <th>FP</th>
@@ -449,7 +460,7 @@
     <tr><td>RMSD thresholds</td><td>Increasingly strict measures of fidelity.</td></tr>
   </table></div>
 
-  <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong></p>
+  <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong> Click any column heading to sort by that metric.</p>
 </section>
 
 <!-- ============== DATASET ============== -->

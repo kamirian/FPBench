@@ -249,6 +249,12 @@
     table.dt th { white-space: nowrap; vertical-align: middle; line-height: 1.35;
       padding-top: 0.55rem; padding-bottom: 0.55rem; }
     table.dt td { white-space: nowrap; }
+      .page-nav { max-width: 1080px; margin: 0 auto; padding: 1.1rem 2rem 0; display: flex;
+      flex-wrap: wrap; align-items: baseline; gap: 0.35rem 1rem; font-size: 0.8rem; }
+    .page-nav b { text-transform: uppercase; letter-spacing: 0.6px; font-size: 0.68rem;
+      font-weight: 700; color: var(--muted); }
+    .page-nav a { color: var(--accent); text-decoration: none; }
+    .page-nav a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -279,12 +285,20 @@
   </div>
 </div>
 
+<nav class="page-nav" aria-label="On this page">
+    <b>On this page</b>
+    <a href="#metrics">Metrics</a>
+    <a href="#datasets">Benchmark Datasets</a>
+    <a href="#use-fpbench">Use FPBench</a>
+    <a href="#contribute">Contribute</a>
+  </nav>
+
 <!-- ============== RESULTS ============== -->
 <section id="results">
-  <h2>Results</h2>
-  <p>
-    Performance of foundation potentials across force magnitude, direction, high-accuracy
-    prediction, large-force behavior, and far-from-equilibrium configurations.
+  <p class="section-lede">
+    Application-oriented evaluation of force prediction for atomistic simulations, including
+    highly accurate force predictions, large-force-error atoms, joint force magnitude-angle
+    accuracy, and far-from-equilibrium atoms.
   </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
@@ -309,7 +323,6 @@
       (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
       or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
     </p>
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
     <div class="table-scroll">
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
       <th>FP</th>
@@ -541,7 +554,6 @@
       (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
       or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
     </p>
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
     <div class="table-scroll">
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
       <th>FP</th>
@@ -645,7 +657,6 @@
       (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
       or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
     </p>
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
     <div class="table-scroll">
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
       <th>FP</th>
@@ -812,7 +823,7 @@
     force are excluded from every metric, since the force angle is undefined in that case.
   </div>
 
-  <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong></p>
+  <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong> Click any column heading to sort by that metric.</p>
 </section>
 
 <!-- ============== DATASETS ============== -->

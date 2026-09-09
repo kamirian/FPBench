@@ -16,6 +16,8 @@ components: force prediction, phase stability and elemental ordering, and ion mi
 
 **Paper: [arXiv:2609.05714](https://arxiv.org/abs/2609.05714)**
 
+**Contents:** [Using FPBench](#using-fpbench) &middot; [Quick start](#quick-start) &middot; [Benchmark components](#benchmark-components) &middot; [Foundation potentials evaluated](#foundation-potentials-evaluated) &middot; [Contribute](#contribute) &middot; [Citation](#citation)
+
 ---
 
 ## Using FPBench

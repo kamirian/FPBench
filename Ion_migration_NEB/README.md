@@ -223,7 +223,7 @@ Table 8 in the manuscript; implementation details in the Methods.
 |---|---|
 | Non-converged paths | Fraction of FP-NEB calculations that do not satisfy the NEB convergence criterion before reaching the maximum number of optimization steps. |
 | Barrier error, full FP-NEB | The forward and backward barrier errors are computed relative to DFT for each path. The reported MAE/RMSE is the true pooled statistic over the combined forward+backward per-path error array (not each direction's own MAE/RMSE averaged separately), over all converged paths. |
-| Barrier error, static FP evaluations on the DFT-NEB images | The same forward and backward barrier errors, computed from static FP evaluations on the DFT-NEB image structures, pooled the same way, over all paths. |
+| Barrier error, static FP evaluations on the DFT-NEB image structures | The same forward and backward barrier errors, computed from static FP evaluations on the DFT-NEB image structures, pooled the same way, over all paths. |
 | Endpoint energy ranking agreement | Fraction of converged paths for which FP and DFT identify the same lower-energy endpoint between the two endpoints of the migration path, or both classify the two endpoints as equal in energy. |
 | Endpoint energy-difference error | For each path, the error in the endpoint energy difference is computed relative to DFT. The reported metric is the MAE/RMSE over all converged paths. |
 | Energy-profile shape agreement | Fraction of converged paths for which the FP reproduces the Normal-Hill energy profile, as in DFT-NEBs. |

@@ -212,6 +212,12 @@
     table.dt th { white-space: nowrap; vertical-align: middle; line-height: 1.35;
       padding-top: 0.55rem; padding-bottom: 0.55rem; }
     table.dt td { white-space: nowrap; }
+      .page-nav { max-width: 1080px; margin: 0 auto; padding: 1.1rem 2rem 0; display: flex;
+      flex-wrap: wrap; align-items: baseline; gap: 0.35rem 1rem; font-size: 0.8rem; }
+    .page-nav b { text-transform: uppercase; letter-spacing: 0.6px; font-size: 0.68rem;
+      font-weight: 700; color: var(--muted); }
+    .page-nav a { color: var(--accent); text-decoration: none; }
+    .page-nav a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -243,12 +249,21 @@
   </div>
 </div>
 
+<nav class="page-nav" aria-label="On this page">
+    <b>On this page</b>
+    <a href="#metrics">Metrics</a>
+    <a href="#protocols">Protocols</a>
+    <a href="#dataset">Benchmark Dataset</a>
+    <a href="#use-fpbench">Use FPBench</a>
+    <a href="#contribute">Contribute</a>
+  </nav>
+
 <!-- ============== RESULTS ============== -->
 <section id="results">
-  <h2>Results</h2>
-  <p>
-    Performance of foundation potentials for ion-migration barriers, energy profiles, and
-    endpoint structures.
+  <p class="section-lede">
+    Application-oriented evaluation of ion migration by NEB calculations, including
+    migration-barrier accuracy, energy-profile agreement, and errors introduced by endpoint
+    relaxation and NEB optimization.
   </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
@@ -274,7 +289,6 @@
 
     <div id="leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
 
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
     <div class="table-scroll">
       <table class="dt nebtable"><thead><tr>
       <th class="no-sort">FP</th>
@@ -296,7 +310,6 @@
 
     <div id="rmsd-leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
 
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
     <div class="table-scroll">
       <table class="dt nebrmsdtable"><thead><tr>
       <th class="no-sort">FP</th>
@@ -318,7 +331,7 @@
     <tr><th>Name</th><th>Metrics</th></tr>
     <tr><td>Non-converged paths</td><td>Fraction of FP-NEB calculations that do not satisfy the NEB convergence criterion before reaching the maximum number of optimization steps.</td></tr>
     <tr><td>Barrier error, full FP-NEB</td><td>The forward and backward barrier errors are computed relative to DFT for each path. The reported MAE/RMSE is the true pooled statistic over the combined forward+backward per-path error array (not each direction's own MAE/RMSE averaged separately), over all converged paths.</td></tr>
-    <tr><td>Barrier error, static FP evaluations on the DFT-NEB images</td><td>The same forward and backward barrier errors, computed from static FP evaluations on the DFT-NEB image structures, pooled the same way, over all paths.</td></tr>
+    <tr><td>Barrier error, static FP evaluations on the DFT-NEB image structures</td><td>The same forward and backward barrier errors, computed from static FP evaluations on the DFT-NEB image structures, pooled the same way, over all paths.</td></tr>
     <tr><td>Endpoint energy ranking agreement</td><td>Fraction of converged paths for which FP and DFT identify the same lower-energy endpoint between the two endpoints of the migration path, or both classify the two endpoints as equal in energy.</td></tr>
     <tr><td>Endpoint energy-difference error</td><td>For each path, the error in the endpoint energy difference is computed relative to DFT. The reported metric is the MAE/RMSE over all converged paths.</td></tr>
     <tr><td>Energy-profile shape agreement</td><td>Fraction of converged paths for which the FP reproduces the Normal-Hill energy profile, as in DFT-NEBs.</td></tr>
@@ -328,7 +341,7 @@
     <tr><td>Force errors on FP-NEB path</td><td>Mean force-magnitude error |&Delta;|<i>F</i>|| and force-angle error &Delta;<i>&theta;</i> across all atoms for each image structure of the final FP-NEB path.</td></tr>
     <tr><td>Force errors on DFT-NEB path</td><td>Mean force magnitude error |&Delta;|<i>F</i>|| and force angle error &Delta;<i>&theta;</i> across all atoms for each image structure of the final DFT-NEB path.</td></tr>
   </table></div>
-  <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong> Full FP-NEB and static FP-on-DFT-NEB results are separate protocols; force errors on the FP-NEB path and force errors on the DFT-NEB path are separate diagnostics. Comparing the two protocols' barrier errors (both shown in the table above) separates errors observed from static FP evaluations on the DFT-NEB image structures from additional differences associated with FP endpoint relaxation and FP-NEB pathway optimization.</p>
+  <p style="margin-top:1rem;"><strong style="color:var(--heading);">These metrics are complementary and should be interpreted together rather than combined into a single overall ranking.</strong> Full FP-NEB and static FP-on-DFT-NEB results are separate protocols; force errors on the FP-NEB path and force errors on the DFT-NEB path are separate diagnostics. Comparing the two protocols' barrier errors (both shown in the table above) separates errors observed from static FP evaluations on the DFT-NEB image structures from additional differences associated with FP endpoint relaxation and FP-NEB pathway optimization. Click any column heading to sort by that metric.</p>
 </section>
 
 <!-- ============== PROTOCOLS ============== -->
