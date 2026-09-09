@@ -128,9 +128,7 @@
     table.dt tr:hover td { filter: brightness(1.08); }
     table.dt tr.frac-row td { font-style: italic; color: var(--muted); background: var(--surface2); font-family: inherit; font-size: 0.76rem; }
 
-    table.leaderboard th:nth-child(1), table.leaderboard td.rank { min-width: 40px; }
     table.leaderboard th.ver-col, table.leaderboard td.training-col { min-width: 150px; max-width: 200px; white-space: normal; }
-    table.leaderboard td.rank { font-family: inherit; color: var(--muted); text-align: center; position: static; }
     table.leaderboard td.fp-name { text-align: left; position: sticky; left: 0; background: var(--surface); font-family: inherit; font-weight: 600; color: var(--heading); min-width: 190px; }
     table.leaderboard td.training-col { text-align: left; color: var(--muted); font-family: inherit; font-size: 0.78rem; }
     table.leaderboard td.best { color: var(--accent2) !important; font-weight: 700; }
@@ -185,15 +183,6 @@
     details:not([open]) > summary::after { content: "View results"; margin-left: auto;
       font-size: 0.72rem; font-weight: 600; color: var(--accent); }
 
-    /* leaderboard: rank + FP both pinned, offset computed in JS */
-    table.leaderboard th:nth-child(1), table.leaderboard td.rank { position: sticky; left: 0; z-index: 2; background: var(--surface); }
-    table.leaderboard th:nth-child(1) { background: var(--surface2); z-index: 3; }
-    table.leaderboard th:nth-child(2) { position: sticky; z-index: 3; background: var(--surface2); }
-    table.leaderboard td.fp-name { z-index: 2; }
-    @media (max-width: 640px) {
-      table.leaderboard th:nth-child(1), table.leaderboard td.rank { position: static !important; }
-      table.leaderboard th:nth-child(2), table.leaderboard td.fp-name { left: 0 !important; }
-    }
     table.leaderboard td.training-col { text-align: left; }
     table.leaderboard td.training-col { line-height: 1.45; }
     table.leaderboard td.training-col .ver { color: var(--text);
@@ -206,7 +195,7 @@
     table.dt th:first-child, table.dt td:first-child { padding-left: 1.1rem; }
     table.dt th:last-child, table.dt td:last-child { padding-right: 1.1rem; }
       /* horizontal-overflow affordance -- one blue accent means "more this way" */
-    .scroll-shell::before { content: ""; position: absolute; left: 0; top: var(--fade-top, 0px);
+    .scroll-shell::before { content: ""; position: absolute; left: var(--sticky-w, 0px); top: var(--fade-top, 0px);
       bottom: var(--fade-bottom, 0px); width: 46px; pointer-events: none; opacity: 0;
       transition: opacity 0.2s ease;
       background: linear-gradient(to left, rgba(13,17,23,0), rgba(13,17,23,0.95)); }
@@ -225,19 +214,18 @@
       transition: color .18s ease, opacity .18s ease; }
     .scroll-hint .ar.lit { color: var(--accent); opacity: 1; }
     .scroll-nudge { position: absolute; display: none; width: 36px; height: 36px; border-radius: 50%;
-      transform: translateY(-50%); padding: 0; cursor: default; z-index: 4; font-family: inherit;
-      border: 1px solid var(--border); background: var(--surface2); color: var(--muted);
-      opacity: 0.55; align-items: center; justify-content: center;
+      transform: translateY(-50%); padding: 0; cursor: pointer; z-index: 4; font-family: inherit;
+      border: 1px solid rgba(88,166,255,0.35); background: var(--surface2); color: var(--accent);
+      align-items: center; justify-content: center;
       box-shadow: 0 2px 10px rgba(0,0,0,0.45);
       transition: color .18s, border-color .18s, background .18s, box-shadow .18s, opacity .18s; }
-    .scroll-nudge.lit { color: var(--accent); border-color: rgba(88,166,255,0.35);
-      opacity: 1; cursor: pointer; }
+    .scroll-nudge.lit { cursor: pointer; }
     .scroll-nudge.lit:hover { border-color: var(--accent); background: var(--surface);
       box-shadow: 0 2px 14px rgba(88,166,255,0.28); }
     .scroll-nudge:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .scroll-nudge.prev { left: 8px; }
+    .scroll-nudge.prev { left: calc(var(--sticky-w, 0px) + 10px); }
     .scroll-nudge.next { right: 8px; }
-    .scroll-shell.has-overflow .scroll-nudge { display: flex; }
+    .scroll-shell.has-overflow .scroll-nudge.lit { display: flex; }
 
     /* horizontal scrollbar: neutral track, accent-blue draggable thumb */
     .table-scroll { scrollbar-width: thin; scrollbar-color: var(--accent) var(--surface2); }
@@ -295,7 +283,8 @@
 <section id="results">
   <h2>Results</h2>
   <p>
-    Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.
+    Performance of foundation potentials across force magnitude, direction, high-accuracy
+    prediction, large-force behavior, and far-from-equilibrium configurations.
   </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
@@ -315,14 +304,14 @@
 
     <h3 style="margin-top:0;">Leaderboard</h3>
     <p style="font-size:0.85rem;color:var(--muted);">
-      Rank and the per-column best value (green) update when you click a column header. FP badges
+      The per-column best value (green) updates when you click a column header. FP badges
       show whether that FP's own training data included this dataset's functional/source
       (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
       or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
     </p>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
     <div class="table-scroll">
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
-      <th class="no-sort">#</th>
       <th>FP</th>
       <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE<br>(eV/&Aring;) &darr;</th>
       <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01)<br>(%) &uarr;</th>
@@ -335,7 +324,6 @@
       <th class="ver-col">Version (training)</th>
     </tr></thead><tbody>
     <tr>
-      <td class="rank">1</td>
       <td class="fp-name">Orb <span class="tag-ood">OOD</span></td>
       <td data-val="0.17">0.17 / 1.12</td>
       <td data-val="12.6">12.6</td>
@@ -348,7 +336,6 @@
       <td class="training-col"><span class="ver">orb-v3-conservative-inf-omat-20250404</span> <span class="trn">(OMat24)</span></td>
     </tr>
     <tr>
-      <td class="rank">2</td>
       <td class="fp-name">SevenNet <span class="tag-ood">OOD</span></td>
       <td data-val="0.19">0.19 / 0.91</td>
       <td data-val="11.2">11.2</td>
@@ -361,7 +348,6 @@
       <td class="training-col"><span class="ver">7net-mf-ompa (modal mpa)</span> <span class="trn">(OMat24 + sAlex + MPtrj)</span></td>
     </tr>
     <tr>
-      <td class="rank">3</td>
       <td class="fp-name">MatterSim<sup><a class="fn-ref" href="#note-mattersim">*</a></sup> <span class="tag-ood">OOD</span></td>
       <td data-val="0.21">0.21 / 1.29</td>
       <td data-val="7.9">7.9</td>
@@ -374,7 +360,6 @@
       <td class="training-col"><span class="ver">MatterSim-v1.0.0-5M</span> <span class="trn">(MatterSim dataset (PBE))</span></td>
     </tr>
     <tr>
-      <td class="rank">4</td>
       <td class="fp-name">Nequix<sup><a class="fn-ref" href="#note-nequix">&dagger;</a></sup> <span class="tag-ood">OOD</span></td>
       <td data-val="0.21">0.21 / 1.52</td>
       <td data-val="10.7">10.7</td>
@@ -387,7 +372,6 @@
       <td class="training-col"><span class="ver">nequix-oam-1</span> <span class="trn">(OMat24 + sAlex + MPtrj<sup><a class="fn-ref" href="#note-nequix">&dagger;</a></sup>)</span></td>
     </tr>
     <tr>
-      <td class="rank">5</td>
       <td class="fp-name">MACE <span class="tag-ood">OOD</span></td>
       <td data-val="0.23">0.23 / 1.93</td>
       <td data-val="8.34">8.34</td>
@@ -400,7 +384,6 @@
       <td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span> <span class="trn">(MPtrj + sAlex)</span></td>
     </tr>
     <tr>
-      <td class="rank">6</td>
       <td class="fp-name">CHGNet <span class="tag-ood">OOD</span></td>
       <td data-val="0.31">0.31 / 2.19</td>
       <td data-val="5.61">5.61</td>
@@ -413,7 +396,6 @@
       <td class="training-col"><span class="ver">v0.3.0</span> <span class="trn">(MPtrj)</span></td>
     </tr>
     <tr>
-      <td class="rank">7</td>
       <td class="fp-name">GPTFF <span class="tag-ood">OOD</span></td>
       <td data-val="0.42">0.42 / 1.89</td>
       <td data-val="4.7">4.7</td>
@@ -426,7 +408,6 @@
       <td class="training-col"><span class="ver">gptff_v2</span> <span class="trn">(Atomly (PBE))</span></td>
     </tr>
     <tr>
-      <td class="rank">8</td>
       <td class="fp-name">M3GNet <span class="tag-ood">OOD</span></td>
       <td data-val="0.44">0.44 / 1.49</td>
       <td data-val="4.56">4.56</td>
@@ -439,7 +420,6 @@
       <td class="training-col"><span class="ver">MP-2021.2.8-PES</span> <span class="trn">(MP-2021.2.8)</span></td>
     </tr>
     <tr>
-      <td class="rank">9</td>
       <td class="fp-name">UMA <span class="tag-ood">OOD</span></td>
       <td data-val="0.56">0.56 / 7.93</td>
       <td data-val="15.13">15.13</td>
@@ -452,7 +432,6 @@
       <td class="training-col"><span class="ver">s-1p1</span> <span class="trn">(OC20+ODAC23+OMat24+OMC25+OMol25)</span></td>
     </tr>
     <tr>
-      <td class="rank">10</td>
       <td class="fp-name">ALIGNN<sup><a class="fn-ref" href="#note-alignn">&Dagger;</a></sup> <span class="tag-ood">OOD</span></td>
       <td data-val="2.08">2.08 / 24.80</td>
       <td data-val="2.5">2.5</td>
@@ -465,7 +444,6 @@
       <td class="training-col"><span class="ver">alignnff_wt10</span> <span class="trn">(JARVIS-DFT<sup><a class="fn-ref" href="#note-alignn">&Dagger;</a></sup>)</span></td>
     </tr>
     <tr>
-      <td class="rank">11</td>
       <td class="fp-name">M3GNet-MatPES <span class="tag-training">training</span></td>
       <td data-val="0.21">0.21 / 1.24</td>
       <td data-val="7.14">7.14</td>
@@ -478,7 +456,6 @@
       <td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td>
     </tr>
     <tr>
-      <td class="rank">12</td>
       <td class="fp-name">TensorNet-MatPES <span class="tag-training">training</span></td>
       <td data-val="0.17">0.17 / 1.39</td>
       <td data-val="7.66">7.66</td>
@@ -491,7 +468,6 @@
       <td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td>
     </tr>
     <tr>
-      <td class="rank">13</td>
       <td class="fp-name">MACE-MatPES <span class="tag-training">training</span></td>
       <td data-val="0.08">0.08 / 1.10</td>
       <td data-val="19.02">19.02</td>
@@ -560,14 +536,14 @@
 
     <h3 style="margin-top:0;">Leaderboard</h3>
     <p style="font-size:0.85rem;color:var(--muted);">
-      Rank and the per-column best value (green) update when you click a column header. FP badges
+      The per-column best value (green) updates when you click a column header. FP badges
       show whether that FP's own training data included this dataset's functional/source
       (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
       or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
     </p>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
     <div class="table-scroll">
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
-      <th class="no-sort">#</th>
       <th>FP</th>
       <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE<br>(eV/&Aring;) &darr;</th>
       <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01)<br>(%) &uarr;</th>
@@ -580,7 +556,6 @@
       <th class="ver-col">Version (training)</th>
     </tr></thead><tbody>
     <tr>
-      <td class="rank">1</td>
       <td class="fp-name">M3GNet-MatPES-r2SCAN <span class="tag-training">training</span></td>
       <td data-val="0.23">0.23 / 0.65</td>
       <td data-val="5.93">5.93</td>
@@ -593,7 +568,6 @@
       <td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-r2SCAN)</span></td>
     </tr>
     <tr>
-      <td class="rank">2</td>
       <td class="fp-name">TensorNet-MatPES-r2SCAN <span class="tag-training">training</span></td>
       <td data-val="0.19">0.19 / 0.71</td>
       <td data-val="6.39">6.39</td>
@@ -606,7 +580,6 @@
       <td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-r2SCAN)</span></td>
     </tr>
     <tr>
-      <td class="rank">3</td>
       <td class="fp-name">MACE-MatPES-r2SCAN <span class="tag-training">training</span></td>
       <td data-val="0.12">0.12 / 1.34</td>
       <td data-val="12.82">12.82</td>
@@ -667,14 +640,14 @@
 
     <h3 style="margin-top:0;">Leaderboard</h3>
     <p style="font-size:0.85rem;color:var(--muted);">
-      Rank and the per-column best value (green) update when you click a column header. FP badges
+      The per-column best value (green) updates when you click a column header. FP badges
       show whether that FP's own training data included this dataset's functional/source
       (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
       or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
     </p>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
     <div class="table-scroll">
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
-      <th class="no-sort">#</th>
       <th>FP</th>
       <th data-dir="low">&Delta;|<i>F</i>| MAE/RMSE<br>(eV/&Aring;) &darr;</th>
       <th data-dir="high">Frac(|&Delta;|<i>F</i>||&lt;0.01)<br>(%) &uarr;</th>
@@ -687,7 +660,6 @@
       <th class="ver-col">Version (training)</th>
     </tr></thead><tbody>
     <tr>
-      <td class="rank">1</td>
       <td class="fp-name">MACE <span class="tag-ood">OOD</span></td>
       <td data-val="0.34">0.34 / 2.83</td>
       <td data-val="4.08">4.08</td>
@@ -700,7 +672,6 @@
       <td class="training-col"><span class="ver">&gt;=v0.3.10 (MACE-MPA-0, medium)</span> <span class="trn">(MPtrj + sAlex)</span></td>
     </tr>
     <tr>
-      <td class="rank">2</td>
       <td class="fp-name">CHGNet <span class="tag-ood">OOD</span></td>
       <td data-val="0.76">0.76 / 4.00</td>
       <td data-val="1.81">1.81</td>
@@ -713,7 +684,6 @@
       <td class="training-col"><span class="ver">v0.3.0</span> <span class="trn">(MPtrj)</span></td>
     </tr>
     <tr>
-      <td class="rank">3</td>
       <td class="fp-name">M3GNet <span class="tag-ood">OOD</span></td>
       <td data-val="0.91">0.91 / 1.96</td>
       <td data-val="1.3">1.30</td>
@@ -726,7 +696,6 @@
       <td class="training-col"><span class="ver">MP-2021.2.8-PES</span> <span class="trn">(MP-2021.2.8)</span></td>
     </tr>
     <tr>
-      <td class="rank">4</td>
       <td class="fp-name">UMA <span class="tag-training">training</span></td>
       <td data-val="0.09">0.09 / 0.22</td>
       <td data-val="13.14">13.14</td>
@@ -739,7 +708,6 @@
       <td class="training-col"><span class="ver">s-1p1</span> <span class="trn">(OC20+ODAC23+OMat24+OMC25+OMol25)</span></td>
     </tr>
     <tr>
-      <td class="rank">5</td>
       <td class="fp-name">M3GNet-MatPES <span class="tag-ood">OOD</span></td>
       <td data-val="0.55">0.55 / 2.18</td>
       <td data-val="2.3">2.30</td>
@@ -752,7 +720,6 @@
       <td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td>
     </tr>
     <tr>
-      <td class="rank">6</td>
       <td class="fp-name">TensorNet-MatPES <span class="tag-ood">OOD</span></td>
       <td data-val="0.6">0.60 / 4.04</td>
       <td data-val="2.76">2.76</td>
@@ -765,7 +732,6 @@
       <td class="training-col"><span class="ver">v2025.1</span> <span class="trn">(MatPES-PBE)</span></td>
     </tr>
     <tr>
-      <td class="rank">7</td>
       <td class="fp-name">MACE-MatPES <span class="tag-finetuned">fine-tuned</span></td>
       <td data-val="0.43">0.43 / 2.25</td>
       <td data-val="4.12">4.12</td>
@@ -1039,12 +1005,6 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
     }
   }
 
-  function renumberRanks(tbl) {
-    Array.from(tbl.querySelectorAll('tbody tr')).forEach((row, i) => {
-      const rankCell = row.querySelector('td.rank');
-      if (rankCell) rankCell.textContent = i + 1;
-    });
-  }
 
   // Attach click-to-sort to every sortable <th> of a table.dt (skips .no-sort,
   // e.g. the leaderboard's "#" column). First column sorts alphabetically by
@@ -1080,7 +1040,7 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
         if (fracRow) tbody.appendChild(fracRow);
         bodyRows.forEach(r => tbody.appendChild(r));
         if (fracRow) tbody.insertBefore(fracRow, tbody.firstChild);
-        if (isLeaderboard) { highlightBest(tbl); renumberRanks(tbl); }
+        if (isLeaderboard) highlightBest(tbl);
       });
     });
   }
@@ -1127,7 +1087,10 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
     const room = sc.scrollWidth - sc.clientWidth;
     const canLeft = sc.scrollLeft > 4;
     const canRight = sc.scrollLeft < room - 4;
-    shell.classList.toggle('has-overflow', room > 4);
+    // A sliver of overflow is not worth a control: below this the table counts as
+    // fitting, which also keeps the +/-4px direction tolerance from ever hiding both
+    // arrows at once (that needs room <= 8).
+    shell.classList.toggle('has-overflow', room > 12);
     shell.classList.toggle('at-end', !canRight);
     shell.classList.toggle('at-start', !canLeft);
     const prev = shell.querySelector('.scroll-nudge.prev');
@@ -1147,33 +1110,27 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
     const top = tbl.offsetTop, h = tbl.offsetHeight;
     shell.style.setProperty('--fade-top', top + 'px');
     shell.style.setProperty('--fade-bottom', (shell.offsetHeight - (top + h)) + 'px');
+    // The pinned identifier column is not part of the scrollable metric area, so the
+    // left control and the left fade start where that column ends.
+    const firstTh = tbl.querySelector('thead th');
+    shell.style.setProperty('--sticky-w',
+      (firstTh ? Math.round(firstTh.getBoundingClientRect().width) : 0) + 'px');
     shell.querySelectorAll('.scroll-nudge').forEach(b => { b.style.top = (top + h / 2) + 'px'; });
   }
   function fpbUpdateShells() { document.querySelectorAll('.scroll-shell').forEach(fpbUpdateShell); }
-  function fpbSticky() {
-    document.querySelectorAll('table.leaderboard').forEach(tbl => {
-      const th1 = tbl.querySelector('thead th');
-      if (!th1) return;
-      const w = th1.getBoundingClientRect().width;
-      if (!w) return;
-      const th2 = tbl.querySelectorAll('thead th')[1];
-      if (th2) th2.style.left = w + 'px';
-      tbl.querySelectorAll('td.fp-name').forEach(td => { td.style.left = w + 'px'; });
-    });
-  }
   function fpbSortBy(tbl, colIndex, dir) {
     const th = tbl.querySelectorAll('thead th')[colIndex];
     if (!th || th.classList.contains('no-sort')) return;
     th.dataset.sortDir = (dir === 'asc') ? 'desc' : 'asc';
     th.click();
   }
-  function fpbEnhance() { fpbShells(); fpbSticky(); fpbUpdateShells(); }
+  function fpbEnhance() { fpbShells(); fpbUpdateShells(); }
   (function () {
     const prev = window.switchTab;
-    window.switchTab = function (id, btn) { prev(id, btn); fpbSticky(); fpbUpdateShells(); };
+    window.switchTab = function (id, btn) { prev(id, btn); fpbUpdateShells(); };
   })();
   document.querySelectorAll('details').forEach(d => d.addEventListener('toggle', fpbUpdateShells));
-  window.addEventListener('resize', () => { fpbSticky(); fpbUpdateShells(); });
+  window.addEventListener('resize', fpbUpdateShells);
 
   window.addEventListener('DOMContentLoaded', () => {
     fpbEnhance();

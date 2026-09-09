@@ -187,7 +187,7 @@
       font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.74rem; }
     table.dt td.training-col .trn { color: var(--muted); font-size: 0.74rem; }
       /* horizontal-overflow affordance -- one blue accent means "more this way" */
-    .scroll-shell::before { content: ""; position: absolute; left: 0; top: var(--fade-top, 0px);
+    .scroll-shell::before { content: ""; position: absolute; left: var(--sticky-w, 0px); top: var(--fade-top, 0px);
       bottom: var(--fade-bottom, 0px); width: 46px; pointer-events: none; opacity: 0;
       transition: opacity 0.2s ease;
       background: linear-gradient(to left, rgba(13,17,23,0), rgba(13,17,23,0.95)); }
@@ -206,19 +206,18 @@
       transition: color .18s ease, opacity .18s ease; }
     .scroll-hint .ar.lit { color: var(--accent); opacity: 1; }
     .scroll-nudge { position: absolute; display: none; width: 36px; height: 36px; border-radius: 50%;
-      transform: translateY(-50%); padding: 0; cursor: default; z-index: 4; font-family: inherit;
-      border: 1px solid var(--border); background: var(--surface2); color: var(--muted);
-      opacity: 0.55; align-items: center; justify-content: center;
+      transform: translateY(-50%); padding: 0; cursor: pointer; z-index: 4; font-family: inherit;
+      border: 1px solid rgba(88,166,255,0.35); background: var(--surface2); color: var(--accent);
+      align-items: center; justify-content: center;
       box-shadow: 0 2px 10px rgba(0,0,0,0.45);
       transition: color .18s, border-color .18s, background .18s, box-shadow .18s, opacity .18s; }
-    .scroll-nudge.lit { color: var(--accent); border-color: rgba(88,166,255,0.35);
-      opacity: 1; cursor: pointer; }
+    .scroll-nudge.lit { cursor: pointer; }
     .scroll-nudge.lit:hover { border-color: var(--accent); background: var(--surface);
       box-shadow: 0 2px 14px rgba(88,166,255,0.28); }
     .scroll-nudge:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .scroll-nudge.prev { left: 8px; }
+    .scroll-nudge.prev { left: calc(var(--sticky-w, 0px) + 10px); }
     .scroll-nudge.next { right: 8px; }
-    .scroll-shell.has-overflow .scroll-nudge { display: flex; }
+    .scroll-shell.has-overflow .scroll-nudge.lit { display: flex; }
 
     /* horizontal scrollbar: neutral track, accent-blue draggable thumb */
     .table-scroll { scrollbar-width: thin; scrollbar-color: var(--accent) var(--surface2); }
@@ -268,7 +267,8 @@
 <section id="results">
   <h2>Results</h2>
   <p>
-    Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.
+    Performance of foundation potentials for phase stability, structural relaxation, and
+    energetic ordering across the benchmark systems.
   </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
@@ -290,6 +290,7 @@
     </p>
 
 <h3 style="margin-top:0;">Full FP relaxation</h3>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
     <div class="table-scroll">
       <table class="dt hulltable"><thead><tr>
       <th>FP</th>
@@ -336,6 +337,7 @@
     </p>
 
 <h3 style="margin-top:0;">Full FP relaxation</h3>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
     <div class="table-scroll">
       <table class="dt orderingtable"><thead><tr>
       <th>FP</th>
@@ -389,6 +391,7 @@
       volume.
     </p>
 
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">Metrics are complementary and are not combined into a single overall ranking. Click any column heading to sort by that metric.</p>
 <div class="table-scroll">
       <table class="dt rmsdtable"><thead><tr>
       <th>FP</th>
@@ -677,7 +680,10 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
     const room = sc.scrollWidth - sc.clientWidth;
     const canLeft = sc.scrollLeft > 4;
     const canRight = sc.scrollLeft < room - 4;
-    shell.classList.toggle('has-overflow', room > 4);
+    // A sliver of overflow is not worth a control: below this the table counts as
+    // fitting, which also keeps the +/-4px direction tolerance from ever hiding both
+    // arrows at once (that needs room <= 8).
+    shell.classList.toggle('has-overflow', room > 12);
     shell.classList.toggle('at-end', !canRight);
     shell.classList.toggle('at-start', !canLeft);
     const prev = shell.querySelector('.scroll-nudge.prev');
@@ -697,33 +703,27 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
     const top = tbl.offsetTop, h = tbl.offsetHeight;
     shell.style.setProperty('--fade-top', top + 'px');
     shell.style.setProperty('--fade-bottom', (shell.offsetHeight - (top + h)) + 'px');
+    // The pinned identifier column is not part of the scrollable metric area, so the
+    // left control and the left fade start where that column ends.
+    const firstTh = tbl.querySelector('thead th');
+    shell.style.setProperty('--sticky-w',
+      (firstTh ? Math.round(firstTh.getBoundingClientRect().width) : 0) + 'px');
     shell.querySelectorAll('.scroll-nudge').forEach(b => { b.style.top = (top + h / 2) + 'px'; });
   }
   function fpbUpdateShells() { document.querySelectorAll('.scroll-shell').forEach(fpbUpdateShell); }
-  function fpbSticky() {
-    document.querySelectorAll('table.leaderboard').forEach(tbl => {
-      const th1 = tbl.querySelector('thead th');
-      if (!th1) return;
-      const w = th1.getBoundingClientRect().width;
-      if (!w) return;
-      const th2 = tbl.querySelectorAll('thead th')[1];
-      if (th2) th2.style.left = w + 'px';
-      tbl.querySelectorAll('td.fp-name').forEach(td => { td.style.left = w + 'px'; });
-    });
-  }
   function fpbSortBy(tbl, colIndex, dir) {
     const th = tbl.querySelectorAll('thead th')[colIndex];
     if (!th || th.classList.contains('no-sort')) return;
     th.dataset.sortDir = (dir === 'asc') ? 'desc' : 'asc';
     th.click();
   }
-  function fpbEnhance() { fpbShells(); fpbSticky(); fpbUpdateShells(); }
+  function fpbEnhance() { fpbShells(); fpbUpdateShells(); }
   (function () {
     const prev = window.switchTab;
-    window.switchTab = function (id, btn) { prev(id, btn); fpbSticky(); fpbUpdateShells(); };
+    window.switchTab = function (id, btn) { prev(id, btn); fpbUpdateShells(); };
   })();
   document.querySelectorAll('details').forEach(d => d.addEventListener('toggle', fpbUpdateShells));
-  window.addEventListener('resize', () => { fpbSticky(); fpbUpdateShells(); });
+  window.addEventListener('resize', fpbUpdateShells);
 
   window.addEventListener('DOMContentLoaded', () => {
     fpbEnhance();
