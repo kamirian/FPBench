@@ -155,7 +155,8 @@
     .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     /* collapsible result sections: whole bar is the control */
-    details > summary { display: flex; align-items: center; gap: 0.5rem; background: var(--surface2); }
+    details > summary { display: block; background: var(--surface2); }
+    details:not([open]) > summary::after { float: right; margin-left: 0; }
     details > summary::before { color: var(--accent); }
     details:not([open]) > summary::after { content: "View results"; margin-left: auto;
       font-size: 0.72rem; font-weight: 600; color: var(--accent); }
@@ -173,25 +174,23 @@
     .scroll-shell.has-overflow:not(.at-start)::before { opacity: 1; }
     details .scroll-shell::before { background: linear-gradient(to left, rgba(22,27,34,0), rgba(22,27,34,0.95)); }
 
-    .scroll-hint { display: none; align-items: center; justify-content: flex-end; gap: 0.35rem;
-      font-size: 0.76rem; font-weight: 600; letter-spacing: 0.2px; color: var(--accent);
-      padding: 0 1.1rem 0.5rem; }
-    .scroll-shell.has-overflow:not(.at-end) .scroll-hint { display: flex; }
-    .scroll-hint span { white-space: nowrap; }
-
+    /* Both arrows stay in place; an arrow lights up only while scrolling that
+       way is still possible, so nothing appears or disappears mid-scroll and
+       the table never shifts. */
     .scroll-nudge { position: absolute; display: none; width: 36px; height: 36px; border-radius: 50%;
-      transform: translateY(-50%); padding: 0; cursor: pointer; z-index: 4; font-family: inherit;
-      border: 1px solid rgba(88,166,255,0.35); background: var(--surface2); color: var(--accent);
-      align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.45);
-      transition: color .15s, border-color .15s, background .15s, box-shadow .15s; }
-    .scroll-nudge:hover { border-color: var(--accent); background: var(--surface);
+      transform: translateY(-50%); padding: 0; cursor: default; z-index: 4; font-family: inherit;
+      border: 1px solid var(--border); background: var(--surface2); color: var(--muted);
+      opacity: 0.55; align-items: center; justify-content: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.45);
+      transition: color .18s, border-color .18s, background .18s, box-shadow .18s, opacity .18s; }
+    .scroll-nudge.lit { color: var(--accent); border-color: rgba(88,166,255,0.35);
+      opacity: 1; cursor: pointer; }
+    .scroll-nudge.lit:hover { border-color: var(--accent); background: var(--surface);
       box-shadow: 0 2px 14px rgba(88,166,255,0.28); }
     .scroll-nudge:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .scroll-nudge.prev { left: 8px; }
     .scroll-nudge.next { right: 8px; }
     .scroll-shell.has-overflow .scroll-nudge { display: flex; }
-    .scroll-shell.at-start .scroll-nudge.prev { display: none; }
-    .scroll-shell.at-end .scroll-nudge.next { display: none; }
 
     /* horizontal scrollbar: neutral track, accent-blue draggable thumb */
     .table-scroll { scrollbar-width: thin; scrollbar-color: var(--accent) var(--surface2); }
@@ -202,7 +201,7 @@
     .table-scroll::-webkit-scrollbar-thumb:hover,
     .table-scroll::-webkit-scrollbar-thumb:active { background: #79b8ff; }
       /* shared leaderboard header treatment: long headers wrap, data cells never do */
-    table.dt { width: max-content; }
+    table.dt { width: max-content; min-width: 100%; }
     table.dt th { white-space: nowrap; vertical-align: middle; line-height: 1.35;
       padding-top: 0.55rem; padding-bottom: 0.55rem; }
     table.dt td { white-space: nowrap; }
@@ -384,6 +383,8 @@ pip install -r requirements.txt
 pip install jupyterlab
 jupyter lab analysis/neb_analysis.ipynb</code></pre>
   <p style="margin-top:0.8rem;">See the <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB" style="color:var(--accent);">Ion_migration_NEB README</a> for the full quick start, the generator and analysis notebooks for complete operational detail, and <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB/examples" style="color:var(--accent);">examples/</a> for a small runnable slice of real data.</p>
+
+  <p style="margin-top:0.8rem;">To have a new FP considered for the public leaderboard, see <a href="index.html#contribute" style="color:var(--accent);">Contribute</a> on the FPBench home page.</p>
 </section>
 
 <footer>
@@ -704,10 +705,6 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
       const shell = document.createElement('div');
       shell.className = 'scroll-shell';
       sc.parentNode.insertBefore(shell, sc);
-      const hint = document.createElement('div');
-      hint.className = 'scroll-hint';
-      hint.innerHTML = '<span>More metrics</span><span aria-hidden="true">&#8594;</span>';
-      shell.appendChild(hint);
       shell.appendChild(sc);
       ['prev', 'next'].forEach(dir => {
         const b = document.createElement('button');
@@ -726,14 +723,19 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
     const sc = shell.querySelector('.table-scroll');
     if (!sc) return;
     const room = sc.scrollWidth - sc.clientWidth;
+    const canLeft = sc.scrollLeft > 4;
+    const canRight = sc.scrollLeft < room - 4;
     shell.classList.toggle('has-overflow', room > 4);
-    shell.classList.toggle('at-end', sc.scrollLeft >= room - 4);
-    shell.classList.toggle('at-start', sc.scrollLeft <= 4);
-    // Everything is measured against the <table> box itself, so the "More metrics"
-    // line above the scroller, the scroller's own padding, the horizontal scrollbar
-    // below it, and anything outside the shell (section header, dataset description,
-    // notes) are all excluded. The buttons are centred on the table's midpoint and
-    // pulled back by half their own height via translateY(-50%).
+    shell.classList.toggle('at-end', !canRight);
+    shell.classList.toggle('at-start', !canLeft);
+    const prev = shell.querySelector('.scroll-nudge.prev');
+    const next = shell.querySelector('.scroll-nudge.next');
+    if (prev) { prev.classList.toggle('lit', canLeft); prev.disabled = !canLeft; }
+    if (next) { next.classList.toggle('lit', canRight); next.disabled = !canRight; }
+    // Everything is measured against the <table> box itself, so the scroller's own
+    // padding, the horizontal scrollbar below it, and anything outside the shell
+    // (section header, dataset description, notes) are all excluded. The buttons are
+    // centred on the table's midpoint and pulled back by half their own height.
     const tbl = sc.querySelector('table');
     if (!tbl) return;
     const top = tbl.offsetTop, h = tbl.offsetHeight;

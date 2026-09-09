@@ -251,6 +251,15 @@ models above.
 
 ---
 
+## Contributing
+
+Interested in evaluating a new foundation potential, or having it considered for inclusion in
+FPBench? See [Adding a potential](ADDING_A_POTENTIAL.md) to run FPBench with a new model. For
+inclusion in the public leaderboard, please contact Prof. Yifei Mo at <yfmo@umd.edu> with the model name,
+version/checkpoint, and a link to the official implementation or model weights.
+
+---
+
 ## Citation
 
 If you use FPBench, please cite:
