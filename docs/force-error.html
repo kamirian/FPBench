@@ -88,7 +88,11 @@
     .dataset-card .ds-stat span { color: var(--text); }
     .dataset-card .ds-desc { font-size: 0.87rem; color: var(--text); margin-top: 0.7rem; line-height: 1.5; }
 
-    .tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; overflow-x: auto; }
+    .tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;
+      /* overflow-x alone makes the element scroll on both axes, and the buttons stand a
+         fraction of a pixel taller than the strip, which shows as a stray vertical
+         scrollbar wherever the OS draws scrollbars permanently. */
+      overflow-x: auto; overflow-y: hidden; }
     .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-size: 0.9rem; font-weight: 600; padding: 0.7rem 1.4rem; cursor: pointer; white-space: nowrap; font-family: inherit; transition: color 0.15s, border-color 0.15s; }
     .tab-btn:hover { color: var(--text); }
     .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
