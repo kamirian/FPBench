@@ -275,6 +275,7 @@
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
     <span><span class="arrow-up">&#9650;</span> higher is better</span>
     <span style="color:var(--accent2);font-weight:700">green = best in column</span>
+    <span style="color:var(--muted)">cell shading: greener = better, warmer = worse</span>
     <span style="color:var(--muted)">identifiers are never colored</span>
   </div>
 
@@ -534,8 +535,9 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
   }
 
   const CMAPS = {
-    blues: [[247,251,255],[198,219,239],[107,174,214],[33,113,181],[8,48,107]],
-    reds:  [[255,245,240],[252,174,145],[251,106,74],[203,24,29],[103,0,13]],
+    // Performance ramp, worst -> best. Color always encodes how good a value is,
+    // never which metric it is; metric identity comes from the header and position.
+    perf: [[122,62,52],[150,96,66],[58,66,78],[47,102,70],[56,142,86]],
   };
   function cmapRgb(name, t) {
     const s = CMAPS[name];
@@ -555,16 +557,19 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
 
   // Split-pair coloring for empty "A / B" cells carrying data-val (first value,
   // e.g. mean) and data-val2 (second value, e.g. max): renders two
-  // independently-colored pills, each normalized against only its own
+  // performance-colored pills, each normalized against only its own
   // column's values across the table. data-fmt="int" renders whole numbers
   // (meV); otherwise 2 decimal places (Å).
   function colorizeSplitPairs(tbl) {
     const rows = Array.from(tbl.querySelectorAll('tbody tr')).filter(r => r.querySelector('td[data-pair]'));
     if (!rows.length) return;
     const ncols = rows[0].querySelectorAll('td').length;
+    const ths = Array.from(tbl.querySelectorAll('thead th'));
     for (let c = 1; c < ncols; c++) {
       const cells = rows.map(r => r.querySelectorAll('td')[c]).filter(c => c && c.dataset.pair);
       if (!cells.length) continue;
+      const th = ths[c];
+      const dir = (th && th.dataset.dir) || tbl.dataset.dir || 'low';
       const v1s = cells.map(c => parseFloat(c.dataset.val));
       const v2s = cells.map(c => parseFloat(c.dataset.val2));
       const valid1 = v1s.filter(v => !isNaN(v)), valid2 = v2s.filter(v => !isNaN(v));
@@ -576,7 +581,8 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
         const kind = cell.dataset.fmt;
         const t1 = mx1 === mn1 ? 0.5 : (v1 - mn1) / (mx1 - mn1);
         const t2 = mx2 === mn2 ? 0.5 : (v2 - mn2) / (mx2 - mn2);
-        const rgb1 = cmapRgb('blues', t1), rgb2 = cmapRgb('reds', t2);
+        const rgb1 = cmapRgb('perf', dir === 'high' ? t1 : 1 - t1);
+        const rgb2 = cmapRgb('perf', dir === 'high' ? t2 : 1 - t2);
         cell.innerHTML =
           `<span class="split-pill" style="background:rgb(${rgb1});color:${autoText(rgb1)};">${fmtNum(v1, kind)}</span>` +
           `<span class="split-sep">/</span>` +
