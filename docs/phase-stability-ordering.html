@@ -102,6 +102,11 @@
     .col-legend { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: 0.8rem; color: var(--muted); }
     .col-legend .arrow-down { color: var(--accent3); }
     .col-legend .arrow-up   { color: var(--accent2); }
+    .lb-intro { font-size: 0.85rem; color: var(--text); line-height: 1.6; margin-bottom: 1.1rem;
+      padding: 0.75rem 0.95rem; background: var(--surface); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent); border-radius: 8px; }
+    .lb-intro a { color: var(--accent); }
+    .lb-intro .mx { color: var(--heading); font-weight: 600; }
 
     details { border: 1px solid var(--border); border-radius: 8px; margin-top: 0.9rem; background: var(--surface); overflow: hidden; }
     details summary { padding: 0.85rem 1.1rem; cursor: pointer; font-size: 0.98rem; font-weight: 700; color: var(--heading); list-style: none; }
@@ -290,9 +295,12 @@
   </div>
 
   <div id="tab-hull" class="tab-panel active">
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
-      Convex-hull metrics across 22 ternary chalcogenide tie-line systems, shown separately for
+    <p class="lb-intro">
+      Convex-hull metrics are evaluated across 22 ternary chalcogenide tie-line systems for both
       full FP relaxation and static FP evaluations on the DFT-relaxed structures.
+      <span class="mx">Ground-state agreement</span> measures whether the FP identifies the same lowest-energy
+      phase at each composition as DFT, while <span class="mx">within-phase hull-minimum agreement</span> and
+      <span class="mx">hull-minimum agreement</span> compare the predicted hull minima. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
     </p>
 
 <h3 style="margin-top:0;">Full FP relaxation</h3>
@@ -336,10 +344,12 @@
   </div>
 
   <div id="tab-ordering" class="tab-panel">
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
-      Energy-ranking metrics for elemental orderings at fixed composition and phase, across 305
-      ordering groups of 20 candidates each, shown separately for full FP relaxation and static
-      FP evaluations on the DFT-relaxed structures.
+    <p class="lb-intro">
+      Elemental-ordering metrics are evaluated across 305 ordering groups of 20 candidates each,
+      for both full FP relaxation and static FP evaluations on the DFT-relaxed structures.
+      <span class="mx">Top-1 accuracy</span> measures recovery of the DFT-preferred ordering,
+      <span class="mx">Recall@k</span> whether it is recovered among the top-ranked candidates, and
+      <span class="mx">Spearman &rho;</span> overall ranking agreement. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
     </p>
 
 <h3 style="margin-top:0;">Full FP relaxation</h3>
@@ -389,11 +399,11 @@
   </div>
 
   <div id="tab-rmsd" class="tab-panel">
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
-      RMSD applies only to <strong style="color:var(--heading);">full FP relaxation</strong> --
+    <p class="lb-intro">
+      <span class="mx">RMSD</span> applies only to <span class="mx">full FP relaxation</span> --
       static evaluation does not produce an FP-relaxed structure to compare against DFT. Computed
       via pymatgen <code>StructureMatcher</code>, converted to &Aring; via the geometric-mean cell
-      volume.
+      volume. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
     </p>
 
 <div class="table-scroll">

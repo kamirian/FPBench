@@ -85,6 +85,11 @@
     .col-legend { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: 0.8rem; color: var(--muted); }
     .col-legend .arrow-down { color: var(--accent3); }
     .col-legend .arrow-up   { color: var(--accent2); }
+    .lb-intro { font-size: 0.85rem; color: var(--text); line-height: 1.6; margin-bottom: 1.1rem;
+      padding: 0.75rem 0.95rem; background: var(--surface); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent); border-radius: 8px; }
+    .lb-intro a { color: var(--accent); }
+    .lb-intro .mx { color: var(--heading); font-weight: 600; }
 
     .protocol-table-wrap { overflow-x: auto; margin: 1rem 0 1.4rem; }
     table.gen { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-top: 0.8rem; }
@@ -263,13 +268,15 @@
   </div>
 
   <div id="tab-leaderboard" class="tab-panel active">
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.6rem;">
-      Results are reported for 154 active pathways. The excluded pathway is documented in the
-      <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB/data" style="color:var(--accent);">data README</a>
-      and is not included in the table. "Non-conv. paths" is reported over eligible full FP-NEB
-      calculations for each FP. Full FP-NEB barrier, endpoint, and profile metrics use the converged
-      full FP-NEB population; static FP barrier errors use valid static FP evaluations on the
-      finalized DFT-NEB image structures and are not filtered by full FP-NEB convergence.
+    <p class="lb-intro">
+      Results are reported for 154 active migration pathways, using the full FP-NEB workflow and
+      static FP evaluations on the finalized DFT-NEB image structures; one excluded pathway is
+      documented in the
+      <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB/data">data README</a>.
+      <span class="mx">Barrier error</span> measures migration-barrier accuracy,
+      <span class="mx">endpoint energy-difference error</span> and <span class="mx">endpoint energy ranking agreement</span>
+      assess the relative endpoint energies, and <span class="mx">energy-profile shape agreement</span> measures
+      whether the FP reproduces the DFT migration-profile shape. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
     </p>
 
     <div id="leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
@@ -289,8 +296,10 @@
   </div>
 
   <div id="tab-rmsd" class="tab-panel">
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">
+    <p class="lb-intro">
       Restricted to full FP-NEB converged paths.
+      <span class="mx">RMSD</span> is the geometric deviation between the FP-relaxed and DFT-relaxed
+      endpoint structures after alignment. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
     </p>
 
     <div id="rmsd-leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
