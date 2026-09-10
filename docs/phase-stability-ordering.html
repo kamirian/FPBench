@@ -808,8 +808,16 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
 
   window.addEventListener('DOMContentLoaded', () => {
     fpbEnhance();
-    document.querySelectorAll('table.hulltable').forEach(t => fpbSortBy(t, 1, 'asc'));
-    document.querySelectorAll('table.orderingtable').forEach(t => fpbSortBy(t, 2, 'desc'));
+    // Open each leaderboard best-first on its headline metric: ground-state agreement for
+    // the convex hull, Top-1 accuracy for elemental ordering. The direction is read from
+    // the column's own data-dir rather than hard-coded, so the order stays best-first if
+    // the columns are ever rearranged.
+    const openBestFirst = (sel, col) => document.querySelectorAll(sel).forEach(t => {
+      const th = t.querySelectorAll('thead th')[col];
+      fpbSortBy(t, col, th && th.dataset.dir === 'high' ? 'desc' : 'asc');
+    });
+    openBestFirst('table.hulltable', 2);
+    openBestFirst('table.orderingtable', 2);
   });
 </script>
 

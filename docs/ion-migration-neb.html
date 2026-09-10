@@ -780,7 +780,12 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
 
       document.querySelectorAll('table.dt').forEach(makeSortable);
       fpbEnhance();
-      document.querySelectorAll('table.nebtable').forEach(t => fpbSortBy(t, 2, 'asc'));
+      // Open best-first on the barrier error. Direction comes from the column's own
+      // data-dir rather than being hard-coded.
+      document.querySelectorAll('table.nebtable').forEach(t => {
+        const th = t.querySelectorAll('thead th')[2];
+        fpbSortBy(t, 2, th && th.dataset.dir === 'high' ? 'desc' : 'asc');
+      });
     } catch (err) {
       showLeaderboardError(err.message);
     }
