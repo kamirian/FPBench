@@ -249,11 +249,6 @@
 
 <!-- ============== RESULTS ============== -->
 <section id="results">
-  <p class="section-lede">
-    Application-oriented evaluation of ion migration by NEB calculations, including
-    migration-barrier accuracy, energy-profile agreement, and errors introduced by endpoint
-    relaxation and NEB optimization.
-  </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
     <span><span class="arrow-up">&#9650;</span> higher is better</span>
@@ -278,6 +273,11 @@
       assess the relative endpoint energies, and <span class="mx">energy-profile shape agreement</span> measures
       whether the FP reproduces the DFT migration-profile shape. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
     </p>
+    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin:-0.4rem 0 1.2rem;">
+      The per-column best value (green) updates when you click a column header. The
+      Version (training) column gives the exact checkpoint evaluated and the dataset it
+      was trained on.
+    </p>
 
     <div id="leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>
 
@@ -300,6 +300,11 @@
       Restricted to full FP-NEB converged paths.
       <span class="mx">RMSD</span> is the geometric deviation between the FP-relaxed and DFT-relaxed
       endpoint structures after alignment. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
+    </p>
+    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin:-0.4rem 0 1.2rem;">
+      The per-column best value (green) updates when you click a column header. The
+      Version (training) column gives the exact checkpoint evaluated and the dataset it
+      was trained on.
     </p>
 
     <div id="rmsd-leaderboard-status" style="display:none;background:rgba(247,129,102,0.12);border:1px solid var(--accent3);border-radius:8px;padding:0.9rem 1.1rem;color:var(--heading);font-size:0.9rem;margin-bottom:1rem;"></div>

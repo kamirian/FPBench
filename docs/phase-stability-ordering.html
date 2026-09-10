@@ -275,11 +275,6 @@
 
 <!-- ============== RESULTS ============== -->
 <section id="results">
-  <p class="section-lede">
-    Application-oriented evaluation of relative-energy prediction for phase stability and
-    elemental ordering, including convex-hull construction, phase-stability prediction,
-    elemental-ordering ranking, and structural relaxation.
-  </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
     <span><span class="arrow-up">&#9650;</span> higher is better</span>
@@ -301,6 +296,11 @@
       <span class="mx">Ground-state agreement</span> measures whether the FP identifies the same lowest-energy
       phase at each composition as DFT, while <span class="mx">within-phase hull-minimum agreement</span> and
       <span class="mx">hull-minimum agreement</span> compare the predicted hull minima. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
+    </p>
+    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin:-0.4rem 0 1.2rem;">
+      The per-column best value (green) updates when you click a column header. The
+      Version (training) column gives the exact checkpoint evaluated and the dataset it
+      was trained on.
     </p>
 
 <h3 style="margin-top:0;">Full FP relaxation</h3>
@@ -350,6 +350,11 @@
       <span class="mx">Top-1 accuracy</span> measures recovery of the DFT-preferred ordering,
       <span class="mx">Recall@k</span> whether it is recovered among the top-ranked candidates, and
       <span class="mx">Spearman &rho;</span> overall ranking agreement. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
+    </p>
+    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin:-0.4rem 0 1.2rem;">
+      The per-column best value (green) updates when you click a column header. The
+      Version (training) column gives the exact checkpoint evaluated and the dataset it
+      was trained on.
     </p>
 
 <h3 style="margin-top:0;">Full FP relaxation</h3>
@@ -404,6 +409,11 @@
       static evaluation does not produce an FP-relaxed structure to compare against DFT. Computed
       via pymatgen <code>StructureMatcher</code>, converted to &Aring; via the geometric-mean cell
       volume. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
+    </p>
+    <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin:-0.4rem 0 1.2rem;">
+      The per-column best value (green) updates when you click a column header. The
+      Version (training) column gives the exact checkpoint evaluated and the dataset it
+      was trained on.
     </p>
 
 <div class="table-scroll">

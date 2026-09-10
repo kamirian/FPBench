@@ -304,11 +304,6 @@
 
 <!-- ============== RESULTS ============== -->
 <section id="results">
-  <p class="section-lede">
-    Application-oriented evaluation of force prediction for atomistic simulations, including
-    highly accurate force predictions, large-force-error atoms, joint force magnitude-angle
-    accuracy, and far-from-equilibrium atoms.
-  </p>
   <div class="col-legend">
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
     <span><span class="arrow-up">&#9650;</span> higher is better</span>
@@ -334,15 +329,15 @@
     defined by |<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;. Full definitions are in
     <a href="#metrics">Metrics</a>, below the leaderboard.
   </p>
+  <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin:-0.4rem 0 1.2rem;">
+    The per-column best value (green) updates when you click a column header. FP badges
+    show whether that FP's own training data included this dataset's functional/source
+    (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
+    or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
+  </p>
 
   <div id="tab-pbe" class="tab-panel active">
     <h3 style="margin-top:0;">Leaderboard</h3>
-    <p style="font-size:0.85rem;color:var(--muted);">
-      The per-column best value (green) updates when you click a column header. FP badges
-      show whether that FP's own training data included this dataset's functional/source
-      (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
-      or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
-    </p>
     <div class="table-scroll">
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
       <th>FP</th>
@@ -526,12 +521,6 @@
 
 <div id="tab-r2scan" class="tab-panel">
     <h3 style="margin-top:0;">Leaderboard</h3>
-    <p style="font-size:0.85rem;color:var(--muted);">
-      The per-column best value (green) updates when you click a column header. FP badges
-      show whether that FP's own training data included this dataset's functional/source
-      (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
-      or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
-    </p>
     <div class="table-scroll">
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
       <th>FP</th>
@@ -587,12 +576,6 @@
 
 <div id="tab-rattled" class="tab-panel">
     <h3 style="margin-top:0;">Leaderboard</h3>
-    <p style="font-size:0.85rem;color:var(--muted);">
-      The per-column best value (green) updates when you click a column header. FP badges
-      show whether that FP's own training data included this dataset's functional/source
-      (<span class="tag-training">training</span>), did not (<span class="tag-ood">OOD</span>),
-      or is a fine-tune of an OOD base model onto this dataset (<span class="tag-finetuned">fine-tuned</span>).
-    </p>
     <div class="table-scroll">
       <table class="dt leaderboard"><caption class="sr-only">Combined summary</caption><thead><tr>
       <th>FP</th>
