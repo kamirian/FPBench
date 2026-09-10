@@ -249,7 +249,7 @@
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
     <span><span class="arrow-up">&#9650;</span> higher is better</span>
     <span style="color:var(--accent2);font-weight:700">green text = best in column</span>
-    <span style="color:var(--muted)">cell shading: greener = better, warmer = worse</span>
+    <span style="color:var(--muted)">cell shading: greener = better, redder = worse</span>
     <span style="color:var(--muted)">identifiers are never colored</span>
   </div>
 
@@ -415,10 +415,48 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
   }
 
   const CMAPS = {
-    // Performance ramp, worst -> best. Color always encodes how good a value is,
-    // never which metric it is; metric identity comes from the header and position.
-    perf: [[122,62,52],[150,96,66],[58,66,78],[47,102,70],[56,142,86]],
+    // Performance ramp, worst -> best: muted red through neutral slate to muted green.
+    // Color always encodes how good a value is, never which metric it is.
+    perf: [[176,58,58],[128,56,62],[52,60,70],[50,104,80],[56,148,96]],
   };
+
+  // ---------- robust, purely value-based numeric scales ----------
+  // A scale maps a value to its position in [0,1] on a continuous numeric axis.
+  // Anchors are the 5th and 95th percentiles of the pooled numbers in one scale
+  // group, so a few extreme outliers cannot flatten everything else; values past
+  // an anchor clamp to the endpoint. The percentiles choose the axis limits only,
+  // they never rank a row: two equal values always get the same color, and a
+  // value's color does not depend on which model produced it. Groups with too
+  // few numbers for percentiles to mean anything fall back to min/max.
+  function quantile(sorted, p) {
+    if (!sorted.length) return NaN;
+    const i = (sorted.length - 1) * p, lo = Math.floor(i), hi = Math.min(lo + 1, sorted.length - 1);
+    return sorted[lo] + (i - lo) * (sorted[hi] - sorted[lo]);
+  }
+  const ROBUST_MIN_N = 20;
+  function makeScale(values) {
+    const v = values.filter(x => typeof x === 'number' && !isNaN(x)).sort((a, b) => a - b);
+    if (!v.length) return null;
+    let lo, hi;
+    if (v.length >= ROBUST_MIN_N) { lo = quantile(v, 0.05); hi = quantile(v, 0.95); }
+    else { lo = v[0]; hi = v[v.length - 1]; }
+    if (!(hi > lo)) { lo = v[0]; hi = v[v.length - 1]; }
+    // Strictly positive quantities whose robust span covers two or more decades are
+    // mapped through log10, so a progression like 0.01, 0.1, 1, 10 spreads across the
+    // ramp instead of collapsing into one end.
+    const useLog = v[0] > 0 && lo > 0 && hi / lo >= 100;
+    const f = useLog ? Math.log10 : (x => x);
+    const a = f(lo), b = f(hi);
+    const scale = x => {
+      if (isNaN(x)) return 0.5;
+      if (!(b > a)) return 0.5;
+      const y = useLog ? f(Math.max(x, Number.MIN_VALUE)) : f(x);
+      return Math.max(0, Math.min(1, (y - a) / (b - a)));
+    };
+    scale.log = useLog; scale.lo = lo; scale.hi = hi; scale.n = v.length;
+    return scale;
+  }
+
   function cmapRgb(name, t) {
     const s = CMAPS[name];
     const x = Math.max(0, Math.min(1, t)) * (s.length - 1);
@@ -446,22 +484,30 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
     if (!rows.length) return;
     const ncols = rows[0].querySelectorAll('td').length;
     const ths = Array.from(tbl.querySelectorAll('thead th'));
+    const cols = [];
     for (let c = 1; c < ncols; c++) {
-      const cells = rows.map(r => r.querySelectorAll('td')[c]).filter(c => c && c.dataset.pair);
+      const cells = rows.map(r => r.querySelectorAll('td')[c]).filter(x => x && x.dataset.pair);
       if (!cells.length) continue;
-      const th = ths[c];
+      cols.push({ c: c, cells: cells,
+        v1: cells.map(x => parseFloat(x.dataset.val)),
+        v2: cells.map(x => parseFloat(x.dataset.val2)) });
+    }
+    // data-scale="table": the columns report the same quantity and unit, so each of the
+    // two positions gets one axis across all of them. The two positions stay separate
+    // because they are different quantities (MAE vs RMSE, mean vs max).
+    const sharedAll = tbl.dataset.scale === 'table';
+    const s1 = sharedAll ? makeScale([].concat.apply([], cols.map(o => o.v1))) : null;
+    const s2 = sharedAll ? makeScale([].concat.apply([], cols.map(o => o.v2))) : null;
+    cols.forEach(o => {
+      const cells = o.cells, v1s = o.v1, v2s = o.v2;
+      const th = ths[o.c];
       const dir = (th && th.dataset.dir) || tbl.dataset.dir || 'low';
-      const v1s = cells.map(c => parseFloat(c.dataset.val));
-      const v2s = cells.map(c => parseFloat(c.dataset.val2));
-      const valid1 = v1s.filter(v => !isNaN(v)), valid2 = v2s.filter(v => !isNaN(v));
-      if (!valid1.length) continue;
-      const mn1 = Math.min(...valid1), mx1 = Math.max(...valid1);
-      const mn2 = Math.min(...valid2), mx2 = Math.max(...valid2);
+      const sc1 = s1 || makeScale(v1s), sc2 = s2 || makeScale(v2s);
+      if (!sc1 || !sc2) return;
       cells.forEach((cell, i) => {
         const v1 = v1s[i], v2 = v2s[i];
         const kind = cell.dataset.fmt;
-        const t1 = mx1 === mn1 ? 0.5 : (v1 - mn1) / (mx1 - mn1);
-        const t2 = mx2 === mn2 ? 0.5 : (v2 - mn2) / (mx2 - mn2);
+        const t1 = sc1(v1), t2 = sc2(v2);
         const rgb1 = cmapRgb('perf', dir === 'high' ? t1 : 1 - t1);
         const rgb2 = cmapRgb('perf', dir === 'high' ? t2 : 1 - t2);
         cell.innerHTML =
@@ -469,7 +515,7 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
           `<span class="split-sep">/</span>` +
           `<span class="split-pill" style="background:rgb(${rgb2});color:${autoText(rgb2)};">${fmtNum(v2, kind)}</span>`;
       });
-    }
+    });
   }
 
   // Discrete best-in-column highlighting for every data column (skips only the
