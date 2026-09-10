@@ -250,6 +250,7 @@
       padding: 0.75rem 0.95rem; background: var(--surface); border: 1px solid var(--border);
       border-left: 3px solid var(--accent); border-radius: 8px; }
     .lb-intro a { color: var(--accent); }
+    .lb-intro .mx { color: var(--heading); font-weight: 600; }
     .fn-sym { color: var(--accent); }
     .notes .lb-note { display: none; }
     #fpb-note-pop { position: fixed; z-index: 60; display: none;
@@ -319,12 +320,14 @@
   </div>
 
   <p class="lb-intro">
-    The summary leaderboard highlights average force error together with application-oriented
-    metrics for highly accurate force predictions, large-force-error atoms, and
-    far-from-equilibrium (FE) atoms. Highly accurate force predictions have force-magnitude
-    errors |&Delta;|<i>F</i>|| &lt; 0.01 eV/&Aring;, large-force-error atoms have
-    |&Delta;|<i>F</i>|| &gt; 1 eV/&Aring;, and FE atoms are defined by
-    |<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;. Full definitions are in
+    The summary leaderboard highlights <span class="mx">average force error</span> together
+    with application-oriented metrics for <span class="mx">highly accurate force
+    predictions</span>, <span class="mx">large-force-error atoms</span>, and
+    <span class="mx">far-from-equilibrium (FE) atoms</span>.
+    <span class="mx">Highly accurate force predictions</span> have force-magnitude errors
+    |&Delta;|<i>F</i>|| &lt; 0.01 eV/&Aring;, <span class="mx">large-force-error atoms</span>
+    have |&Delta;|<i>F</i>|| &gt; 1 eV/&Aring;, and <span class="mx">FE atoms</span> are
+    defined by |<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;. Full definitions are in
     <a href="#metrics">Metrics</a>, below the leaderboard.
   </p>
 
