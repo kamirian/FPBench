@@ -1328,7 +1328,15 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
 
   window.addEventListener('DOMContentLoaded', () => {
     fpbEnhance();
-    document.querySelectorAll('table.leaderboard').forEach(t => fpbSortBy(t, 2, 'asc'));
+    // Open the leaderboard best-first. The direction is read from the column's own
+    // data-dir rather than hard-coded, so the default order stays correct if the columns
+    // are ever rearranged again -- dropping the rank column silently shifted this index
+    // onto a higher-is-better column once already, which opened the board worst-first.
+    const DEFAULT_SORT_COL = 2;
+    document.querySelectorAll('table.leaderboard').forEach(t => {
+      const th = t.querySelectorAll('thead th')[DEFAULT_SORT_COL];
+      fpbSortBy(t, DEFAULT_SORT_COL, th && th.dataset.dir === 'high' ? 'desc' : 'asc');
+    });
   });
 </script>
 
