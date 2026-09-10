@@ -559,14 +559,22 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
   function makeScale(values) {
     const v = values.filter(x => typeof x === 'number' && !isNaN(x)).sort((a, b) => a - b);
     if (!v.length) return null;
-    let lo, hi;
-    if (v.length >= ROBUST_MIN_N) { lo = quantile(v, 0.05); hi = quantile(v, 0.95); }
-    else { lo = v[0]; hi = v[v.length - 1]; }
+    const robust = v.length >= ROBUST_MIN_N;
+    let lo = robust ? quantile(v, 0.05) : v[0];
+    let hi = robust ? quantile(v, 0.95) : v[v.length - 1];
     if (!(hi > lo)) { lo = v[0]; hi = v[v.length - 1]; }
-    // Strictly positive quantities whose robust span covers two or more decades are
-    // mapped through log10, so a progression like 0.01, 0.1, 1, 10 spreads across the
-    // ramp instead of collapsing into one end.
-    const useLog = v[0] > 0 && lo > 0 && hi / lo >= 100;
+    const med = quantile(v, 0.5);
+    // Log10 when the numbers are strictly positive and the distribution is long-tailed:
+    // a wide robust span AND a median sitting close to the low anchor. That combination
+    // is exactly when a linear ramp spends most of its color on a range almost no value
+    // occupies. Skew is the test, not span alone -- a span test alone misses cases like
+    // the MAE column, where clipping the tails hides how bunched the bulk really is.
+    const useLog = robust && v[0] > 0 && lo > 0 && hi / lo >= 8
+                   && (med - lo) / (hi - lo) <= 0.30;
+    // A distribution skewed enough to need log also has a tail reaching past the 95th
+    // percentile, so its upper anchor moves in to the 90th: the bulk of the values then
+    // spread across the ramp while the genuinely extreme ones clamp to the red end.
+    if (useLog) { const h90 = quantile(v, 0.90); if (h90 > lo) hi = h90; }
     const f = useLog ? Math.log10 : (x => x);
     const a = f(lo), b = f(hi);
     const scale = x => {
