@@ -249,7 +249,7 @@
     <span><span class="arrow-down">&#9660;</span> lower is better</span>
     <span><span class="arrow-up">&#9650;</span> higher is better</span>
     <span style="color:var(--accent2);font-weight:700">green text = best in column</span>
-    <span style="color:var(--muted)">cell shading: greener = better, redder = worse</span>
+    <span style="color:var(--muted)">cell shading: green = better, gold = middle, red = worse</span>
     <span style="color:var(--muted)">identifiers are never colored</span>
   </div>
 
@@ -415,9 +415,11 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
   }
 
   const CMAPS = {
-    // Performance ramp, worst -> best: muted red through neutral slate to muted green.
-    // Color always encodes how good a value is, never which metric it is.
-    perf: [[176,58,58],[128,56,62],[52,60,70],[50,104,80],[56,148,96]],
+    // Performance ramp, worst -> best: muted red, coral, muted gold, soft green, muted
+    // green. The warm half keeps blue at or above green until the color is light enough
+    // to read as gold, so the ramp never passes through a brown. Color always encodes
+    // how good a value is, never which metric it is.
+    perf: [[168,56,60],[206,106,88],[230,200,120],[156,194,112],[70,148,92]],
   };
 
   // ---------- robust, purely value-based numeric scales ----------
@@ -464,8 +466,17 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
     const f = x - lo;
     return s[lo].map((c, i) => Math.round(c + f * (s[hi][i] - c)));
   }
+  const TEXT_DARK = '#0a0d12', TEXT_LIGHT = '#ffffff';
+  function relLum(rgb) {
+    const f = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]);
+  }
+  const L_DARK = relLum([10, 13, 18]), L_LIGHT = relLum([255, 255, 255]);
   function autoText(rgb) {
-    return (rgb[0]*299 + rgb[1]*587 + rgb[2]*114) / 1000 > 140 ? '#0d1117' : '#f0f6fc';
+    // Pick whichever of the two text colors contrasts better with this background, so the
+    // red -> gold -> green ramp stays readable at the bright middle as well as the ends.
+    const L = relLum(rgb);
+    return (L + 0.05) / (L_DARK + 0.05) >= (L_LIGHT + 0.05) / (L + 0.05) ? TEXT_DARK : TEXT_LIGHT;
   }
   function fmtNum(v, kind) {
     if (v === null || v === undefined || isNaN(v)) return 'n/a';
