@@ -113,6 +113,13 @@
     table.dt { border-collapse: collapse; font-size: 0.82rem; }
     table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 76px; }
     table.dt th { background: var(--surface2); color: var(--muted); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.3px; cursor: pointer; user-select: none; }
+    /* Multi-line metric headers, matching the force leaderboard. Only line breaks
+       are new -- no label was shortened or renamed. */
+    table.dt th.th-wrap { white-space: normal; max-width: 136px; }
+    table.dt th .th-q, table.dt th .th-stat, table.dt th .th-unit { display: block; }
+    table.dt th .th-q { color: var(--text); font-weight: 600; }
+    table.dt th .th-stat { font-weight: 600; }
+    table.dt th .th-unit { font-weight: 500; }
     table.dt th.no-sort { cursor: default; }
     table.dt th:hover:not(.no-sort) { color: var(--accent); }
     table.dt th.sorted-asc, table.dt th.sorted-desc { color: var(--accent); }
@@ -285,11 +292,11 @@
       <table class="dt nebtable"><thead><tr>
       <th class="no-sort">FP</th>
       <th data-dir="low">Non-conv. paths<br>(n/total) &darr;</th>
-      <th data-dir="low">Barrier error (eV)<br>full FP-NEB (MAE / RMSE) &darr;</th>
-      <th data-dir="low">Barrier error (eV)<br>static FP on DFT-NEB (MAE / RMSE) &darr;</th>
-      <th data-dir="low">Endpoint energy-diff.<br>error (eV), full (MAE / RMSE) &darr;</th>
-      <th data-dir="high">Endpoint energy<br>rank. agr. (%), full &uarr;</th>
-      <th data-dir="high">Energy-profile<br>shape agr. (%), full &uarr;</th>
+      <th data-dir="low" class="th-wrap">Barrier error (eV)<br>full FP-NEB<br>(MAE / RMSE) &darr;</th>
+      <th data-dir="low" class="th-wrap">Barrier error (eV)<br>static FP on DFT-NEB<br>(MAE / RMSE) &darr;</th>
+      <th data-dir="low" class="th-wrap">Endpoint energy-diff.<br>error (eV), full<br>(MAE / RMSE) &darr;</th>
+      <th data-dir="high" class="th-wrap">Endpoint energy<br>rank. agr. (%), full &uarr;</th>
+      <th data-dir="high" class="th-wrap">Energy-profile<br>shape agr. (%), full &uarr;</th>
     <th class="ver-col">Version (training)</th></tr></thead><tbody>
     </tbody></table>
     </div>

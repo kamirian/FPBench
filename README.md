@@ -181,9 +181,14 @@ not silently replaced.
 | Orb | orb-v3-conservative-inf-omat-20250404 | 25.5M | OMat24, AIMD subset only | ~55M&Dagger; | [Rhodes et al. 2025](https://arxiv.org/abs/2504.06231) |
 | SevenNet | 7net-mf-ompa (modal `mpa`) | 25.7M | MPtrj + sAlex + OMat24, multi-fidelity; `mpa` selects the MPtrj + sAlex task | not reported for this checkpoint | [SevenNet pretrained models](https://sevennet.readthedocs.io/en/latest/user_guide/pretrained.html) &middot; [Kim et al. 2025](https://doi.org/10.1021/jacs.4c14455) |
 | MatterSim | MatterSim-v1.0.0-5M | 4.55M | Nonpublic MatterSim active-learning dataset, GGA-PBE(+U)&dagger; | 6M | [Model card](https://github.com/microsoft/mattersim/blob/main/MODEL_CARD.md) &middot; [Yang et al. 2024](https://arxiv.org/abs/2405.04967) |
-| Nequix | nequix-oam-1 | 707.6K | OMat24 + sAlex + MPtrj&sect; | not reported for this checkpoint | [Koker et al. 2025](https://arxiv.org/abs/2508.16067) &middot; [nequix](https://github.com/atomicarchitects/nequix) |
+| Nequix | nequix-oam-1 | 707.6K | OMat24 + sAlex + MPtrj, DFT (PBE+U)&sect; | not reported for this checkpoint | [nequix repository](https://github.com/atomicarchitects/nequix) &middot; [Koker et al. 2025](https://arxiv.org/abs/2508.16067) |
 | GPTFF | gptff_v2 | 502.5K | Atomly&#8214; | ~37.6M configurations | [Xie et al. 2024](https://doi.org/10.1016/j.scib.2024.08.039) |
 | ALIGNN | alignnff_wt10 | 4.03M | JARVIS-DFT&para; | ~307.1K | [Choudhary et al. 2023](https://arxiv.org/abs/2209.05554) |
+| NEP89 | nep89_20250409 | 976.3K | OMat24, MPtrj, SPICE, ANI-1xnr, SSE-ABACUS, SSE-VASP, Protein, UNEP-v1, CH, CHONPS, Water; mixed QM levels&dagger;&dagger; | 537,641 configurations | [GPUMD potentials](https://github.com/brucefan1983/GPUMD/tree/master/potentials/nep/nep89_20250409) &middot; [NEP89 paper](https://arxiv.org/abs/2504.21286) |
+| DPA4 | DPA4-Plus-OMat24-v20260805 | 8.85M | OMat24, DFT / DFT+U&#35; | ~100.6M frames | [DPA4-OMat24 model card](https://huggingface.co/deepmodelingcommunity/DPA4-OMat24) |
+| GRACE | GRACE-3L-OMAT-large-ft-AM | 42.1M&Dagger;&Dagger; | OMat24 pretraining &rarr; sAlex + MPtrj fine-tuning | not reported for this checkpoint | [GRACE foundation models](https://gracemaker.readthedocs.io/en/latest/gracemaker/foundation/) |
+| eqV2 | eqV2_31M_omat_mp_salex.pt | 31.2M | OMat pretraining &rarr; MPtrj + sAlex fine-tuning, DFT / DFT+U&#35; | not reported for this checkpoint | [Meta OMat24 models](https://huggingface.co/facebook/OMAT24) |
+| eSEN | esen_30m_oam.pt | 30.2M | OMat pretraining &rarr; MPtrj + sAlex fine-tuning, DFT / DFT+U&#35; | not reported for this checkpoint | [Meta OMat24 models](https://huggingface.co/facebook/OMAT24) |
 
 \* Pre-trained on MACE-OMAT-0, then fine-tuned on the matched MatPES functional.
 
@@ -196,11 +201,11 @@ reflects the absence of documented training exposure rather than a verified comp
 &Dagger; Rhodes et al. state that "all orb-v3-*-omat models are only trained on the AIMD subset of
 OMat24", and that the OMat24 dataset "contains ~55 million AIMD-sampled structures".
 
-&sect; Nequix's released checkpoint is `nequix-oam-1`. Koker et al. describe a Nequix trained on
-MPtrj and do not document this checkpoint; the OMat24 + sAlex + MPtrj corpus is inferred from the
-`oam` checkpoint identifier and is not confirmed in the paper. The model size is a parameter count
-measured from the loaded checkpoint (707,569), consistent with the 700K-708K reported for the
-architecture.
+&sect; The FPBench checkpoint is `nequix-oam-1`. The official nequix repository documents this
+checkpoint as trained on OMat24, sAlex and MPtrj at the DFT (PBE+U) level. The Nequix paper
+describes an MPtrj-trained model and does not report a training-set size or parameter count for
+this released OAM checkpoint; the 707,569-parameter model size shown here was measured from the
+loaded checkpoint by FPBench.
 
 &#8214; GPTFF's Atomly labels were computed with VASP at the GGA-PBE level with a 520 eV
 plane-wave cutoff and version 5.4 PAW pseudopotentials. The functional matches the FPBench
@@ -210,6 +215,21 @@ offsets relative to MatPES-PBE are expected independently of model quality.
 &para; ALIGNN is trained on JARVIS-DFT at the **OptB88vdW** level, not PBE. Its training set is 307,113 points, split 90:5:5. It is the only FP here
 whose training reference functional differs from the evaluation reference, so its scores measure
 agreement with the FPBench MatPES-PBE reference rather than a functional-matched fitting error.
+
+&dagger;&dagger; NEP89 is trained on eleven datasets computed at different quantum-mechanical levels
+rather than a single reference functional. Its FPBench MatPES-PBE scores therefore measure
+practical agreement with the PBE benchmark reference rather than agreement with a single matched
+reference functional. The eleven datasets and the 537,641-configuration total are reported in the NEP89 paper;
+the 976,331 trainable parameters were counted from the released model by FPBench.
+
+&Dagger;&Dagger; FPBench counts 42.1M parameters (42,112,223) for the GRACE potential used in inference. The
+released SavedModel additionally contains a 23.4M-parameter GMM uncertainty head that is disabled
+in FPBench runs and is therefore not included in the reported model size. The GRACE documentation
+does not publish a parameter count; 42.1M was measured from the released model by FPBench.
+
+&#35; The immediate model sources describe these labels as DFT and DFT+U total-energy labels.
+OMat24 itself uses PBE/PBE+U reference calculations; see the
+[OMat24 dataset reference](https://arxiv.org/abs/2410.12771).
 
 The potentials listed after the r2SCAN entries were evaluated after submission of the
 manuscript, which reports the ten FPs above them. Their model sizes are parameter counts
