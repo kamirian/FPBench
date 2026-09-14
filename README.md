@@ -256,6 +256,11 @@ onto it (`fine-tuned`).
 | Nequix | &#10003; (OOD)&sect; | not evaluated | not evaluated |
 | GPTFF | &#10003; (OOD) | not evaluated | not evaluated |
 | ALIGNN | &#10003; (OOD)&para; | not evaluated | not evaluated |
+| NEP89 | &#10003; (OOD)&dagger;&dagger; | not evaluated | not evaluated |
+| DPA4 | &#10003; (OOD) | not evaluated | not evaluated |
+| GRACE | &#10003; (OOD) | not evaluated | not evaluated |
+| eqV2 | &#10003; (OOD) | not evaluated | not evaluated |
+| eSEN | &#10003; (OOD) | not evaluated | not evaluated |
 
 \* Pre-trained on MACE-OMAT-0, fine-tuned on MatPES-PBE.
 
