@@ -2,6 +2,9 @@
 
 **Application-Oriented Error Decomposition for Foundation Potentials**
 
+FPBench benchmarks foundation potentials (FPs), also known as universal machine-learning
+interatomic potentials (MLIPs).
+
 FPBench introduces application-oriented error decomposition through metrics that resolve
 performance according to the physically consequential quantities and configurations governing
 computational tasks, including the fractions of highly accurate and large-force-error atoms,
