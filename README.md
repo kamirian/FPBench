@@ -190,8 +190,8 @@ not silently replaced.
 | NEP89 | nep89_20250409 | 976.3K | OMat24, MPtrj, SPICE, ANI-1xnr, SSE-ABACUS, SSE-VASP, Protein, UNEP-v1, CH, CHONPS, Water; mixed QM levels&dagger;&dagger; | 537,641 configurations | [GPUMD potentials](https://github.com/brucefan1983/GPUMD/tree/master/potentials/nep/nep89_20250409) &middot; [NEP89 paper](https://arxiv.org/abs/2504.21286) |
 | DPA4 | DPA4-Plus-OMat24-v20260805 | 8.85M | OMat24, DFT / DFT+U&#35; | ~100.6M frames | [DPA4-OMat24 model card](https://huggingface.co/deepmodelingcommunity/DPA4-OMat24) |
 | GRACE | GRACE-3L-OMAT-large-ft-AM | 42.1M&Dagger;&Dagger; | OMat24 pretraining &rarr; sAlex + MPtrj fine-tuning | not reported for this checkpoint | [GRACE foundation models](https://gracemaker.readthedocs.io/en/latest/gracemaker/foundation/) |
-| eqV2 | eqV2_31M_omat_mp_salex.pt | 31.2M | OMat pretraining &rarr; MPtrj + sAlex fine-tuning, DFT / DFT+U&#35; | not reported for this checkpoint | [Meta OMat24 models](https://huggingface.co/facebook/OMAT24) |
-| eSEN | esen_30m_oam.pt | 30.2M | OMat pretraining &rarr; MPtrj + sAlex fine-tuning, DFT / DFT+U&#35; | not reported for this checkpoint | [Meta OMat24 models](https://huggingface.co/facebook/OMAT24) |
+| eqV2 | eqV2_31M_omat_mp_salex.pt | 31.2M | OMat24 pretraining &rarr; MPtrj + sAlex fine-tuning, DFT / DFT+U&#35; | not reported for this checkpoint | [Meta OMat24 models](https://huggingface.co/facebook/OMAT24) |
+| eSEN | esen_30m_oam.pt | 30.2M | OMat24 pretraining &rarr; MPtrj + sAlex fine-tuning, DFT / DFT+U&#35; | not reported for this checkpoint | [Meta OMat24 models](https://huggingface.co/facebook/OMAT24) |
 
 \* Pre-trained on MACE-OMAT-0, then fine-tuned on the matched MatPES functional.
 
