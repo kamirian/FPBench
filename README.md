@@ -241,8 +241,9 @@ measured from the loaded checkpoints.
 ### Evaluation matrix
 
 Which FPs were evaluated on which dataset. The parenthetical says whether that dataset is inside
-the FP's own training data (`training`), outside it (`OOD`), or a fine-tune of an OOD base model
-onto it (`fine-tuned`).
+the FP's own training data (`training`), outside it (`OOD`), a fine-tune of an OOD base model
+onto it (`fine-tuned`), or a dataset used to pretrain the model before it was fine-tuned on
+other data (`pretraining`).
 
 | FP | MatPES-PBE (force) | OMat24 rattled-1000 (force, SI) | Phase stability / ordering and NEB |
 |---|---|---|---|
@@ -252,18 +253,18 @@ onto it (`fine-tuned`).
 | UMA | &#10003; (OOD) | &#10003; (training) | &#10003; (OOD) |
 | M3GNet-MatPES | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) |
 | TensorNet-MatPES | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) |
-| MACE-MatPES | &#10003; (training) | &#10003; (fine-tuned)* | &#10003; (OOD) |
-| Orb | &#10003; (OOD) | not evaluated | not evaluated |
-| SevenNet | &#10003; (OOD) | not evaluated | not evaluated |
-| MatterSim | &#10003; (OOD)&dagger; | not evaluated | not evaluated |
-| Nequix | &#10003; (OOD)&sect; | not evaluated | not evaluated |
-| GPTFF | &#10003; (OOD) | not evaluated | not evaluated |
+| MACE-MatPES | &#10003; (training) | &#10003; (pretraining)* | &#10003; (OOD) |
+| Orb | &#10003; (OOD) | &#10003; (training) | not evaluated |
+| SevenNet | &#10003; (OOD) | &#10003; (training) | not evaluated |
+| MatterSim | &#10003; (OOD)&dagger; | &#10003; (OOD) | not evaluated |
+| Nequix | &#10003; (OOD)&sect; | &#10003; (training) | not evaluated |
+| GPTFF | &#10003; (OOD) | &#10003; (OOD) | not evaluated |
 | ALIGNN | &#10003; (OOD)&para; | not evaluated | not evaluated |
-| NEP89 | &#10003; (OOD)&dagger;&dagger; | not evaluated | not evaluated |
-| DPA4 | &#10003; (OOD) | not evaluated | not evaluated |
-| GRACE | &#10003; (OOD) | not evaluated | not evaluated |
-| eqV2 | &#10003; (OOD) | not evaluated | not evaluated |
-| eSEN | &#10003; (OOD) | not evaluated | not evaluated |
+| NEP89 | &#10003; (OOD)&dagger;&dagger; | &#10003; (OOD) | not evaluated |
+| DPA4 | &#10003; (OOD) | &#10003; (training) | not evaluated |
+| GRACE | &#10003; (OOD) | &#10003; (pretraining) | not evaluated |
+| eqV2 | &#10003; (OOD) | &#10003; (pretraining) | not evaluated |
+| eSEN | &#10003; (OOD) | &#10003; (pretraining) | not evaluated |
 
 \* Pre-trained on MACE-OMAT-0, fine-tuned on MatPES-PBE.
 

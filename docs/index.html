@@ -395,7 +395,7 @@
 
 <section class="wide" id="evaluation-matrix">
   <h2 style="text-align:left;">Evaluation Matrix</h2>
-  <p>Which FPs were evaluated on which FPBench component/dataset. A checkmark means the FP was evaluated there; the parenthetical states whether that dataset falls inside (<code>training</code>) or outside (<code>OOD</code>, out-of-distribution) the FP's own training data, or whether the FP is a fine-tune of an OOD base model onto that dataset (<code>fine-tuned</code>).</p>
+  <p>Which FPs were evaluated on which FPBench component/dataset. A checkmark means the FP was evaluated there; the parenthetical states whether that dataset falls inside (<code>training</code>) or outside (<code>OOD</code>, out-of-distribution) the FP's own training data, whether the FP is a fine-tune of an OOD base model onto that dataset (<code>fine-tuned</code>), or whether that dataset was used to pretrain the model before it was fine-tuned on other data (<code>pretraining</code>).</p>
   <div class="table-scroll-plain">
     <table class="matrix">
       <tr><th>FP</th><th>MatPES-PBE (Force Prediction)</th><th>OMat24 rattled-1000 (Force Prediction, SI)</th><th>Phase Stability/Ordering &amp; Ion Migration (NEB)</th></tr>
@@ -405,18 +405,18 @@
       <tr><td>UMA</td><td class="yes">&#10003; (OOD)</td><td class="yes">&#10003; (training)</td><td class="yes">&#10003; (OOD)</td></tr>
       <tr><td>M3GNet-MatPES</td><td class="yes">&#10003; (training)</td><td class="yes">&#10003; (OOD)</td><td class="yes">&#10003; (OOD)</td></tr>
       <tr><td>TensorNet-MatPES</td><td class="yes">&#10003; (training)</td><td class="yes">&#10003; (OOD)</td><td class="yes">&#10003; (OOD)</td></tr>
-      <tr><td>MACE-MatPES</td><td class="yes">&#10003; (training)</td><td class="yes">&#10003; (fine-tuned)*</td><td class="yes">&#10003; (OOD)</td></tr>
-      <tr><td>Orb</td><td class="yes">&#10003; (OOD)</td><td>not evaluated</td><td>not evaluated</td></tr>
-      <tr><td>SevenNet</td><td class="yes">&#10003; (OOD)</td><td>not evaluated</td><td>not evaluated</td></tr>
-      <tr><td>MatterSim</td><td class="yes">&#10003; (OOD)&dagger;</td><td>not evaluated</td><td>not evaluated</td></tr>
-      <tr><td>Nequix</td><td class="yes">&#10003; (OOD)&sect;</td><td>not evaluated</td><td>not evaluated</td></tr>
-      <tr><td>GPTFF</td><td class="yes">&#10003; (OOD)</td><td>not evaluated</td><td>not evaluated</td></tr>
+      <tr><td>MACE-MatPES</td><td class="yes">&#10003; (training)</td><td class="yes">&#10003; (pretraining)*</td><td class="yes">&#10003; (OOD)</td></tr>
+      <tr><td>Orb</td><td class="yes">&#10003; (OOD)</td><td class="yes">&#10003; (training)</td><td>not evaluated</td></tr>
+      <tr><td>SevenNet</td><td class="yes">&#10003; (OOD)</td><td class="yes">&#10003; (training)</td><td>not evaluated</td></tr>
+      <tr><td>MatterSim</td><td class="yes">&#10003; (OOD)&dagger;</td><td class="yes">&#10003; (OOD)</td><td>not evaluated</td></tr>
+      <tr><td>Nequix</td><td class="yes">&#10003; (OOD)&sect;</td><td class="yes">&#10003; (training)</td><td>not evaluated</td></tr>
+      <tr><td>GPTFF</td><td class="yes">&#10003; (OOD)</td><td class="yes">&#10003; (OOD)</td><td>not evaluated</td></tr>
       <tr><td>ALIGNN</td><td class="yes">&#10003; (OOD)&para;</td><td>not evaluated</td><td>not evaluated</td></tr>
-      <tr><td>NEP89</td><td class="yes">&#10003; (OOD)&dagger;&dagger;</td><td>not evaluated</td><td>not evaluated</td></tr>
-      <tr><td>DPA4</td><td class="yes">&#10003; (OOD)</td><td>not evaluated</td><td>not evaluated</td></tr>
-      <tr><td>GRACE</td><td class="yes">&#10003; (OOD)</td><td>not evaluated</td><td>not evaluated</td></tr>
-      <tr><td>eqV2</td><td class="yes">&#10003; (OOD)</td><td>not evaluated</td><td>not evaluated</td></tr>
-      <tr><td>eSEN</td><td class="yes">&#10003; (OOD)</td><td>not evaluated</td><td>not evaluated</td></tr>
+      <tr><td>NEP89</td><td class="yes">&#10003; (OOD)&dagger;&dagger;</td><td class="yes">&#10003; (OOD)</td><td>not evaluated</td></tr>
+      <tr><td>DPA4</td><td class="yes">&#10003; (OOD)</td><td class="yes">&#10003; (training)</td><td>not evaluated</td></tr>
+      <tr><td>GRACE</td><td class="yes">&#10003; (OOD)</td><td class="yes">&#10003; (pretraining)</td><td>not evaluated</td></tr>
+      <tr><td>eqV2</td><td class="yes">&#10003; (OOD)</td><td class="yes">&#10003; (pretraining)</td><td>not evaluated</td></tr>
+      <tr><td>eSEN</td><td class="yes">&#10003; (OOD)</td><td class="yes">&#10003; (pretraining)</td><td>not evaluated</td></tr>
     </table>
   </div>
   <p class="note">* Pre-trained on MACE-OMAT-0, fine-tuned on MatPES-PBE.</p>
