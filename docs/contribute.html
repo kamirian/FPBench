@@ -476,8 +476,8 @@
   <div id="tab-force" class="tab-panel active">
     <p class="subhead">File format</p>
     <p>
-      One uncompressed JSON file per dataset, holding every FP you evaluated on that dataset, with
-      each FP's per-atom error arrays under <code>models</code>. Published files are named
+      One gzipped JSON file per dataset, holding every FP you evaluated on that dataset, with each
+      FP's per-atom error arrays under <code>models</code>. Published files follow
       <code>&lt;dataset&gt;_force_results_standardized.json</code>, for example
       <code>matpes_pbe_force_results_standardized.json</code>.
     </p>
@@ -779,10 +779,10 @@ hull_table.to_csv("phase_hull_table_demo.csv")
   <div id="tab-neb" class="tab-panel">
     <p class="subhead">File format</p>
     <p>
-      One JSON file. Each FP carries three protocol branches for the same migration pathways
-      &mdash; the full FP-NEB workflow, static FP evaluations on the DFT-NEB image structures, and
-      DFT static diagnostics on the final FP-NEB image structures &mdash; kept separate because each
-      answers a different question.
+      One gzipped JSON file with three protocol branches per FP. The full FP-NEB workflow and static
+      FP evaluations on the DFT-NEB image structures produce every leaderboard metric. The third,
+      DFT static diagnostics on the final FP-NEB image structures, is optional: it requires DFT on
+      your own FP images, and the validator flags its absence without affecting any other analysis.
     </p>
 
     <p class="subhead">Structure</p>
@@ -836,7 +836,7 @@ hull_table.to_csv("phase_hull_table_demo.csv")
       <tr><td>Pathway key</td><td><code>"&lt;icsd_id&gt;|&lt;source_path_id&gt;"</code>; must match the pathway's <code>identifiers</code>.</td></tr>
       <tr><td><code>full_fp_neb</code></td><td>Full FP-NEB workflow: FP-relaxed endpoints and the FP's own climbing-image path.</td></tr>
       <tr><td><code>fp_static_on_dft_neb</code></td><td>Static FP evaluations on the DFT-NEB image structures.</td></tr>
-      <tr><td><code>dft_static_on_fp_neb</code></td><td>DFT static diagnostics on the final FP-NEB image structures; intentionally sparse, never padded.</td></tr>
+      <tr><td><code>dft_static_on_fp_neb</code></td><td>DFT static diagnostics on the final FP-NEB image structures; intentionally sparse, never padded. Not required for submission.</td></tr>
       <tr><td><code>neb_status.neb_converged</code></td><td>Required on every <code>full_fp_neb</code> pathway; never assumed true.</td></tr>
       <tr><td><code>neb_last_fmax</code><br /><code>neb_n_steps</code></td><td>Final maximum force and optimizer step count of the NEB run.</td></tr>
       <tr><td><code>calculation_status</code></td><td>Whether the job ran, kept separate from whether it converged.</td></tr>
