@@ -118,11 +118,43 @@ Everything above lets you evaluate any FP against the FPBench reference data on 
 no permission or coordination is needed. Being listed on the public leaderboard is separate.
 
 For a new FP to be considered for inclusion in the public leaderboard, please contact
-Prof. Yifei Mo at <yfmo@umd.edu> with:
+Prof. Yifei Mo at <yfmo@umd.edu>. Submissions are handled by email; the repository does not take
+outside commits.
 
-- model name
-- version/checkpoint
-- a link to the official implementation or model weights
+See the [Contribute page](https://mogroupumd.github.io/FPBench/contribute.html) for worked
+examples of each component's results format. Please include the following:
+
+```text
+Model name:
+Version / checkpoint:
+Parameters:
+Training data:
+License (code):
+License (checkpoint):
+Implementation:
+Checkpoint download:
+Paper / DOI:
+Environment:             Python version and package versions
+Calculator setup:        Code snippet or link
+Components evaluated:    Force / Phase stability & ordering / NEB
+Datasets evaluated:
+Calculation settings:    Configuration file or settings used
+Results files:           Download links
+Metric tables:           Attached files or links
+```
+
+together with the standardized results file written by the merge step of each component you
+evaluated. Those files are read by the same entry points this project's own analysis uses:
+
+| Component | Analysis entry point |
+|---|---|
+| Force prediction | `build_force_results(dft_forces, fp_forces)` |
+| Phase stability and ordering | `build_phase_stability_ordering_results(reference_data, fp_results)` |
+| Ion migration by NEB | `build_neb_analysis_results(reference_data, fp_results)` |
+
+Each component README documents the field-level shape those functions expect, under "Required
+inputs and outputs". Submitted results are recomputed against the same reference data and the
+same metric code used for every entry already on the leaderboard.
 
 ---
 

@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FPBench: Contribute a Foundation Potential</title>
+  <meta name="description" content="How to evaluate a new foundation potential with FPBench and submit it for the public leaderboard: registering an ASE calculator, the standardized results file formats for force prediction, phase stability and ordering, and ion migration by NEB, worked examples, and what to email." />
+  <link rel="canonical" href="https://mogroupumd.github.io/FPBench/contribute.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="FPBench" />
+  <meta property="og:title" content="FPBench: Contribute a Foundation Potential" />
+  <meta property="og:description" content="How to evaluate a new foundation potential with FPBench and submit it for the public leaderboard: registering an ASE calculator, the standardized results file formats for force prediction, phase stability and ordering, and ion migration by NEB, worked examples, and what to email." />
+  <meta property="og:url" content="https://mogroupumd.github.io/FPBench/contribute.html" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="FPBench: Contribute a Foundation Potential" />
+  <meta name="twitter:description" content="How to evaluate a new foundation potential with FPBench and submit it for the public leaderboard: registering an ASE calculator, the standardized results file formats for force prediction, phase stability and ordering, and ion migration by NEB, worked examples, and what to email." />
+  <style>
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --surface2: #1c2230;
+      --border:   #30363d;
+      --accent:   #58a6ff;
+      --accent2:  #3fb950;
+      --accent3:  #f78166;
+      --accent4:  #d29922;
+      --text:     #c9d1d9;
+      --muted:    #8b949e;
+      --heading:  #e6edf3;
+      --code-bg:  #1f2937;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav .logo { font-weight: 700; font-size: 1rem; color: var(--heading); text-decoration: none; }
+    nav .nav-links { display: flex; align-items: center; }
+    nav a { color: var(--muted); text-decoration: none; font-size: 0.88rem; margin-left: 1.4rem; }
+    nav a:hover { color: var(--accent); }
+    nav a.nav-highlight { color: var(--accent); font-weight: 600; }
+
+    .hero { text-align: center; padding: 4rem 2rem 2.6rem; max-width: 860px; margin: 0 auto; }
+    .hero .tag-line { font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; }
+    .hero h1 { font-size: 2.2rem; font-weight: 800; color: var(--heading); letter-spacing: -0.5px; line-height: 1.2; }
+    .hero p { margin-top: 1rem; font-size: 1.02rem; color: var(--muted); max-width: 660px; margin-left: auto; margin-right: auto; }
+    .cta { margin-top: 1.6rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-block; padding: 0.6rem 1.3rem; border-radius: 6px; font-size: 0.92rem; font-weight: 600; text-decoration: none; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--accent); color: #0d1117; }
+    .btn-outline { border: 1px solid var(--border); color: var(--heading); background: var(--surface); }
+    .btn-green  { background: var(--accent2); color: #0d1117; }
+
+    section { max-width: 1080px; margin: 0 auto; padding: 2.6rem 2rem; border-top: 1px solid var(--border); }
+    section h2 { font-size: 1.55rem; color: var(--heading); font-weight: 700; margin-bottom: 1rem; }
+    section h3 { font-size: 1.05rem; color: var(--heading); font-weight: 600; margin: 1.8rem 0 0.6rem; }
+    section p { color: var(--text); margin-bottom: 0.8rem; }
+
+    .callout { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 1rem 1.4rem; margin: 1.2rem 0; font-size: 0.95rem; color: var(--text); }
+    .callout strong { color: var(--heading); }
+
+    .dataset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .dataset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem 1.6rem; }
+    .dataset-card .ds-name { font-size: 1rem; font-weight: 700; color: var(--heading); margin-bottom: 0.4rem; }
+    .dataset-card .ds-stat { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.2rem; }
+    .dataset-card .ds-stat span { color: var(--text); }
+    .dataset-card .ds-desc { font-size: 0.87rem; color: var(--text); margin-top: 0.7rem; line-height: 1.5; }
+
+    .col-legend { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: 0.8rem; color: var(--muted); }
+    .col-legend .arrow-down { color: var(--accent3); }
+    .col-legend .arrow-up   { color: var(--accent2); }
+    .lb-intro { font-size: 0.85rem; color: var(--text); line-height: 1.6; margin-bottom: 1.1rem;
+      padding: 0.75rem 0.95rem; background: var(--surface); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent); border-radius: 8px; }
+    .lb-intro a { color: var(--accent); }
+    .lb-intro .mx { color: var(--heading); font-weight: 600; }
+
+    .protocol-table-wrap { overflow-x: auto; margin: 1rem 0 1.4rem; }
+    table.gen { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-top: 0.8rem; }
+    table.gen th { background: var(--surface); color: var(--muted); text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    table.gen td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.83rem; }
+    table.gen tr:last-child td { border-bottom: none; }
+
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0.2rem 0 1.1rem; scrollbar-width: thin; }
+
+    .tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;
+      /* overflow-x alone makes the element scroll on both axes, and the buttons stand a
+         fraction of a pixel taller than the strip, which shows as a stray vertical
+         scrollbar wherever the OS draws scrollbars permanently. */
+      overflow-x: auto; overflow-y: hidden; }
+    .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-size: 0.9rem; font-weight: 600; padding: 0.7rem 1.4rem; cursor: pointer; white-space: nowrap; font-family: inherit; transition: color 0.15s, border-color 0.15s; }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    table.dt { border-collapse: collapse; font-size: 0.82rem; }
+    table.dt th, table.dt td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); white-space: nowrap; text-align: center; min-width: 76px; }
+    table.dt th { background: var(--surface2); color: var(--muted); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.3px; cursor: pointer; user-select: none; }
+    /* Multi-line metric headers, matching the force leaderboard. Only line breaks
+       are new -- no label was shortened or renamed. */
+    table.dt th.th-wrap { white-space: normal; max-width: 136px; }
+    table.dt th .th-q, table.dt th .th-stat, table.dt th .th-unit { display: block; }
+    table.dt th .th-q { color: var(--text); font-weight: 600; }
+    table.dt th .th-stat { font-weight: 600; }
+    table.dt th .th-unit { font-weight: 500; }
+    table.dt th.no-sort { cursor: default; }
+    table.dt th:hover:not(.no-sort) { color: var(--accent); }
+    table.dt th.sorted-asc, table.dt th.sorted-desc { color: var(--accent); }
+    table.dt th.sorted-asc::after { content: " \25B2"; }
+    table.dt th.sorted-desc::after { content: " \25BC"; }
+    table.dt td { color: var(--text); font-family: "SFMono-Regular", Consolas, monospace; }
+    table.dt tr:last-child td { border-bottom: none; }
+    table.dt th:first-child, table.dt td:first-child {
+      position: sticky; left: 0; background: var(--surface); text-align: left;
+      font-family: inherit; font-weight: 600; color: var(--heading); z-index: 2;
+      min-width: 150px;
+    }
+    table.dt th:first-child { background: var(--surface2); z-index: 3; }
+    table.dt tr:hover td { filter: brightness(1.08); }
+    table.dt td.fp-name { text-align: left; }
+    table.dt td.best { color: var(--accent2) !important; font-weight: 700; }
+
+    .split-pill { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 0.78rem; }
+    .split-sep { color: var(--muted); margin: 0 2px; }
+
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.84rem; line-height: 1.6; margin-top: 0.8rem; }
+    code { background: var(--code-bg); border-radius: 4px; padding: 0.15em 0.45em; font-size: 0.85em; color: #79c0ff; font-family: "SFMono-Regular", Consolas, monospace; }
+    pre code { background: none; padding: 0; color: var(--text); }
+
+    footer { text-align: center; padding: 2.5rem 2rem; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer .affil { margin-top: 0.3rem; font-size: 0.8rem; }
+  
+    /* ---------- shared table affordances ---------- */
+    .scroll-shell { position: relative; }
+    .scroll-shell::after { content: ""; position: absolute; right: 0; top: var(--fade-top, 0px); bottom: var(--fade-bottom, 0px); width: 46px;
+      pointer-events: none; opacity: 0; transition: opacity 0.2s ease;
+      background: linear-gradient(to right, rgba(13,17,23,0), rgba(13,17,23,0.95)); }
+    .scroll-shell.has-overflow:not(.at-end)::after { opacity: 1; }
+    details .scroll-shell::after { background: linear-gradient(to right, rgba(22,27,34,0), rgba(22,27,34,0.95)); }
+
+    /* tabs read as controls, not labels */
+    .tab-bar { gap: 0.35rem; }
+    .tab-btn { background: var(--surface); border: 1px solid var(--border); border-bottom-width: 2px;
+      border-radius: 8px 8px 0 0; margin-bottom: -1px; }
+    .tab-btn:hover { background: var(--surface2); color: var(--text); }
+    .tab-btn.active { background: var(--surface2); color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* collapsible result sections: whole bar is the control */
+    details > summary { display: block; background: var(--surface2); }
+    details:not([open]) > summary::after { float: right; margin-left: 0; }
+    details > summary::before { color: var(--accent); }
+    details:not([open]) > summary::after { content: "View results"; margin-left: auto;
+      font-size: 0.72rem; font-weight: 600; color: var(--accent); }
+      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+        table.dt th.ver-col, table.dt td.training-col { min-width: 150px; max-width: 200px;
+      white-space: normal; text-align: left; line-height: 1.45; }
+    table.dt td.training-col .ver { color: var(--text);
+      font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.74rem; }
+    table.dt td.training-col .trn { color: var(--muted); font-size: 0.74rem; overflow-wrap: anywhere; }
+      /* horizontal-overflow affordance -- one blue accent means "more this way" */
+    .scroll-shell::before { content: ""; position: absolute; left: var(--sticky-w, 0px); top: var(--fade-top, 0px);
+      bottom: var(--fade-bottom, 0px); width: 46px; pointer-events: none; opacity: 0;
+      transition: opacity 0.2s ease;
+      background: linear-gradient(to left, rgba(13,17,23,0), rgba(13,17,23,0.95)); }
+    .scroll-shell.has-overflow:not(.at-start)::before { opacity: 1; }
+    details .scroll-shell::before { background: linear-gradient(to left, rgba(22,27,34,0), rgba(22,27,34,0.95)); }
+
+    /* Both arrows stay in place; an arrow lights up only while scrolling that
+       way is still possible, so nothing appears or disappears mid-scroll and
+       the table never shifts. */
+    .scroll-hint { display: none; align-items: center; justify-content: flex-end; gap: 0.4rem;
+      font-size: 0.76rem; font-weight: 600; letter-spacing: 0.2px; color: var(--accent);
+      padding: 0 1.1rem 0.5rem; }
+    .scroll-shell.has-overflow .scroll-hint { display: flex; }
+    .scroll-hint span { white-space: nowrap; }
+    .scroll-hint .ar { color: var(--muted); opacity: 0.5;
+      transition: color .18s ease, opacity .18s ease; }
+    .scroll-hint .ar.lit { color: var(--accent); opacity: 1; }
+    .scroll-nudge { position: absolute; display: none; width: 36px; height: 36px; border-radius: 50%;
+      transform: translateY(-50%); padding: 0; cursor: pointer; z-index: 4; font-family: inherit;
+      border: 1px solid rgba(88,166,255,0.35); background: var(--surface2); color: var(--accent);
+      align-items: center; justify-content: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.45);
+      transition: color .18s, border-color .18s, background .18s, box-shadow .18s, opacity .18s; }
+    .scroll-nudge.lit { cursor: pointer; }
+    .scroll-nudge.lit:hover { border-color: var(--accent); background: var(--surface);
+      box-shadow: 0 2px 14px rgba(88,166,255,0.28); }
+    .scroll-nudge:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .scroll-nudge.prev { left: calc(var(--sticky-w, 0px) + 10px); }
+    .scroll-nudge.next { right: 8px; }
+    .scroll-shell.has-overflow .scroll-nudge.lit { display: flex; }
+
+    /* horizontal scrollbar: neutral track, accent-blue draggable thumb */
+    .table-scroll { scrollbar-width: thin; scrollbar-color: var(--accent) var(--surface2); }
+    .table-scroll::-webkit-scrollbar { height: 10px; }
+    .table-scroll::-webkit-scrollbar-track { background: var(--surface2); border-radius: 5px; }
+    .table-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 5px;
+      border: 2px solid var(--surface2); }
+    .table-scroll::-webkit-scrollbar-thumb:hover,
+    .table-scroll::-webkit-scrollbar-thumb:active { background: #79b8ff; }
+      /* shared leaderboard header treatment: long headers wrap, data cells never do */
+    table.dt { width: max-content; min-width: 100%; }
+    table.dt th { white-space: nowrap; vertical-align: middle; line-height: 1.35;
+      padding-top: 0.55rem; padding-bottom: 0.55rem; }
+    table.dt td { white-space: nowrap; }
+  
+    /* ---- Contribute page ---- */
+    html { scroll-behavior: smooth; }
+    section { scroll-margin-top: 1.5rem; }
+
+    /* the inherited stylesheet appends "View results" to closed disclosures; not wanted here */
+    details:not([open]) > summary::after { content: none; }
+
+    details > summary {
+      list-style: none; cursor: pointer; color: var(--accent);
+      font-size: 0.9rem; font-weight: 600; background: none;
+      padding: 0.35rem 0; margin-top: 0.9rem;
+    }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before { content: "\25B8\00a0\00a0"; color: var(--accent); }
+    details[open] > summary::before { content: "\25BE\00a0\00a0"; }
+    details > summary:hover { color: var(--heading); }
+
+
+    /* Wide screens: two-column grid so the panel is sticky beside the content,
+       never overlapping it. Below this width the panel collapses above the content. */
+    
+
+    /* Table of contents.
+       Narrow screens: a collapsed, boxed disclosure above the content.
+       Wide screens: plain text in the right margin, no box, always expanded
+       (a closed <details> hides its children, so JS keeps it open there). */
+    #toc {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.6rem 0.9rem;
+      max-width: 1080px; margin: 1.6rem auto 0;
+    }
+    #toc > summary { display: block; margin-top: 0; font-size: 0.9rem; }
+    #toc .toc-title { display: none; }
+    #toc .toc-links { display: block; padding-top: 0.4rem; }
+    #toc a {
+      display: block; color: var(--muted); text-decoration: none;
+      font-size: 0.92rem; line-height: 1.45;
+      padding: 0.32rem 0.7rem; border-left: 2px solid var(--border);
+      overflow-wrap: break-word;
+      transition: color 0.12s, border-color 0.12s;
+    }
+    #toc a.sub { padding-left: 1.6rem; font-size: 0.86rem; }
+    #toc a:hover { color: var(--text); border-left-color: var(--muted); }
+    #toc a.active { color: var(--accent); border-left-color: var(--accent); }
+    h3.ex-head { scroll-margin-top: 1.5rem; }
+
+    @media (min-width: 1240px) {
+      .page-wrap {
+        display: grid; grid-template-columns: 250px minmax(0, 1080px) 250px;
+        gap: 2.5rem; justify-content: center; margin: 0 auto; padding: 0 1.5rem;
+        align-items: start;
+      }
+      .page-main { grid-column: 2; grid-row: 1; min-width: 0; }
+      .page-wrap section { max-width: none; margin: 0; padding-left: 0; padding-right: 0; }
+      #toc {
+        grid-column: 3; grid-row: 1;
+        position: sticky; top: 2rem;
+        background: none; border: none; border-radius: 0;
+        padding: 0; margin: 3.2rem 0 0; max-width: none;
+      }
+      #toc > summary { display: none; }
+      #toc .toc-title {
+        display: block; color: var(--heading); font-weight: 700;
+        font-size: 0.88rem; margin: 0 0 0.6rem 0.7rem;
+      }
+      #toc .toc-links { padding-top: 0; }
+    }
+
+    .code-wrap { position: relative; margin: 0.9rem 0; }
+    .code-wrap pre {
+      background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.95rem 1.1rem; overflow-x: auto; margin: 0;
+    }
+    .code-wrap pre code {
+      display: block; white-space: pre; tab-size: 4;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.79rem; line-height: 1.62; color: var(--text);
+    }
+    .copy-btn {
+      position: absolute; top: 0.55rem; right: 0.6rem;
+      background: var(--surface2); color: var(--muted);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 0.25rem 0.62rem; font-size: 0.72rem; cursor: pointer;
+      font-family: inherit; opacity: 0; transition: opacity 0.15s ease;
+    }
+    .code-wrap:hover .copy-btn, .copy-btn:focus { opacity: 1; }
+    .copy-btn:hover { color: var(--heading); border-color: var(--accent); }
+
+    section h3.ex-head {
+      font-size: 1.18rem; font-weight: 700; color: var(--heading);
+      margin: 2rem 0 0.15rem; padding-top: 1.1rem;
+      border-top: 1px solid var(--border);
+    }
+    p.subhead {
+      color: var(--heading); font-weight: 600; font-size: 0.93rem;
+      margin-top: 1.4rem; margin-bottom: 0.3rem;
+    }
+    ol.steps { margin: 0.9rem 0 0 1.25rem; }
+    ol.steps li { margin-bottom: 0.3rem; }
+    ol.steps strong { color: var(--heading); }
+
+    table.field-table {
+      width: 100%; border-collapse: collapse; margin: 0.7rem 0 0;
+      font-size: 0.84rem; table-layout: fixed;
+    }
+    table.field-table th, table.field-table td {
+      border: 1px solid var(--border); padding: 0.45rem 0.65rem;
+      text-align: left; vertical-align: top;
+    }
+    table.field-table th { background: var(--surface2); color: var(--heading); font-weight: 600; }
+    table.field-table td:first-child { width: 34%; color: var(--text); }
+    table.field-table code { font-size: 0.78rem; word-break: break-word; }
+
+    @media (max-width: 720px) {
+      .copy-btn { opacity: 1; }
+      .code-wrap pre code { font-size: 0.72rem; }
+      table.field-table { font-size: 0.78rem; }
+      table.field-table td:first-child { width: 42%; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">FPBench</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="force-error.html">Force Prediction</a>
+    <a href="phase-stability-ordering.html">Phase Stability &amp; Ordering</a>
+    <a href="ion-migration-neb.html">Ion Migration (NEB)</a>
+    <a class="nav-highlight" href="contribute.html">Contribute</a>
+    <a href="https://github.com/mogroupumd/FPBench">GitHub</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="tag-line">FPBench &middot; Contribute</div>
+  <h1>Contribute a Foundation Potential</h1>
+  <p>
+    Anyone can evaluate a foundation potential against the FPBench reference data without asking
+    permission. Inclusion in the public leaderboard is a separate step, handled by email.
+  </p>
+</div>
+
+
+<div class="page-wrap">
+
+<details id="toc" open>
+  <summary>On this page</summary>
+  <div class="toc-title">On this page</div>
+  <div class="toc-links">
+    <a href="#evaluate">Evaluate your model</a>
+    <a class="sub" href="#register">Register a potential</a>
+    <a href="#formats">Results files &amp; examples</a>
+    <a class="sub" href="#formats" data-tab="force">Force Prediction</a>
+    <a class="sub" href="#formats" data-tab="phase">Phase Stability &amp; Ordering</a>
+    <a class="sub" href="#formats" data-tab="neb">Ion Migration (NEB)</a>
+    <a href="#contribute">What to email</a>
+  </div>
+</details>
+
+<main class="page-main">
+
+<section id="evaluate">
+  <h2>Evaluate your model</h2>
+  <p>
+    FPBench reaches a potential only through an ASE calculator. Adding one means a single entry in
+    the component's <code>POTENTIAL_REGISTRY</code> &mdash; no metric or analysis code changes. Full
+    procedure:
+    <a href="https://github.com/mogroupumd/FPBench/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a>.
+  </p>
+  <ol class="steps">
+    <li><strong>Register</strong> &mdash; one entry in the component's <code>POTENTIAL_REGISTRY</code>.</li>
+    <li><strong>Generate</strong> &mdash; the generator writes one standalone script per job. Nothing is submitted.</li>
+    <li><strong>Run</strong> &mdash; on your own machine or cluster. FPBench generates jobs; it does not execute them.</li>
+    <li><strong>Merge</strong> &mdash; validates each job against the shared reference and writes the standardized results file.</li>
+    <li><strong>Analyze</strong> &mdash; the analysis notebook reads that file and reproduces the leaderboard tables.</li>
+  </ol>
+
+  <h3 class="ex-head" id="register">Register a potential</h3>
+  <p class="note">
+    A representative entry. <code>my_fp</code>, <code>MyFPCalculator</code> and the paths are
+    illustrative placeholders. Field names differ between components, so copy an existing entry from
+    the generator notebook of the component you are evaluating rather than this one.
+  </p>
+  <div class="code-wrap">
+    <button class="copy-btn" type="button">Copy</button>
+<pre><code>"my_fp": {
+    "mlip_name":     "my_fp",
+    "site_pkgs":     "/path/to/my_fp_env/lib/python3.10/site-packages",
+    "venv_activate": "/path/to/my_fp_env/bin/activate",
+    "python":        "/path/to/my_fp_env/bin/python",
+    "model_path":    "/path/to/checkpoints/my_fp_model.pt",
+    "calc_setup":    textwrap.dedent("""
+        from my_fp.calculators import MyFPCalculator
+        calc = MyFPCalculator(
+            model_paths=[MODEL_PATH],
+            device="cpu",
+            default_dtype="float64",
+        )
+    """).strip(),
+},</code></pre>
+  </div>
+  <details>
+    <summary>Notes on the registry entry</summary>
+    <p class="note">
+      The generator substitutes <code>MODEL_PATH</code> from the entry's <code>model_path</code>.
+      Where a package ships its own weights, set <code>model_path</code> to <code>None</code>.
+      Values still beginning with <code>/path/to/</code> raise an explicit error rather than
+      producing a job script that fails later. One environment per FP family is recommended, since
+      FP packages pin incompatible PyTorch and ASE versions.
+    </p>
+  </details>
+</section>
+
+<section id="formats">
+  <h2>Results files and worked examples</h2>
+  <p>
+    Send the merged standardized results file your component's merge step writes, for each component
+    you evaluated. The per-job outputs produced during a run are intermediate and are not the
+    submission. Each tab gives that component's file format, a field reference, and runnable
+    examples.
+  </p>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('force',this)">Force Prediction</button>
+    <button class="tab-btn" onclick="switchTab('phase',this)">Phase Stability &amp; Ordering</button>
+    <button class="tab-btn" onclick="switchTab('neb',this)">Ion Migration (NEB)</button>
+  </div>
+
+  <div id="tab-force" class="tab-panel active">
+    <p class="subhead">File format</p>
+    <p>
+      One uncompressed JSON file holding every FP you evaluated on a given dataset, with each FP's
+      per-atom error arrays under <code>models</code>. Name it after the dataset you evaluated rather
+      than reusing one of ours.
+    </p>
+
+    <p class="subhead">Structure</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">Copy</button>
+<pre><code>{
+  "schema_version": "1.0",
+  "dataset_name": "OMat24-rattled-1000",
+  "units": {"force": "eV/&#197;", "angle": "degree"},
+  "generation_metadata": {
+    "dataset_label": "OMat24-rattled-1000",
+    "n_chunks_expected": 20,
+    "models_included": ["My_FP"],
+    "raw_structure_count": 117004,
+    "raw_atom_count": 1657765,
+    "raw_dft_checksum": "7c3e25874ae2cb75...",
+    "per_model_summary": {
+      "My_FP": {
+        "registry_key": "my_fp",
+        "n_chunks_found": 20,
+        "partial": false,
+        "raw_atom_count": 1657765,
+        "metric_valid_atom_count": 1657765,
+        "excluded_undefined_angle_count": 0,
+        "model_path": "/path/to/checkpoints/my_fp_model.pt",
+        "structure_id_checksum": "6c24e356fdc27384..."
+      }
+    }
+  },
+  "reference_population": {
+    "dft_force_magnitude": [0.0739, 0.1021],
+    "structure_id":        [29632, 29632],
+    "atom_index":          [0, 1]
+  },
+  "models": {
+    "My_FP": {
+      "dft_force_magnitude":   [0.0739, 0.1021],
+      "fp_force_magnitude":    [0.0720, 0.0994],
+      "force_magnitude_error": [-0.0019, -0.0027],
+      "force_angle_error":     [1.84, 2.11],
+      "force_vector_error":    [0.0031, 0.0035],
+      "structure_id":          [29632, 29632],
+      "atom_index":            [0, 1]
+    }
+  }
+}</code></pre>
+    </div>
+    <p class="note">
+      Abbreviated example &mdash; only the first two array elements are shown. Submit your complete
+      results file.
+    </p>
+
+    <p class="subhead">Fields</p>
+    <table class="field-table">
+      <tr><th>Field</th><th>Meaning</th></tr>
+      <tr><td><code>models.&lt;key&gt;</code></td><td>One entry per FP, keyed by the name shown in the leaderboard row.</td></tr>
+      <tr><td><code>dft_force_magnitude</code><br /><code>fp_force_magnitude</code></td><td>Per-atom DFT and FP force magnitudes.</td></tr>
+      <tr><td><code>force_magnitude_error</code></td><td>FP minus DFT force magnitude.</td></tr>
+      <tr><td><code>force_angle_error</code></td><td>Angle between the DFT and FP force vectors. Undefined where either force is numerically zero.</td></tr>
+      <tr><td><code>force_vector_error</code></td><td>Per-atom force-vector error.</td></tr>
+      <tr><td><code>structure_id</code></td><td>Identifies the source structure in the original dataset.</td></tr>
+      <tr><td><code>atom_index</code></td><td>Zero-based position of the atom within its own structure; restarts at 0 for each structure.</td></tr>
+      <tr><td>Array alignment</td><td>Arrays in a model entry are aligned element-wise: index <em>i</em> is the same atom in every array.</td></tr>
+      <tr><td><code>reference_population</code></td><td>DFT-only population, independent of any FP's filtering.</td></tr>
+      <tr><td><code>excluded_undefined_angle_count</code></td><td>Atoms the merge step dropped for an undefined angle; <code>build_force_results</code> keeps every atom and writes NaN instead.</td></tr>
+      <tr><td>Units</td><td>Forces in eV/&#197;, angles in degrees.</td></tr>
+    </table>
+    <p class="note">
+      Cartesian FP forces with structure IDs and matching atom ordering are preferred, as they allow
+      us to calculate force errors directly against the DFT reference.
+    </p>
+
+    <h3 class="ex-head">Example &mdash; prepare standardized results from Cartesian forces</h3>
+    <p class="note">
+      Derives the per-atom error arrays from raw forces. Run from
+      <code>Force_error/analysis/</code>; requires <code>numpy pandas matplotlib scipy</code>.
+    </p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">Copy</button>
+<pre><code>import json, sys
+sys.path.insert(0, "../scripts")
+from force_results import build_force_results
+
+ex = json.load(open("../examples/mace_matpes_cartesian_force_example.json"))
+
+force_results = build_force_results(
+    ex["dft_forces"],            # DFT reference forces: one (N_i, 3) array per structure
+    {"MACE": ex["fp_forces"]},   # your FP: same structures, same atom order
+    ex["structure_ids"],
+)
+print(len(force_results["MACE"]["dft_force_magnitude"]), "atoms")
+# 25 atoms
+
+# Replace the example with your own arrays over the full dataset. The resulting
+# object is what the generator serializes as "models" in the standardized file.</code></pre>
+    </div>
+
+    <h3 class="ex-head">Example &mdash; analyze an existing standardized results file</h3>
+    <p class="note">
+      Computes a metric table from per-atom errors. Run from <code>Force_error/analysis/</code>.
+      Builds <code>force_results</code> from the shipped example so it runs as written; the commented
+      lines show the one change that reads a standardized file instead.
+    </p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">Copy</button>
+<pre><code>import json, sys
+sys.path.insert(0, "../scripts")
+from force_results import build_force_results
+from force_error_metrics import build_highly_accurate_force_fraction_table
+
+ex = json.load(open("../examples/mace_matpes_cartesian_force_example.json"))
+force_results = build_force_results(ex["dft_forces"], {"MACE": ex["fp_forces"]},
+                                    ex["structure_ids"])
+
+# For a real submission, read your standardized file instead:
+# with open("../data/&lt;your-dataset&gt;_force_results_standardized.json") as f:
+#     force_results = json.load(f)["models"]
+
+# force_error_metrics uses a different key vocabulary than build_force_results.
+# Without this remap the tables come back as NaN rather than raising.
+all_results = {
+    model: {"F_dft":      d["dft_force_magnitude"],
+            "F_fp":       d["fp_force_magnitude"],
+            "deltaF":     d["force_magnitude_error"],
+            "deltaTheta": d["force_angle_error"],
+            "e_vec":      d["force_vector_error"]}
+    for model, d in force_results.items()
+}
+
+table = build_highly_accurate_force_fraction_table(all_results, [0.01, 0.05, 0.10])
+print(table)
+#       0.01  0.05  0.10
+# MACE  12.0  56.0  84.0      <- 25-atom demo slice, not a leaderboard result
+
+table.to_csv("force_highly_accurate_fraction.csv")</code></pre>
+    </div>
+    <p class="note">
+      The <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/data/README.md" style="color:var(--accent);">full schema</a> documents every field.
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/examples/mace_matpes_cartesian_force_example.json" style="color:var(--accent);">mace_matpes_cartesian_force_example.json</a>
+      is the five-structure Cartesian-force input the first example runs against, and the
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/analysis/force_error_analysis_matpes_pbe.ipynb" style="color:var(--accent);">analysis notebook</a>
+      shows the complete set of force-error tables and figures. The
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/README.md" style="color:var(--accent);">component README</a> covers the workflow end to end.
+    </p>
+  </div>
+
+  <div id="tab-phase" class="tab-panel">
+    <p class="subhead">File format</p>
+    <p>
+      One gzipped JSON file. Each FP has a <code>hull</code> section for convex-hull candidates and
+      an <code>ordering</code> section for elemental-ordering groups, and each is evaluated twice:
+      once with full relaxation, once as a static evaluation on the DFT-relaxed geometry.
+    </p>
+
+    <p class="subhead">Structure</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">Copy</button>
+<pre><code>{
+  "schema_version": "1.0",
+  "component": "phase_stability_ordering",
+  "units": {"energy": "eV"},
+  "reference": {"sha256": "1b6addae634f59ec318d31214e17ecd8..."},
+  "models": {
+    "my_fp": {
+      "metadata": {
+        "registry_key": "my_fp",
+        "mlip_name": "My_FP",
+        "model_path": "/path/to/checkpoints/my_fp_model.pt",
+        "reference_sha256": "1b6addae634f59ec318d31214e17ecd8...",
+        "protocol": {
+          "relax": {
+            "label": "Full FP relaxation",
+            "optimizer": "ASE FIRE",
+            "fmax": 0.01,
+            "max_steps": 10000,
+            "fixed_cell": true,
+            "starting_geometry": "initial_structure"
+          },
+          "static": {
+            "label": "Static FP evaluations on the DFT-relaxed structures",
+            "starting_geometry": "relaxed_structure"
+          }
+        },
+        "counts": {
+          "hull_unique_candidates_expected": 597,
+          "hull_unique_candidates_relax_success": 597,
+          "ordering_expected": 6100,
+          "ordering_relax_success": 6100
+        }
+      },
+      "hull": {
+        "relax": {
+          "Bi2Se3_Sb2Se3": {
+            "mp-1198150": {
+              "status": "success",
+              "energy_total": -155.58319976100043,
+              "relaxed_structure": {"@module": "pymatgen.core.structure"}
+            }
+          }
+        },
+        "static": {
+          "Bi2Se3_Sb2Se3": {
+            "mp-1198150": {"status": "success", "energy_total": -155.58319976100043}
+          }
+        }
+      },
+      "ordering": {
+        "relax": {
+          "mp-10074_Ge4+1_Sn2+3_Se2-5": {
+            "ordered_0": {
+              "status": "success",
+              "energy_total": -35.87344152891665,
+              "relaxed_structure": {"@module": "pymatgen.core.structure"}
+            }
+          }
+        },
+        "static": {
+          "mp-10074_Ge4+1_Sn2+3_Se2-5": {
+            "ordered_0": {"status": "success", "energy_total": -35.87344152891665}
+          }
+        }
+      }
+    }
+  }
+}</code></pre>
+    </div>
+    <p class="note">
+      Abbreviated example &mdash; one hull candidate and one ordering candidate are shown, and
+      <code>relaxed_structure</code> is shortened. Submit your complete results file.
+    </p>
+
+    <p class="subhead">Fields</p>
+    <table class="field-table">
+      <tr><th>Field</th><th>Meaning</th></tr>
+      <tr><td><code>models.&lt;key&gt;</code></td><td>One entry per FP, keyed by its stable registry key.</td></tr>
+      <tr><td><code>metadata.protocol</code></td><td>Settings the numbers were produced with: optimizer, force tolerance, step cap, whether the cell was fixed.</td></tr>
+      <tr><td><code>metadata.counts</code></td><td>Per-branch record counts, used to assert completeness at merge time.</td></tr>
+      <tr><td><code>reference.sha256</code></td><td>The exact reference file these results were merged against; re-verified when loaded.</td></tr>
+      <tr><td>Identifiers</td><td>Tie-line system, candidate id, ordering-group id and ordering-candidate id, taken from the reference rather than invented.</td></tr>
+      <tr><td><code>energy_total</code></td><td>Total energy of the candidate.</td></tr>
+      <tr><td><code>status</code></td><td><code>success</code>, <code>missing</code>, <code>failed</code> or <code>non_converged</code>. Only <code>success</code> is scored; the rest are reported separately.</td></tr>
+      <tr><td><code>relax</code> / <code>static</code></td><td>Same shape, except <code>static</code> has no <code>relaxed_structure</code>.</td></tr>
+      <tr><td>Units</td><td>Energies in eV.</td></tr>
+    </table>
+
+    <h3 class="ex-head">Example &mdash; validate results and build a hull metric table</h3>
+    <p class="note">
+      Run from <code>Phase_stability_ordering/analysis/</code>; requires
+      <code>numpy pandas matplotlib pymatgen</code>. The demo slice covers one tie-line system and
+      one ordering group for one FP &mdash; illustrative only, not a leaderboard result.
+    </p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">Copy</button>
+<pre><code>import json, sys
+sys.path.insert(0, "../scripts")
+from convexhull_analysis_utils import (
+    build_phase_stability_ordering_results,
+    validate_phase_stability_ordering_results,
+    build_combined_hull_table,
+)
+
+with open("../examples/phase_stability_ordering_demo_data.json") as f:
+    demo = json.load(f)
+
+results = build_phase_stability_ordering_results(
+    reference_data=demo["reference_data"], fp_results=demo["fp_results"],
+)
+FPS = list(demo["fp_results"])
+MODEL_NAMES = {"mace": "MACE"}
+
+report = validate_phase_stability_ordering_results(
+    dft_hull=results["dft_hull"],         fp_hull_by_fp=results["fp_hull"],
+    dft_ordering=results["dft_ordering"], fp_ordering_by_fp=results["fp_ordering"],
+    fps=FPS,
+)
+# prints a coverage report: 10/10 hull candidates, 1/1 ordering group,
+# with missing and non-success records broken down per FP and protocol
+
+hull_table, hull_details = build_combined_hull_table(
+    results["dft_hull"], results["fp_hull"], FPS, MODEL_NAMES,
+)
+print(hull_table)
+# Average energy error 69 meV/atom, ground-state agreement 50.0% (relax)
+
+hull_table.to_csv("phase_hull_table_demo.csv")
+
+# For a real submission, replace the demo file with your own reference/results pair.</code></pre>
+    </div>
+    <p class="note">
+      The <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/data/README.md" style="color:var(--accent);">full schema</a> documents every
+      field. The <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/examples/phase_stability_ordering_demo_data.json" style="color:var(--accent);">demo slice</a>
+      is the one-system file the example above runs against, the
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/data/phase_stability_ordering_results_standardized.json.gz" style="color:var(--accent);">complete standardized file</a>
+      is a real submission covering all seven published FPs, and the
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/analysis/convexhull_ordering_analysis_all_models.ipynb" style="color:var(--accent);">analysis notebook</a>
+      shows the hull, ordering and RMSD tables.
+    </p>
+  </div>
+
+  <div id="tab-neb" class="tab-panel">
+    <p class="subhead">File format</p>
+    <p>
+      One JSON file. Each FP carries three separate sets of results for the same migration pathways
+      &mdash; its own NEB run, single-point evaluations on the reference DFT-NEB images, and DFT
+      evaluations on the FP's own images &mdash; kept apart because each answers a different
+      question.
+    </p>
+
+    <p class="subhead">Structure</p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">Copy</button>
+<pre><code>{
+  "schema_version": "1.0",
+  "component": "ion_migration_neb",
+  "units": {"energy": "eV", "forces": "eV/angstrom"},
+  "models": {
+    "My_FP": {
+      "full_fp_neb": {
+        "pathways": {
+          "29966|8": {
+            "identifiers": {"icsd_id": "29966", "source_path_id": "8"},
+            "neb_status": {
+              "neb_converged": true,
+              "neb_last_fmax": 0.036414,
+              "neb_n_steps": 15,
+              "status_source": "convergence_results"
+            },
+            "endpoint_relaxation": {"initial": {}, "final": {}},
+            "convergence": {},
+            "steps": {},
+            "final_fp_neb_images": {"image00": {}}
+          }
+        },
+        "unsuccessful_pathways": {}
+      },
+      "fp_static_on_dft_neb": {
+        "pathways": {"29966|8": {"identifiers": {}, "images": {}}},
+        "unsuccessful_pathways": {}
+      },
+      "dft_static_on_fp_neb": {
+        "pathways": {"29966|8": {"identifiers": {}, "images": {}}},
+        "unsuccessful_image_attempts": {}
+      }
+    }
+  }
+}</code></pre>
+    </div>
+    <p class="note">
+      Abbreviated example &mdash; one pathway for one FP, with structures, energies and forces shown
+      as <code>{}</code>. Submit your complete results file.
+    </p>
+
+    <p class="subhead">Fields</p>
+    <table class="field-table">
+      <tr><th>Field</th><th>Meaning</th></tr>
+      <tr><td><code>models.&lt;key&gt;</code></td><td>One entry per FP, keyed by its name.</td></tr>
+      <tr><td>Pathway key</td><td><code>"&lt;icsd_id&gt;|&lt;source_path_id&gt;"</code>; must match the pathway's <code>identifiers</code>.</td></tr>
+      <tr><td><code>full_fp_neb</code></td><td>The FP's own relaxed endpoints and climbing-image path.</td></tr>
+      <tr><td><code>fp_static_on_dft_neb</code></td><td>The FP evaluated single-point on the DFT-NEB images.</td></tr>
+      <tr><td><code>dft_static_on_fp_neb</code></td><td>DFT evaluated on the FP's final images; intentionally sparse, never padded.</td></tr>
+      <tr><td><code>neb_status.neb_converged</code></td><td>Required on every <code>full_fp_neb</code> pathway; never assumed true.</td></tr>
+      <tr><td><code>neb_last_fmax</code><br /><code>neb_n_steps</code></td><td>Final maximum force and optimizer step count of the NEB run.</td></tr>
+      <tr><td><code>calculation_status</code></td><td>Whether the job ran, kept separate from whether it converged.</td></tr>
+      <tr><td>Units</td><td>Energies in eV, forces in eV/&#197;.</td></tr>
+    </table>
+
+    <h3 class="ex-head">Example &mdash; validate inputs and build a pathway metric table</h3>
+    <p class="note">
+      Run from <code>Ion_migration_NEB/analysis/</code>; requires
+      <code>numpy pandas matplotlib pymatgen scikit-learn</code>. The demo slice covers one pathway
+      for one FP.
+    </p>
+    <div class="code-wrap">
+      <button class="copy-btn" type="button">Copy</button>
+<pre><code>import json, sys
+sys.path.insert(0, "../scripts")
+from neb_analysis import validate_neb_analysis_inputs, build_neb_analysis_results
+
+with open("../examples/ion_migration_neb_demo_data.json") as f:
+    demo = json.load(f)
+
+reference_data = demo["reference_data"]
+fp_results     = demo["fp_results"]
+fp_order       = list(fp_results["models"].keys())
+
+validation = validate_neb_analysis_inputs(
+    reference_data, fp_results, expected_pathways=None, fp_order=fp_order,
+)
+print("validation ok:", validation.ok)
+# validation ok: True
+
+analysis = build_neb_analysis_results(
+    reference_data, fp_results, expected_pathways=None,
+    fp_order=fp_order, validate=True,
+)
+print(analysis.dft_path_metrics_df)
+#     ICSD  Path  Pathway Topology  energy_forward_barrier  energy_backward_barrier
+# 0  29966     8       Normal-Hill                0.165365                 0.139784
+
+analysis.dft_path_metrics_df.to_csv("neb_dft_path_metrics_demo.csv")
+
+# For a real submission, use the shipped reference plus your own results.</code></pre>
+    </div>
+    <p class="note">
+      The <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/data/README.md" style="color:var(--accent);">full schema</a> documents every field,
+      including how each protocol branch is validated. The
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/examples/ion_migration_neb_demo_data.json" style="color:var(--accent);">demo slice</a>
+      is the one-pathway file the example above runs against, and the
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/analysis/neb_analysis.ipynb" style="color:var(--accent);">analysis notebook</a>
+      shows the barrier, energy-profile and force-error tables.
+    </p>
+  </div>
+
+  <p class="note">
+    Each example generates a small metric table. See the corresponding analysis notebook for the
+    complete analysis, including all benchmark tables and figures.
+  </p>
+</section>
+
+<section id="contribute">
+  <h2>What to email</h2>
+  <p>
+    Email Prof. Yifei Mo at
+    <a href="mailto:yfmo@umd.edu" style="color:var(--accent);">yfmo@umd.edu</a>
+    with the information below, together with your complete standardized results files or download
+    links and computed metric tables.
+  </p>
+  <div class="code-wrap">
+    <button class="copy-btn" type="button">Copy</button>
+<pre><code>Model name:
+Version / checkpoint:
+Parameters:
+Training data:
+License (code):
+License (checkpoint):
+Implementation:
+Checkpoint download:
+Paper / DOI:
+Environment:             Python version and package versions
+Calculator setup:        Code snippet or link
+Components evaluated:    Force / Phase stability &amp; ordering / NEB
+Datasets evaluated:
+Calculation settings:    Configuration file or settings used
+Results files:           Download links
+Metric tables:           Attached files or links</code></pre>
+  </div>
+  <p class="note">Mark fields that are unavailable or not applicable accordingly.</p>
+  <p class="note">
+    Submissions are handled by email; the repository does not take outside commits. Results are
+    recomputed with the same reference data and metric code used for every entry already listed.
+    The exact checkpoint matters: a later version of the same architecture is a separate entry
+    rather than an update to an existing one.
+  </p>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p><strong>Kiyan Amirian</strong> &amp; <strong>Yifei Mo</strong> &middot; <a href="https://github.com/mogroupumd/FPBench">github.com/mogroupumd/FPBench</a></p>
+  <p class="affil">University of Maryland &middot; MIT License &middot; <a href="https://arxiv.org/abs/2609.05714" style="color:var(--accent);">arXiv:2609.05714</a></p>
+</footer>
+
+<script>
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    var panel = document.getElementById('tab-' + id);
+    if (panel) panel.classList.add('active');
+    if (btn) btn.classList.add('active');
+  }
+
+  document.querySelectorAll('.code-wrap').forEach(function (wrap) {
+    var btn = wrap.querySelector('.copy-btn');
+    var code = wrap.querySelector('code');
+    if (!btn || !code) return;
+    btn.addEventListener('click', function () {
+      var text = code.innerText;
+      var done = function () {
+        btn.textContent = 'Copied';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { btn.textContent = 'Press Ctrl+C'; });
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) { btn.textContent = 'Press Ctrl+C'; }
+        document.body.removeChild(ta);
+      }
+    });
+  });
+
+  (function () {
+    var toc = document.getElementById('toc');
+    var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+    if (!toc || !links.length) return;
+    var wide = window.matchMedia('(min-width: 1240px)');
+
+    // A closed <details> hides its non-summary children, so the panel must stay
+    // open on desktop; on narrow screens it starts collapsed.
+    function syncOpen() { if (wide.matches) toc.open = true; else toc.open = false; }
+    syncOpen();
+    if (wide.addEventListener) wide.addEventListener('change', syncOpen);
+
+    var tops = links.filter(function (a) { return !a.classList.contains('sub'); });
+    var targets = tops.map(function (a) {
+      return document.getElementById(a.getAttribute('href').slice(1));
+    });
+
+    function markActive() {
+      var best = 0;
+      for (var i = 0; i < targets.length; i++) {
+        if (targets[i] && targets[i].getBoundingClientRect().top <= 120) best = i;
+      }
+      // exactly one entry is highlighted: inside the tabbed section it is the
+      // sub-entry for the open tab, elsewhere the current top-level section
+      links.forEach(function (a) { a.classList.remove('active'); });
+      var current = tops[best];
+      if (current && current.getAttribute('href') === '#formats') {
+        var activeBtn = document.querySelector('.tab-btn.active');
+        var m = activeBtn ? (activeBtn.getAttribute('onclick') || '').match(/'([a-z]+)'/) : null;
+        var sub = m ? document.querySelector('#toc a[data-tab="' + m[1] + '"]') : null;
+        (sub || current).classList.add('active');
+      } else if (current) {
+        current.classList.add('active');
+      }
+    }
+    window.addEventListener('scroll', markActive, { passive: true });
+    window.addEventListener('resize', markActive);
+
+    links.forEach(function (a) {
+      a.addEventListener('click', function () {
+        if (a.dataset.tab) {
+          var btns = Array.prototype.slice.call(document.querySelectorAll('.tab-btn'));
+          var want = btns.filter(function (b) {
+            return (b.getAttribute('onclick') || '').indexOf("'" + a.dataset.tab + "'") >= 0;
+          })[0];
+          if (want) switchTab(a.dataset.tab, want);
+        }
+        if (!wide.matches) toc.open = false;
+        setTimeout(markActive, 400);
+      });
+    });
+
+    document.querySelectorAll('.tab-btn').forEach(function (b) {
+      b.addEventListener('click', function () { setTimeout(markActive, 0); });
+    });
+    markActive();
+  })();
+</script>
+
+</body>
+</html>

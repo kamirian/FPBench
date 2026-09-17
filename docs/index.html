@@ -103,6 +103,55 @@
     footer a { color: var(--accent); text-decoration: none; }
     footer .affil { margin-top: 0.3rem; font-size: 0.8rem; }
       table.gen th, table.matrix th { vertical-align: middle; line-height: 1.35; }
+  
+    /* ---- On-this-page outline ---- */
+    html { scroll-behavior: smooth; }
+    section { scroll-margin-top: 1.5rem; }
+    #toc {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.6rem 0.9rem;
+      max-width: 1080px; margin: 1.6rem auto 0;
+    }
+    #toc > summary {
+      display: block; list-style: none; cursor: pointer;
+      color: var(--accent); font-weight: 600; font-size: 0.9rem;
+    }
+    #toc > summary::-webkit-details-marker { display: none; }
+    #toc > summary::before { content: "\25B8\00a0\00a0"; }
+    #toc[open] > summary::before { content: "\25BE\00a0\00a0"; }
+    #toc:not([open]) > summary::after { content: none; }
+    #toc .toc-title { display: none; }
+    #toc .toc-links { display: block; padding-top: 0.4rem; }
+    #toc a {
+      display: block; color: var(--muted); text-decoration: none;
+      font-size: 0.92rem; line-height: 1.45;
+      padding: 0.32rem 0.7rem; border-left: 2px solid var(--border);
+      overflow-wrap: break-word; transition: color 0.12s, border-color 0.12s;
+    }
+    #toc a:hover { color: var(--text); border-left-color: var(--muted); }
+    #toc a.active { color: var(--accent); border-left-color: var(--accent); }
+
+    @media (min-width: 1240px) {
+      .page-wrap {
+        display: grid; grid-template-columns: 250px minmax(0, 1080px) 250px;
+        gap: 2.5rem; justify-content: center; margin: 0 auto; padding: 0 1.5rem;
+        align-items: start;
+      }
+      .page-main { grid-column: 2; grid-row: 1; min-width: 0; }
+      .page-wrap section { max-width: none; margin: 0; padding-left: 0; padding-right: 0; }
+      #toc {
+        grid-column: 3; grid-row: 1;
+        position: sticky; top: 2rem;
+        background: none; border: none; border-radius: 0;
+        padding: 0; margin: 3.2rem 0 0; max-width: none;
+      }
+      #toc > summary { display: none; }
+      #toc .toc-title {
+        display: block; color: var(--heading); font-weight: 700;
+        font-size: 0.88rem; margin: 0 0 0.6rem 0.7rem;
+      }
+      #toc .toc-links { padding-top: 0; }
+    }
   </style>
 
   <script type="application/ld+json">
@@ -141,6 +190,7 @@
     <a href="force-error.html">Force Prediction</a>
     <a href="phase-stability-ordering.html">Phase Stability &amp; Ordering</a>
     <a href="ion-migration-neb.html">Ion Migration (NEB)</a>
+    <a href="contribute.html">Contribute</a>
     <a href="https://github.com/mogroupumd/FPBench">GitHub</a>
   </div>
 </nav>
@@ -162,7 +212,23 @@
   </div>
 </div>
 
-<section>
+<div class="page-wrap">
+
+<details id="toc" open>
+  <summary>On this page</summary>
+  <div class="toc-title">On this page</div>
+  <div class="toc-links">
+    <a href="#components">Components</a>
+    <a href="#models">Foundation Potentials</a>
+    <a href="#evaluation-matrix">Evaluation Matrix</a>
+    <a href="#contribute">Add a potential</a>
+    <a href="#citation">Citation</a>
+  </div>
+</details>
+
+<main class="page-main">
+
+<section id="components">
   <h2>Components</h2>
   <div class="component-grid">
     <div class="component-card available">
@@ -420,13 +486,13 @@
 </section>
 
 <section id="contribute">
-  <h2>Contribute</h2>
+  <h2>Add a potential</h2>
   <p>
-    Interested in evaluating a new foundation potential, or having it considered for inclusion in
-    FPBench? See our <a href="https://github.com/mogroupumd/FPBench/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a> guide to integrate
-    and evaluate a new model with FPBench. For inclusion in the public leaderboard, please contact
-    Prof. Yifei Mo at <a href="mailto:yfmo@umd.edu" style="color:var(--accent);">yfmo@umd.edu</a> with the model name,
-    version/checkpoint, and a link to the official implementation or model weights.
+    Interested in adding a foundation potential to FPBench? Follow our
+    <a href="https://github.com/mogroupumd/FPBench/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a>
+    guide to evaluate your model, and visit
+    <a href="contribute.html" style="color:var(--accent);">Contribute</a>
+    for example outputs, results formats, and email submission instructions.
   </p>
 </section>
 
@@ -450,10 +516,53 @@
 }</div>
 </section>
 
+</main>
+</div>
+
 <footer>
   <p><strong>Kiyan Amirian</strong> &amp; <strong>Yifei Mo</strong> &middot; <a href="https://github.com/mogroupumd/FPBench">github.com/mogroupumd/FPBench</a></p>
   <p class="affil">University of Maryland &middot; MIT License &middot; <a href="https://arxiv.org/abs/2609.05714" style="color:var(--accent);">arXiv:2609.05714</a></p>
 </footer>
+
+
+<script>
+  (function () {
+    var toc = document.getElementById('toc');
+    if (!toc) return;
+    var links = Array.prototype.slice.call(toc.querySelectorAll('a'));
+    if (!links.length) return;
+    var wide = window.matchMedia('(min-width: 1240px)');
+
+    // a closed disclosure hides its children, so the outline stays open on wide screens
+    function syncOpen() { toc.open = wide.matches; }
+    syncOpen();
+    if (wide.addEventListener) wide.addEventListener('change', function () {
+      syncOpen();
+      if (window.fpbUpdateShells) fpbUpdateShells();
+    });
+
+    var targets = links.map(function (a) {
+      return document.getElementById(a.getAttribute('href').slice(1));
+    });
+    function markActive() {
+      var best = 0;
+      for (var i = 0; i < targets.length; i++) {
+        if (targets[i] && targets[i].getBoundingClientRect().top <= 120) best = i;
+      }
+      links.forEach(function (a, i) { a.classList.toggle('active', i === best); });
+    }
+    window.addEventListener('scroll', markActive, { passive: true });
+    window.addEventListener('resize', markActive);
+    links.forEach(function (a) {
+      a.addEventListener('click', function () {
+        if (!wide.matches) toc.open = false;
+        setTimeout(markActive, 400);
+      });
+    });
+    markActive();
+    if (window.fpbUpdateShells) fpbUpdateShells();
+  })();
+</script>
 
 </body>
 </html>
