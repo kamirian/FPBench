@@ -354,6 +354,10 @@
     details > summary:hover,
     details > summary:focus-visible     { color: var(--accent); }
 
+    /* Working directory and dependencies, one per line, under each example. */
+    p.runreq { font-size: 0.84rem; color: var(--muted); margin: 0.3rem 0 0; line-height: 1.85; }
+    p.runreq .k { color: var(--text); font-weight: 600; }
+
     /* Compact documentation row at the end of each component tab. */
     p.resources { display: flex; flex-wrap: wrap; align-items: baseline;
       gap: 0.35rem 0.6rem; margin: 1.1rem 0 0; font-size: 0.85rem; }
@@ -459,10 +463,8 @@
 <section id="formats">
   <h2>2. Prepare your results</h2>
   <p>
-    Send the merged standardized results file your component's merge step writes, for each component
-    you evaluated. The per-job outputs produced during a run are intermediate and are not the
-    submission. Each tab gives that component's file format, a field reference, and runnable
-    examples.
+    For each component evaluated, submit the final results file produced by the merge step. The
+    tabs below show the expected file format and example analysis code.
   </p>
 
   <div class="tab-bar">
@@ -525,8 +527,7 @@
 }</code></pre>
     </div>
     <p class="note">
-      Abbreviated example &mdash; only the first two array elements are shown. Submit your complete
-      results file.
+      Only two atoms are shown for readability. Submit the full results file.
     </p>
 
     <p class="subhead">Fields</p>
@@ -549,11 +550,10 @@
       us to calculate force errors directly against the DFT reference.
     </p>
 
-    <h3 class="ex-head">Example &mdash; prepare standardized results from Cartesian forces</h3>
-    <p class="note">
-      Derives the per-atom error arrays from raw forces. Run from
-      <code>Force_error/analysis/</code>; requires <code>numpy pandas matplotlib scipy</code>.
-    </p>
+    <h3 class="ex-head">Example: convert forces to standardized results</h3>
+    <p class="note">Convert Cartesian DFT and FP forces into standardized per-atom force errors.</p>
+    <p class="runreq"><span class="k">Run from:</span> <code>Force_error/analysis/</code><br />
+      <span class="k">Requires:</span> <code>numpy</code></p>
     <div class="code-wrap">
       <button class="copy-btn" type="button">Copy</button>
 <pre><code>import json, sys
@@ -564,22 +564,23 @@ ex = json.load(open("../examples/mace_matpes_cartesian_force_example.json"))
 
 force_results = build_force_results(
     ex["dft_forces"],            # DFT reference forces: one (N_i, 3) array per structure
-    {"MACE": ex["fp_forces"]},   # your FP: same structures, same atom order
+    {"MACE": ex["fp_forces"]},   # FP forces aligned with the DFT structures and atom order
     ex["structure_ids"],
 )
 print(len(force_results["MACE"]["dft_force_magnitude"]), "atoms")
 # 25 atoms
 
-# Replace the example with your own arrays over the full dataset. The resulting
-# object is what the generator serializes as "models" in the standardized file.</code></pre>
+# For benchmark evaluation, use the official reference data and your model results.
+# The resulting object is what the generator serializes as "models" in the standardized file.</code></pre>
     </div>
 
-    <h3 class="ex-head">Example &mdash; analyze an existing standardized results file</h3>
+    <h3 class="ex-head">Example: calculate force-error metrics</h3>
     <p class="note">
-      Computes a metric table from per-atom errors. Run from <code>Force_error/analysis/</code>.
-      Builds <code>force_results</code> from the shipped example so it runs as written; the commented
-      lines show the one change that reads a standardized file instead.
+      Calculate a metric table using the included example data. To analyze your own results, replace
+      the example-data preparation with the commented file-loading code.
     </p>
+    <p class="runreq"><span class="k">Run from:</span> <code>Force_error/analysis/</code><br />
+      <span class="k">Requires:</span> <code>numpy pandas matplotlib</code></p>
     <div class="code-wrap">
       <button class="copy-btn" type="button">Copy</button>
 <pre><code>import json, sys
@@ -591,12 +592,11 @@ ex = json.load(open("../examples/mace_matpes_cartesian_force_example.json"))
 force_results = build_force_results(ex["dft_forces"], {"MACE": ex["fp_forces"]},
                                     ex["structure_ids"])
 
-# For a real submission, read your standardized file instead:
+# To analyze a standardized results file, replace the example-data preparation above with:
 # with open("../data/&lt;your-dataset&gt;_force_results_standardized.json") as f:
 #     force_results = json.load(f)["models"]
 
-# force_error_metrics uses a different key vocabulary than build_force_results.
-# Without this remap the tables come back as NaN rather than raising.
+# Map standardized fields to the names expected by the analysis functions.
 all_results = {
     model: {"F_dft":      d["dft_force_magnitude"],
             "F_fp":       d["fp_force_magnitude"],
@@ -609,7 +609,7 @@ all_results = {
 table = build_highly_accurate_force_fraction_table(all_results, [0.01, 0.05, 0.10])
 print(table)
 #       0.01  0.05  0.10
-# MACE  12.0  56.0  84.0      <- 25-atom demo slice, not a leaderboard result
+# MACE  12.0  56.0  84.0      <- Example output for the 25-atom subset.
 
 table.to_csv("force_highly_accurate_fraction.csv")</code></pre>
     </div>
@@ -705,8 +705,8 @@ table.to_csv("force_highly_accurate_fraction.csv")</code></pre>
 }</code></pre>
     </div>
     <p class="note">
-      Abbreviated example &mdash; one hull candidate and one ordering candidate are shown, and
-      <code>relaxed_structure</code> is shortened. Submit your complete results file.
+      One hull candidate and one ordering candidate are shown, with atomic structures shortened for
+      readability. Submit the full results file.
     </p>
 
     <p class="subhead">Fields</p>
@@ -723,12 +723,10 @@ table.to_csv("force_highly_accurate_fraction.csv")</code></pre>
       <tr><td>Units</td><td>Energies in eV.</td></tr>
     </table>
 
-    <h3 class="ex-head">Example &mdash; validate results and build a hull metric table</h3>
-    <p class="note">
-      Run from <code>Phase_stability_ordering/analysis/</code>; requires
-      <code>numpy pandas matplotlib pymatgen</code>. The demo slice covers one tie-line system and
-      one ordering group for one FP &mdash; illustrative only, not a leaderboard result.
-    </p>
+    <h3 class="ex-head">Example: validate results and calculate hull metrics</h3>
+    <p class="note">Validate the example results and calculate a hull metric table.</p>
+    <p class="runreq"><span class="k">Run from:</span> <code>Phase_stability_ordering/analysis/</code><br />
+      <span class="k">Requires:</span> <code>numpy pandas matplotlib pymatgen</code></p>
     <div class="code-wrap">
       <button class="copy-btn" type="button">Copy</button>
 <pre><code>import json, sys
@@ -764,7 +762,7 @@ print(hull_table)
 
 hull_table.to_csv("phase_hull_table_demo.csv")
 
-# For a real submission, replace the demo file with your own reference/results pair.</code></pre>
+# For benchmark evaluation, use the official reference data and your model results.</code></pre>
     </div>
     <p class="resources">
       <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/data/README.md">Format documentation</a>
@@ -826,8 +824,8 @@ hull_table.to_csv("phase_hull_table_demo.csv")
 }</code></pre>
     </div>
     <p class="note">
-      Abbreviated example &mdash; one pathway for one FP, with structures, energies and forces shown
-      as <code>{}</code>. Submit your complete results file.
+      One pathway is shown, with endpoint, convergence and image records omitted for readability.
+      Submit the full results file.
     </p>
 
     <p class="subhead">Fields</p>
@@ -844,12 +842,12 @@ hull_table.to_csv("phase_hull_table_demo.csv")
       <tr><td>Units</td><td>Energies in eV, forces in eV/&#197;.</td></tr>
     </table>
 
-    <h3 class="ex-head">Example &mdash; validate inputs and build a pathway metric table</h3>
+    <h3 class="ex-head">Example: validate results and calculate reference barriers</h3>
     <p class="note">
-      Run from <code>Ion_migration_NEB/analysis/</code>; requires
-      <code>numpy pandas matplotlib pymatgen scikit-learn</code>. The demo slice covers one pathway
-      for one FP.
+      Validate the example results and calculate the DFT reference barriers for one pathway.
     </p>
+    <p class="runreq"><span class="k">Run from:</span> <code>Ion_migration_NEB/analysis/</code><br />
+      <span class="k">Requires:</span> <code>numpy pandas matplotlib pymatgen ase scikit-learn</code></p>
     <div class="code-wrap">
       <button class="copy-btn" type="button">Copy</button>
 <pre><code>import json, sys
@@ -879,7 +877,7 @@ print(analysis.dft_path_metrics_df)
 
 analysis.dft_path_metrics_df.to_csv("neb_dft_path_metrics_demo.csv")
 
-# For a real submission, use the shipped reference plus your own results.</code></pre>
+# For benchmark evaluation, use the official reference data and your model results.</code></pre>
     </div>
     <p class="resources">
       <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/data/README.md">Format documentation</a>
@@ -893,8 +891,8 @@ analysis.dft_path_metrics_df.to_csv("neb_dft_path_metrics_demo.csv")
   </div>
 
   <p class="note">
-    Each example generates a small metric table. See the corresponding analysis notebook for the
-    complete analysis, including all benchmark tables and figures.
+    These examples show how to prepare and analyze results. See the analysis notebooks for the
+    complete benchmark analysis.
   </p>
 </section>
 
