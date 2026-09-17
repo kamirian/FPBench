@@ -476,9 +476,10 @@
   <div id="tab-force" class="tab-panel active">
     <p class="subhead">File format</p>
     <p>
-      One uncompressed JSON file holding every FP you evaluated on a given dataset, with each FP's
-      per-atom error arrays under <code>models</code>. Name it after the dataset you evaluated rather
-      than reusing one of ours.
+      One uncompressed JSON file per dataset, holding every FP you evaluated on that dataset, with
+      each FP's per-atom error arrays under <code>models</code>. Published files are named
+      <code>&lt;dataset&gt;_force_results_standardized.json</code>, for example
+      <code>matpes_pbe_force_results_standardized.json</code>.
     </p>
 
     <p class="subhead">Structure</p>
@@ -628,8 +629,8 @@ table.to_csv("force_highly_accurate_fraction.csv")</code></pre>
     <p class="subhead">File format</p>
     <p>
       One gzipped JSON file. Each FP has a <code>hull</code> section for convex-hull candidates and
-      an <code>ordering</code> section for elemental-ordering groups, and each is evaluated twice:
-      once with full relaxation, once as a static evaluation on the DFT-relaxed geometry.
+      an <code>ordering</code> section for elemental-ordering groups, and each is evaluated under both
+      protocols: full FP relaxation and static FP evaluations on the DFT-relaxed structures.
     </p>
 
     <p class="subhead">Structure</p>
@@ -778,10 +779,10 @@ hull_table.to_csv("phase_hull_table_demo.csv")
   <div id="tab-neb" class="tab-panel">
     <p class="subhead">File format</p>
     <p>
-      One JSON file. Each FP carries three separate sets of results for the same migration pathways
-      &mdash; its own NEB run, single-point evaluations on the reference DFT-NEB images, and DFT
-      evaluations on the FP's own images &mdash; kept apart because each answers a different
-      question.
+      One JSON file. Each FP carries three protocol branches for the same migration pathways
+      &mdash; the full FP-NEB workflow, static FP evaluations on the DFT-NEB image structures, and
+      DFT static diagnostics on the final FP-NEB image structures &mdash; kept separate because each
+      answers a different question.
     </p>
 
     <p class="subhead">Structure</p>
@@ -833,9 +834,9 @@ hull_table.to_csv("phase_hull_table_demo.csv")
       <tr><th>Field</th><th>Meaning</th></tr>
       <tr><td><code>models.&lt;key&gt;</code></td><td>One entry per FP, keyed by its name.</td></tr>
       <tr><td>Pathway key</td><td><code>"&lt;icsd_id&gt;|&lt;source_path_id&gt;"</code>; must match the pathway's <code>identifiers</code>.</td></tr>
-      <tr><td><code>full_fp_neb</code></td><td>The FP's own relaxed endpoints and climbing-image path.</td></tr>
-      <tr><td><code>fp_static_on_dft_neb</code></td><td>The FP evaluated single-point on the DFT-NEB images.</td></tr>
-      <tr><td><code>dft_static_on_fp_neb</code></td><td>DFT evaluated on the FP's final images; intentionally sparse, never padded.</td></tr>
+      <tr><td><code>full_fp_neb</code></td><td>Full FP-NEB workflow: FP-relaxed endpoints and the FP's own climbing-image path.</td></tr>
+      <tr><td><code>fp_static_on_dft_neb</code></td><td>Static FP evaluations on the DFT-NEB image structures.</td></tr>
+      <tr><td><code>dft_static_on_fp_neb</code></td><td>DFT static diagnostics on the final FP-NEB image structures; intentionally sparse, never padded.</td></tr>
       <tr><td><code>neb_status.neb_converged</code></td><td>Required on every <code>full_fp_neb</code> pathway; never assumed true.</td></tr>
       <tr><td><code>neb_last_fmax</code><br /><code>neb_n_steps</code></td><td>Final maximum force and optimizer step count of the NEB run.</td></tr>
       <tr><td><code>calculation_status</code></td><td>Whether the job ran, kept separate from whether it converged.</td></tr>
