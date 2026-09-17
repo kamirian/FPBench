@@ -549,6 +549,19 @@
       for (var i = 0; i < targets.length; i++) {
         if (targets[i] && targets[i].getBoundingClientRect().top <= 120) best = i;
       }
+      // The last sections can be shorter than the viewport, so once the page is
+      // scrolled to the bottom their tops never cross the 120px line and the
+      // highlight stays stuck on an earlier section. At the bottom, take the
+      // last section that has started instead.
+      if (window.innerHeight + window.pageYOffset >=
+          document.documentElement.scrollHeight - 2) {
+        for (var k = targets.length - 1; k >= 0; k--) {
+          if (targets[k] && targets[k].getBoundingClientRect().top < window.innerHeight) {
+            best = k;
+            break;
+          }
+        }
+      }
       links.forEach(function (a, i) { a.classList.toggle('active', i === best); });
     }
     window.addEventListener('scroll', markActive, { passive: true });

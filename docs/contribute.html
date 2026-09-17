@@ -342,6 +342,24 @@
       table.field-table { font-size: 0.78rem; }
       table.field-table td:first-child { width: 42%; }
     }
+    /* --- Contribute page: colour and emphasis -------------------------------
+       Inline code and field names are read, not clicked, so they take body text
+       colour; only real hyperlinks, the active tab and the active outline entry
+       stay accent blue. Placed last so it wins the ties with the rules above. */
+    code                                { color: var(--text); }
+    a code                              { color: inherit; }
+    .page-main a                        { color: var(--accent); }
+    .page-main strong, .page-main b     { color: var(--heading); }
+    details > summary                   { color: var(--heading); }
+    details > summary:hover,
+    details > summary:focus-visible     { color: var(--accent); }
+
+    /* Compact documentation row at the end of each component tab. */
+    p.resources { display: flex; flex-wrap: wrap; align-items: baseline;
+      gap: 0.35rem 0.6rem; margin: 1.1rem 0 0; font-size: 0.85rem; }
+    p.resources a { color: var(--accent); text-decoration: none; }
+    p.resources a:hover { text-decoration: underline; }
+    p.resources .sep { color: var(--muted); }
   </style>
 </head>
 <body>
@@ -362,8 +380,8 @@
   <div class="tag-line">FPBench &middot; Contribute</div>
   <h1>Contribute a Foundation Potential</h1>
   <p>
-    Anyone can evaluate a foundation potential against the FPBench reference data without asking
-    permission. Inclusion in the public leaderboard is a separate step, handled by email.
+    Evaluate a foundation potential with FPBench and submit your results for consideration in the
+    public leaderboard.
   </p>
 </div>
 
@@ -374,22 +392,22 @@
   <summary>On this page</summary>
   <div class="toc-title">On this page</div>
   <div class="toc-links">
-    <a href="#evaluate">Evaluate your model</a>
-    <a class="sub" href="#register">Register a potential</a>
-    <a href="#formats">Results files &amp; examples</a>
+    <a href="#evaluate">1. Run FPBench</a>
+    <a class="sub" href="#register">Example: register your potential</a>
+    <a href="#formats">2. Prepare your results</a>
     <a class="sub" href="#formats" data-tab="force">Force Prediction</a>
     <a class="sub" href="#formats" data-tab="phase">Phase Stability &amp; Ordering</a>
     <a class="sub" href="#formats" data-tab="neb">Ion Migration (NEB)</a>
-    <a href="#contribute">What to email</a>
+    <a href="#contribute">3. Submit by email</a>
   </div>
 </details>
 
 <main class="page-main">
 
 <section id="evaluate">
-  <h2>Evaluate your model</h2>
+  <h2>1. Run FPBench</h2>
   <p>
-    FPBench reaches a potential only through an ASE calculator. Adding one means a single entry in
+    FPBench evaluates foundation potentials through ASE calculators. Adding one means a single entry in
     the component's <code>POTENTIAL_REGISTRY</code> &mdash; no metric or analysis code changes. Full
     procedure:
     <a href="https://github.com/mogroupumd/FPBench/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a>.
@@ -402,7 +420,7 @@
     <li><strong>Analyze</strong> &mdash; the analysis notebook reads that file and reproduces the leaderboard tables.</li>
   </ol>
 
-  <h3 class="ex-head" id="register">Register a potential</h3>
+  <h3 class="ex-head" id="register">Example: register your potential</h3>
   <p class="note">
     A representative entry. <code>my_fp</code>, <code>MyFPCalculator</code> and the paths are
     illustrative placeholders. Field names differ between components, so copy an existing entry from
@@ -439,7 +457,7 @@
 </section>
 
 <section id="formats">
-  <h2>Results files and worked examples</h2>
+  <h2>2. Prepare your results</h2>
   <p>
     Send the merged standardized results file your component's merge step writes, for each component
     you evaluated. The per-job outputs produced during a run are intermediate and are not the
@@ -595,13 +613,14 @@ print(table)
 
 table.to_csv("force_highly_accurate_fraction.csv")</code></pre>
     </div>
-    <p class="note">
-      The <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/data/README.md" style="color:var(--accent);">full schema</a> documents every field.
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/examples/mace_matpes_cartesian_force_example.json" style="color:var(--accent);">mace_matpes_cartesian_force_example.json</a>
-      is the five-structure Cartesian-force input the first example runs against, and the
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/analysis/force_error_analysis_matpes_pbe.ipynb" style="color:var(--accent);">analysis notebook</a>
-      shows the complete set of force-error tables and figures. The
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/README.md" style="color:var(--accent);">component README</a> covers the workflow end to end.
+    <p class="resources">
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/data/README.md">Format documentation</a>
+      <span class="sep">&middot;</span>
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/examples/mace_matpes_cartesian_force_example.json">Example data</a>
+      <span class="sep">&middot;</span>
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/analysis/force_error_analysis_matpes_pbe.ipynb">Analysis notebook</a>
+      <span class="sep">&middot;</span>
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/README.md">Component guide</a>
     </p>
   </div>
 
@@ -697,7 +716,7 @@ table.to_csv("force_highly_accurate_fraction.csv")</code></pre>
       <tr><td><code>metadata.protocol</code></td><td>Settings the numbers were produced with: optimizer, force tolerance, step cap, whether the cell was fixed.</td></tr>
       <tr><td><code>metadata.counts</code></td><td>Per-branch record counts, used to assert completeness at merge time.</td></tr>
       <tr><td><code>reference.sha256</code></td><td>The exact reference file these results were merged against; re-verified when loaded.</td></tr>
-      <tr><td>Identifiers</td><td>Tie-line system, candidate id, ordering-group id and ordering-candidate id, taken from the reference rather than invented.</td></tr>
+      <tr><td>Identifiers</td><td>Tie-line, candidate, and ordering-group identifiers must match the reference dataset.</td></tr>
       <tr><td><code>energy_total</code></td><td>Total energy of the candidate.</td></tr>
       <tr><td><code>status</code></td><td><code>success</code>, <code>missing</code>, <code>failed</code> or <code>non_converged</code>. Only <code>success</code> is scored; the rest are reported separately.</td></tr>
       <tr><td><code>relax</code> / <code>static</code></td><td>Same shape, except <code>static</code> has no <code>relaxed_structure</code>.</td></tr>
@@ -747,14 +766,14 @@ hull_table.to_csv("phase_hull_table_demo.csv")
 
 # For a real submission, replace the demo file with your own reference/results pair.</code></pre>
     </div>
-    <p class="note">
-      The <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/data/README.md" style="color:var(--accent);">full schema</a> documents every
-      field. The <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/examples/phase_stability_ordering_demo_data.json" style="color:var(--accent);">demo slice</a>
-      is the one-system file the example above runs against, the
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/data/phase_stability_ordering_results_standardized.json.gz" style="color:var(--accent);">complete standardized file</a>
-      is a real submission covering all seven published FPs, and the
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/analysis/convexhull_ordering_analysis_all_models.ipynb" style="color:var(--accent);">analysis notebook</a>
-      shows the hull, ordering and RMSD tables.
+    <p class="resources">
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/data/README.md">Format documentation</a>
+      <span class="sep">&middot;</span>
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/examples/phase_stability_ordering_demo_data.json">Example data</a>
+      <span class="sep">&middot;</span>
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/analysis/convexhull_ordering_analysis_all_models.ipynb">Analysis notebook</a>
+      <span class="sep">&middot;</span>
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/README.md">Component guide</a>
     </p>
   </div>
 
@@ -862,13 +881,14 @@ analysis.dft_path_metrics_df.to_csv("neb_dft_path_metrics_demo.csv")
 
 # For a real submission, use the shipped reference plus your own results.</code></pre>
     </div>
-    <p class="note">
-      The <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/data/README.md" style="color:var(--accent);">full schema</a> documents every field,
-      including how each protocol branch is validated. The
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/examples/ion_migration_neb_demo_data.json" style="color:var(--accent);">demo slice</a>
-      is the one-pathway file the example above runs against, and the
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/analysis/neb_analysis.ipynb" style="color:var(--accent);">analysis notebook</a>
-      shows the barrier, energy-profile and force-error tables.
+    <p class="resources">
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/data/README.md">Format documentation</a>
+      <span class="sep">&middot;</span>
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/examples/ion_migration_neb_demo_data.json">Example data</a>
+      <span class="sep">&middot;</span>
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/analysis/neb_analysis.ipynb">Analysis notebook</a>
+      <span class="sep">&middot;</span>
+      <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/README.md">Component guide</a>
     </p>
   </div>
 
@@ -879,7 +899,7 @@ analysis.dft_path_metrics_df.to_csv("neb_dft_path_metrics_demo.csv")
 </section>
 
 <section id="contribute">
-  <h2>What to email</h2>
+  <h2>3. Submit by email</h2>
   <p>
     Email Prof. Yifei Mo at
     <a href="mailto:yfmo@umd.edu" style="color:var(--accent);">yfmo@umd.edu</a>
@@ -907,10 +927,9 @@ Metric tables:           Attached files or links</code></pre>
   </div>
   <p class="note">Mark fields that are unavailable or not applicable accordingly.</p>
   <p class="note">
-    Submissions are handled by email; the repository does not take outside commits. Results are
-    recomputed with the same reference data and metric code used for every entry already listed.
-    The exact checkpoint matters: a later version of the same architecture is a separate entry
-    rather than an update to an existing one.
+    Submissions are handled by email. We check submitted files and recompute benchmark metrics
+    before inclusion. The exact checkpoint matters: a later version of the same architecture is a
+    separate entry rather than an update to an existing one.
   </p>
 </section>
 
@@ -973,6 +992,19 @@ Metric tables:           Attached files or links</code></pre>
       var best = 0;
       for (var i = 0; i < targets.length; i++) {
         if (targets[i] && targets[i].getBoundingClientRect().top <= 120) best = i;
+      }
+      // The last sections can be shorter than the viewport, so once the page is
+      // scrolled to the bottom their tops never cross the 120px line and the
+      // highlight stays stuck on an earlier section. At the bottom, take the
+      // last section that has started instead.
+      if (window.innerHeight + window.pageYOffset >=
+          document.documentElement.scrollHeight - 2) {
+        for (var k = targets.length - 1; k >= 0; k--) {
+          if (targets[k] && targets[k].getBoundingClientRect().top < window.innerHeight) {
+            best = k;
+            break;
+          }
+        }
       }
       // exactly one entry is highlighted: inside the tabbed section it is the
       // sub-entry for the open tab, elsewhere the current top-level section
