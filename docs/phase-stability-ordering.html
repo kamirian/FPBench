@@ -107,6 +107,8 @@
       border-left: 3px solid var(--accent); border-radius: 8px; }
     .lb-intro a { color: var(--accent); }
     .lb-intro .mx { color: var(--heading); font-weight: 600; }
+    /* a metric name inside a link keeps the link colour */
+    .lb-intro a .mx { color: inherit; }
 
     details { border: 1px solid var(--border); border-radius: 8px; margin-top: 0.9rem; background: var(--surface); overflow: hidden; }
     details summary { padding: 0.85rem 1.1rem; cursor: pointer; font-size: 0.98rem; font-weight: 700; color: var(--heading); list-style: none; }
