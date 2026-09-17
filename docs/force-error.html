@@ -86,6 +86,9 @@
     .dataset-card .ds-name { font-size: 1rem; font-weight: 700; color: var(--heading); margin-bottom: 0.4rem; }
     .dataset-card .ds-stat { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.2rem; }
     .dataset-card .ds-stat span { color: var(--text); }
+    .dataset-card .ds-link { margin-top: 0.7rem; font-size: 0.82rem; }
+    .dataset-card .ds-link a { color: var(--accent); text-decoration: none; }
+    .dataset-card .ds-link a:hover { text-decoration: underline; }
     .dataset-card .ds-desc { font-size: 0.87rem; color: var(--text); margin-top: 0.7rem; line-height: 1.5; }
 
     .tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;
@@ -363,7 +366,7 @@
   <div class="cta">
     <a class="btn btn-primary" href="#results">View Leaderboard</a>
     <a class="btn btn-green"  href="#use-fpbench">Use FPBench</a>
-    <a class="btn btn-outline" href="https://matpes.ai/">Dataset (MatPES)</a>
+    <a class="btn btn-outline" href="#datasets">Datasets</a>
     <a class="btn btn-outline" href="https://arxiv.org/abs/2609.05714">Paper (arXiv)</a>
     <a class="btn btn-outline" href="https://github.com/mogroupumd/FPBench/tree/main/Force_error">GitHub</a>
   </div>
@@ -778,16 +781,19 @@
       <div class="ds-name">MatPES-PBE</div>
       <div class="ds-stat">DFT functional: <span>PBE</span></div>
       <div class="ds-desc">Equilibrium and off-equilibrium structures selected from finite-temperature MD trajectories, augmented with Materials Project ground-state structures.</div>
+      <div class="ds-link"><a href="https://matpes.ai/">Source: MatPES &#8599;</a></div>
     </div>
     <div class="dataset-card">
       <div class="ds-name">MatPES-r2SCAN</div>
       <div class="ds-stat">DFT functional: <span>r2SCAN</span></div>
       <div class="ds-desc">The r2SCAN release of MatPES, evaluated against the three r2SCAN-trained FPs.</div>
+      <div class="ds-link"><a href="https://matpes.ai/">Source: MatPES &#8599;</a></div>
     </div>
     <div class="dataset-card">
       <div class="ds-name">OMat24 rattled-1000</div>
       <div class="ds-stat">DFT functional: <span>PBE</span></div>
       <div class="ds-desc">The OMat24 rattled-1000 validation subset (approximately 117,000 structures rattled at a sampling temperature of 1000 K), evaluated against the FPs included in the FPBench leaderboard.</div>
+      <div class="ds-link"><a href="https://huggingface.co/datasets/facebook/OMAT24">Source: OMat24 &#8599;</a></div>
     </div>
   </div>
   <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted);">
