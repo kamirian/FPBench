@@ -77,7 +77,20 @@ from pathlib import Path
 FP_ORDER = [
     "MACE-MP0_medium", "CHGNET", "M3GNET_pes", "UMA_s1_p1",
     "M3GNET_matpes_PBE", "TensorNET_matpes_PBE", "MACE_matpes_pbe",
+    "Orb_v3_conservative_inf_omat", "SevenNet_mf_ompa", "MatterSim_v1_5M",
+    "Nequix_oam_1", "GPTFF_v2", "NEP89", "DPA4_Plus_OMat24",
+    "GRACE_3L_OMAT_large_ft_AM",
 ]
+# GPTFF_v2 ran under ASE 3.28.0 while every other second-wave FP ran 3.29.0
+# (all fifteen otherwise share matcalc 0.4.3, neb_method "aseneb" and the same
+# BFGS-through-MatCalc optimizer). It is also the barrier outlier of the set,
+# so the two had to be disentangled before including it. They were, via the
+# fp_static_on_dft_neb protocol, which evaluates the FP on the DFT NEB images
+# and therefore never invokes ASE's NEB tangent construction or BFGS: GPTFF's
+# static barrier MAE (0.2066 eV) is already worse than every other FP in either
+# wave, and its full/static ratio (1.07) sits inside the 0.88-1.29 band spanned
+# by all fifteen. The anomaly is in the potential energy surface, not the ASE
+# version. See NEB_matcalc_ase_provenance.md.
 FP_DISPLAY_NAMES = {
     "MACE-MP0_medium":      "MACE",
     "CHGNET":               "CHGNet",
@@ -86,6 +99,14 @@ FP_DISPLAY_NAMES = {
     "M3GNET_matpes_PBE":    "M3GNet-MatPES",
     "TensorNET_matpes_PBE": "TensorNet-MatPES",
     "MACE_matpes_pbe":      "MACE-MatPES",
+    "Orb_v3_conservative_inf_omat": "Orb",
+    "SevenNet_mf_ompa":             "SevenNet",
+    "MatterSim_v1_5M":              "MatterSim",
+    "Nequix_oam_1":                 "Nequix",
+    "GPTFF_v2":                     "GPTFF",
+    "NEP89":                        "NEP89",
+    "DPA4_Plus_OMat24":             "DPA4",
+    "GRACE_3L_OMAT_large_ft_AM":    "GRACE",
 }
 OUTLIER_THRESHOLD = 1.0
 ROUND_DECIMALS = 4
@@ -194,7 +215,7 @@ def compute_endpoint_rmsd_leaderboard_fields(analysis, na, fp_order):
 
 
 def build_leaderboard(reference_path, results_path, na, area_between_curves, simplify_class,
-                       barrier_combination="pooled"):
+                       barrier_combination="pooled", fp_keys=None):
     """barrier_combination: forwarded verbatim to compute_key_neb_metrics_summary
     (see that function's docstring). "pooled" (default) is the only value
     that should ever be used for a real published/leaderboard export;
@@ -218,10 +239,28 @@ def build_leaderboard(reference_path, results_path, na, area_between_curves, sim
     reference_data, fp_results = na.load_neb_datasets(str(reference_path), str(results_path))
     validate_active_population(reference_data)
 
-    fp_order = [k for k in FP_ORDER if k in fp_results.get("models", {})]
-    missing = [k for k in FP_ORDER if k not in fp_results.get("models", {})]
+    requested = list(fp_keys) if fp_keys else list(FP_ORDER)
+    unknown = [k for k in requested if k not in FP_DISPLAY_NAMES]
+    if unknown:
+        raise ValueError(f"no display name registered for FP keys {unknown}; add them to FP_DISPLAY_NAMES")
+
+    models = fp_results.get("models", {})
+    fp_order = [k for k in requested if k in models]
+    missing = [k for k in requested if k not in models]
     if missing:
         print(f"WARNING: results file is missing FPs {missing}; exporting only {fp_order}", file=sys.stderr)
+
+    # A results file may declare a model key with no data behind it (an empty
+    # placeholder reserved for a run that has not finished yet). Key presence
+    # alone therefore cannot scope an export: such an entry would otherwise be
+    # carried into the analysis as a real FP with zero pathways. Fail loudly
+    # and name them rather than exporting a silently meaningless row.
+    empty = [k for k in fp_order if not models[k].get("full_fp_neb", {}).get("pathways")]
+    if empty:
+        raise ValueError(
+            f"FP keys present in the results file but carrying no full_fp_neb pathways: {empty}. "
+            f"Scope this run with --fp-keys, or point --results at a file that has their data."
+        )
 
     analysis = na.build_neb_analysis_results(
         reference_data, fp_results, expected_pathways=EXPECTED_ACTIVE_PATHWAYS,
@@ -384,6 +423,11 @@ def main():
     parser.add_argument("--results", required=True, help="Path to the all-FP results file (.json or .json.gz)")
     parser.add_argument("--component-dir", default=".", help="Path to the Ion_migration_NEB/ directory (default: current directory)")
     parser.add_argument("--force", action="store_true", help="Overwrite existing output files even if their content differs")
+    parser.add_argument("--fp-keys", default=None,
+                         help="Comma-separated subset of FP keys to export in this run, in the order "
+                              "given (default: all of FP_ORDER). Needed when a results file declares "
+                              "model keys it holds no data for, since an empty placeholder entry is "
+                              "still a present key and cannot be scoped out by presence alone.")
     parser.add_argument("--legacy", action="store_true",
                          help="Export under barrier_combination='round_then_average_legacy' instead of the "
                               "default 'pooled'. NEVER pass this for a real leaderboard update -- it exists "
@@ -397,8 +441,9 @@ def main():
     from neb_plots import area_between_curves, simplify_class
 
     barrier_combination = "round_then_average_legacy" if args.legacy else "pooled"
+    fp_keys = [k.strip() for k in args.fp_keys.split(",") if k.strip()] if args.fp_keys else None
     leaderboard = build_leaderboard(args.reference, args.results, na, area_between_curves, simplify_class,
-                                     barrier_combination=barrier_combination)
+                                     barrier_combination=barrier_combination, fp_keys=fp_keys)
 
     component_dest = component_dir / "data" / "ion_migration_neb_leaderboard_summary.json"
     docs_dest = component_dir.parent / "docs" / "data" / "ion_migration_neb_leaderboard_summary.json"

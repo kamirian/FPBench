@@ -245,28 +245,32 @@ the FP's own training data (`training`), outside it (`OOD`), a fine-tune of an O
 onto it (`fine-tuned`), or a dataset used to pretrain the model before it was fine-tuned on
 other data (`pretraining`).
 
-| FP | MatPES-PBE (force) | OMat24 rattled-1000 (force, SI) | Phase stability / ordering and NEB |
-|---|---|---|---|
-| MACE | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
-| CHGNet | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
-| M3GNet | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
-| UMA | &#10003; (OOD) | &#10003; (training) | &#10003; (OOD) |
-| M3GNet-MatPES | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) |
-| TensorNet-MatPES | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) |
-| MACE-MatPES | &#10003; (training) | &#10003; (pretraining)* | &#10003; (OOD) |
-| Orb | &#10003; (OOD) | &#10003; (training) | not evaluated |
-| SevenNet | &#10003; (OOD) | &#10003; (training) | not evaluated |
-| MatterSim | &#10003; (OOD)&dagger; | &#10003; (OOD) | not evaluated |
-| Nequix | &#10003; (OOD)&sect; | &#10003; (training) | not evaluated |
-| GPTFF | &#10003; (OOD) | &#10003; (OOD) | not evaluated |
-| ALIGNN | &#10003; (OOD)&para; | not evaluated | not evaluated |
-| NEP89 | &#10003; (OOD)&dagger;&dagger; | &#10003; (OOD) | not evaluated |
-| DPA4 | &#10003; (OOD) | &#10003; (training) | not evaluated |
-| GRACE | &#10003; (OOD) | &#10003; (pretraining) | not evaluated |
-| eqV2 | &#10003; (OOD) | &#10003; (pretraining) | not evaluated |
-| eSEN | &#10003; (OOD) | &#10003; (pretraining) | not evaluated |
+| FP | MatPES-PBE (force) | OMat24 rattled-1000 (force, SI) | Phase stability / ordering | Ion migration (NEB) |
+|---|---|---|---|---|
+| MACE | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
+| CHGNet | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
+| M3GNet | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
+| UMA | &#10003; (OOD) | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) |
+| M3GNet-MatPES | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
+| TensorNet-MatPES | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
+| MACE-MatPES | &#10003; (training) | &#10003; (pretraining)* | &#10003; (OOD) | &#10003; (OOD) |
+| Orb | &#10003; (OOD) | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) |
+| SevenNet | &#10003; (OOD) | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) |
+| MatterSim | &#10003; (OOD)&dagger; | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
+| Nequix | &#10003; (OOD)&sect; | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) |
+| GPTFF | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
+| ALIGNN | &#10003; (OOD)&para; | not evaluated | not evaluated | not evaluated |
+| NEP89 | &#10003; (OOD)&dagger;&dagger; | &#10003; (OOD) | &#10003; (OOD) | &#10003; (OOD) |
+| DPA4 | &#10003; (OOD) | &#10003; (training) | &#10003; (OOD) | &#10003; (OOD) |
+| GRACE | &#10003; (OOD) | &#10003; (pretraining) | &#10003; (OOD) | &#10003; (OOD) |
+| eqV2 | &#10003; (OOD) | &#10003; (pretraining) | &#10003; (OOD) | not evaluated |
+| eSEN | &#10003; (OOD) | &#10003; (pretraining) | &#10003; (OOD) | not evaluated |
 
 \* Pre-trained on MACE-OMAT-0, fine-tuned on MatPES-PBE.
+
+The last two columns reflect what is currently published on the component leaderboards,
+which now extends beyond the roster evaluated in the manuscript. eqV2 and eSEN are evaluated
+for phase stability / ordering; their ion-migration NEB runs are still in progress.
 
 The three r2SCAN-trained FPs are evaluated on MatPES-r2SCAN (training), in addition to the
 models above.
