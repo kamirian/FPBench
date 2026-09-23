@@ -4,17 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="5pK13K2RclhC91JU0y3HVxyg9ny5Kujt7pJMzuO2uZ0" />
-  <title>FPBench: Application-Oriented Error Decomposition for Foundation Potentials</title>
-  <meta name="description" content="FPBench: Application-Oriented Error Decomposition for Foundation Potentials benchmarks FPs and machine-learning interatomic potentials (MLIPs) across force prediction, phase stability and elemental ordering, and ion migration." />
+  <title>FP-DeErr: Application-Oriented Error Decomposition for Foundation Potentials</title>
+  <meta name="description" content="FP-DeErr applies application-oriented error decomposition to foundation potentials (FPs) and machine-learning interatomic potentials (MLIPs), resolving where errors arise in force prediction, phase stability and elemental ordering, and ion migration." />
   <link rel="canonical" href="https://mogroupumd.github.io/FPBench/" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="FPBench" />
-  <meta property="og:title" content="FPBench: Application-Oriented Error Decomposition for Foundation Potentials" />
-  <meta property="og:description" content="FPBench: Application-Oriented Error Decomposition for Foundation Potentials benchmarks FPs and machine-learning interatomic potentials (MLIPs) across force prediction, phase stability and elemental ordering, and ion migration." />
+  <meta property="og:site_name" content="FP-DeErr" />
+  <meta property="og:title" content="FP-DeErr: Application-Oriented Error Decomposition for Foundation Potentials" />
+  <meta property="og:description" content="FP-DeErr applies application-oriented error decomposition to foundation potentials (FPs) and machine-learning interatomic potentials (MLIPs), resolving where errors arise in force prediction, phase stability and elemental ordering, and ion migration." />
   <meta property="og:url" content="https://mogroupumd.github.io/FPBench/" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="FPBench: Application-Oriented Error Decomposition for Foundation Potentials" />
-  <meta name="twitter:description" content="FPBench: Application-Oriented Error Decomposition for Foundation Potentials benchmarks FPs and machine-learning interatomic potentials (MLIPs) across force prediction, phase stability and elemental ordering, and ion migration." />
+  <meta name="twitter:title" content="FP-DeErr: Application-Oriented Error Decomposition for Foundation Potentials" />
+  <meta name="twitter:description" content="FP-DeErr applies application-oriented error decomposition to foundation potentials (FPs) and machine-learning interatomic potentials (MLIPs), resolving where errors arise in force prediction, phase stability and elemental ordering, and ion migration." />
   <style>
     :root {
       --bg:       #0d1117;
@@ -158,9 +158,9 @@
   {
     "@context": "https://schema.org",
     "@type": "Dataset",
-    "name": "FPBench: Application-Oriented Error Decomposition for Foundation Potentials",
-    "alternateName": "FPBench foundation potentials benchmark",
-    "description": "Application-oriented benchmark of foundation potentials (universal machine-learning interatomic potentials) covering force prediction, convex-hull phase stability and elemental ordering, and ion-migration barriers by nudged elastic band.",
+    "name": "FP-DeErr: Application-Oriented Error Decomposition for Foundation Potentials",
+    "alternateName": "FP-DeErr foundation potentials benchmark",
+    "description": "Application-oriented error decomposition for foundation potentials (universal machine-learning interatomic potentials), resolving where prediction errors arise across force prediction, convex-hull phase stability and elemental ordering, and ion-migration barriers by nudged elastic band.",
     "url": "https://mogroupumd.github.io/FPBench/",
     "keywords": ["foundation potentials","foundation potential benchmark","machine-learning interatomic potentials","MLIP","MLIPs","MLIP benchmark","universal machine-learning interatomic potentials","interatomic potential benchmark","MatPES","OMat24","convex hull","nudged elastic band","ion migration","materials science"],
     "creator": {"@type": "Organization", "name": "Mo Group, University of Maryland"},
@@ -170,11 +170,11 @@
     "citation": "Amirian K, Saravanan R S, Adams F, Schwarz C E, Mo Y (2026) FPBench: Application-Oriented Error Decomposition for Foundation Potentials. arXiv:2609.05714 https://arxiv.org/abs/2609.05714",
     "distribution": [
       {"@type": "DataDownload",
-       "name": "FPBench DFT-NEB reference: 154 Li- and Na-ion migration pathways",
+       "name": "FP-DeErr DFT-NEB reference: 154 Li- and Na-ion migration pathways",
        "contentUrl": "https://doi.org/10.6084/m9.figshare.33332610",
        "encodingFormat": "application/gzip"},
       {"@type": "DataDownload",
-       "name": "FPBench convex-hull and elemental-ordering benchmark subsets: ternary chalcogenide phase-change materials",
+       "name": "FP-DeErr convex-hull and elemental-ordering benchmark subsets: ternary chalcogenide phase-change materials",
        "contentUrl": "https://doi.org/10.6084/m9.figshare.33334329",
        "encodingFormat": "application/gzip"}
     ]
@@ -184,7 +184,7 @@
 <body>
 
 <nav>
-  <a class="logo" href="index.html">FPBench</a>
+  <a class="logo" href="index.html">FP-DeErr</a>
   <div class="nav-links">
     <a class="nav-highlight" href="index.html">Home</a>
     <a href="force-error.html">Force Prediction</a>
@@ -196,16 +196,17 @@
 </nav>
 
 <div class="hero">
-  <h1>FPBench</h1>
+  <h1>FP-DeErr</h1>
   <div class="tag-line">Application-Oriented Error Decomposition for Foundation Potentials</div>
   <p>
-    FPBench introduces application-oriented error decomposition through metrics that resolve performance according to the physically consequential quantities and configurations governing computational tasks, including the fractions of highly accurate and large-force-error atoms, far-from-equilibrium atoms, relative phase-stability and convex-hull agreement, and along-path errors in ion migration. These metrics from error decompositions identify where FP errors arise within specific computational tasks, providing targeted guidance for model development.
+    FP-DeErr introduces application-oriented error decomposition through metrics that resolve performance according to the physically consequential quantities and configurations governing computational tasks, including the fractions of highly accurate and large-force-error atoms, far-from-equilibrium atoms, relative phase-stability and convex-hull agreement, and along-path errors in ion migration. These metrics from error decompositions identify where FP errors arise within specific computational tasks, providing targeted guidance for model development.
   </p>
   <p>
-    FPBench evaluates foundation potentials (FPs), also known as universal machine-learning
+    FP-DeErr evaluates foundation potentials (FPs), also known as universal machine-learning
     interatomic potentials (MLIPs), across three computational materials workflows: force
     prediction, phase stability and elemental ordering, and ion migration by NEB calculations.
   </p>
+  <p class="note">FP-DeErr was previously named FPBench.</p>
   <div class="hero-cta">
     <a class="btn btn-primary" href="https://arxiv.org/abs/2609.05714">Paper (arXiv)</a>
     <a class="btn btn-outline" href="https://github.com/mogroupumd/FPBench">GitHub</a>
@@ -240,7 +241,7 @@
     <div class="component-card available">
       <span class="status-badge status-available">Available</span>
       <h3>Phase Stability and Elemental Ordering</h3>
-      <p>Convex-hull/relative-phase-stability, elemental-ordering energy-ranking, and structural-relaxation (RMSD) metrics for FPs, evaluated on the FPBench convex-hull and elemental-ordering benchmark subsets.</p>
+      <p>Convex-hull/relative-phase-stability, elemental-ordering energy-ranking, and structural-relaxation (RMSD) metrics for FPs, evaluated on the FP-DeErr convex-hull and elemental-ordering benchmark subsets.</p>
       <a class="btn btn-primary" href="phase-stability-ordering.html">View Phase Stability &amp; Ordering &rarr;</a>
     </div>
     <div class="component-card available">
@@ -444,19 +445,19 @@
   <p class="note">* Pre-trained on MACE-OMAT-0, then fine-tuned on the matched MatPES functional.</p>
   <p class="note">&dagger; The MatterSim model card reports "Training Data Size: 6M", "Model Parameters: 4.5M", and training on "a specific variant of Density Functional Theory (PBE)". The GGA-PBE(+U) labelling, with Hubbard U applied to selected materials following Materials Project settings, is described in Yang et al. rather than on the model card. The dataset itself is not released, so the OOD label reflects the absence of documented training exposure rather than a verified composition.</p>
   <p class="note">&Dagger; Rhodes et al. state that "all orb-v3-*-omat models are only trained on the AIMD subset of OMat24", and that the OMat24 dataset "contains ~55 million AIMD-sampled structures".</p>
-  <p class="note">&sect; The FPBench checkpoint is <code>nequix-oam-1</code>. The official nequix repository documents this checkpoint as trained on OMat24, sAlex and MPtrj at the DFT (PBE+U) level. The Nequix paper describes an MPtrj-trained model and does not report a training-set size or parameter count for this released OAM checkpoint; the 707,569-parameter model size shown here was measured from the loaded checkpoint by FPBench.</p>
-  <p class="note">&#8214; GPTFF&rsquo;s Atomly labels were computed with VASP at the GGA-PBE level with a 520 eV plane-wave cutoff and version 5.4 PAW pseudopotentials. The functional matches the FPBench reference; the cutoff and pseudopotential version do not necessarily, so small systematic offsets relative to MatPES-PBE are expected independently of model quality.</p>
-  <p class="note">&para; ALIGNN is trained on JARVIS-DFT at the <strong>OptB88vdW</strong> level, not PBE. Its training set is 307,113 points, split 90:5:5. It is the only FP here whose training reference functional differs from the evaluation reference, so its scores measure agreement with the FPBench MatPES-PBE reference rather than a functional-matched fitting error.</p>
-  <p class="note">&dagger;&dagger; NEP89 is trained on eleven datasets computed at different quantum-mechanical levels rather than a single reference functional. Its FPBench MatPES-PBE scores therefore measure practical agreement with the PBE benchmark reference rather than agreement with a single matched reference functional. The eleven datasets and the 537,641-configuration total are reported in the NEP89 paper; the 976,331 trainable parameters were counted from the released model by FPBench.</p>
-  <p class="note">&Dagger;&Dagger; FPBench counts 42.1M parameters (42,112,223) for the GRACE potential used in inference. The released SavedModel additionally contains a 23.4M-parameter GMM uncertainty head that is disabled in FPBench runs and is therefore not included in the reported model size. The GRACE documentation does not publish a parameter count; 42.1M was measured from the released model by FPBench.</p>
+  <p class="note">&sect; The FP-DeErr checkpoint is <code>nequix-oam-1</code>. The official nequix repository documents this checkpoint as trained on OMat24, sAlex and MPtrj at the DFT (PBE+U) level. The Nequix paper describes an MPtrj-trained model and does not report a training-set size or parameter count for this released OAM checkpoint; the 707,569-parameter model size shown here was measured from the loaded checkpoint by FP-DeErr.</p>
+  <p class="note">&#8214; GPTFF&rsquo;s Atomly labels were computed with VASP at the GGA-PBE level with a 520 eV plane-wave cutoff and version 5.4 PAW pseudopotentials. The functional matches the FP-DeErr reference; the cutoff and pseudopotential version do not necessarily, so small systematic offsets relative to MatPES-PBE are expected independently of model quality.</p>
+  <p class="note">&para; ALIGNN is trained on JARVIS-DFT at the <strong>OptB88vdW</strong> level, not PBE. Its training set is 307,113 points, split 90:5:5. It is the only FP here whose training reference functional differs from the evaluation reference, so its scores measure agreement with the FP-DeErr MatPES-PBE reference rather than a functional-matched fitting error.</p>
+  <p class="note">&dagger;&dagger; NEP89 is trained on eleven datasets computed at different quantum-mechanical levels rather than a single reference functional. Its FP-DeErr MatPES-PBE scores therefore measure practical agreement with the PBE benchmark reference rather than agreement with a single matched reference functional. The eleven datasets and the 537,641-configuration total are reported in the NEP89 paper; the 976,331 trainable parameters were counted from the released model by FP-DeErr.</p>
+  <p class="note">&Dagger;&Dagger; FP-DeErr counts 42.1M parameters (42,112,223) for the GRACE potential used in inference. The released SavedModel additionally contains a 23.4M-parameter GMM uncertainty head that is disabled in FP-DeErr runs and is therefore not included in the reported model size. The GRACE documentation does not publish a parameter count; 42.1M was measured from the released model by FP-DeErr.</p>
   <p class="note"># The immediate model sources describe these labels as DFT and DFT+U total-energy labels. OMat24 itself uses PBE/PBE+U reference calculations; see the <a href="https://arxiv.org/abs/2410.12771" style="color:var(--accent);">OMat24 dataset reference</a>.</p>
-  <p class="note">The potentials listed after the r2SCAN entries were evaluated after submission of the manuscript, which reports the ten FPs above them. Their model sizes are parameter counts measured from the loaded checkpoints.</p>
+  <p class="note">The manuscript revision expands the main roster to eleven FPs, adding Orb, MatterSim, DPA4 and GRACE to the seven originally reported. This website evaluates further FPs beyond that manuscript roster: the Ion Migration (NEB) leaderboard currently lists 15 FPs and the Phase Stability and Ordering leaderboard 17. The r2SCAN-trained entries are a separate set, evaluated only on the MatPES-r2SCAN dataset. Model sizes are parameter counts measured from the loaded checkpoints.</p>
   <p class="note">This is the current set of FPs evaluated. As additional FPs are tested, they will be added to this table; existing benchmark results remain tied to their original model versions and are not silently replaced.</p>
 </section>
 
 <section class="wide" id="evaluation-matrix">
   <h2 style="text-align:left;">Evaluation Matrix</h2>
-  <p>Which FPs were evaluated on which FPBench component/dataset. A checkmark means the FP was evaluated there; the parenthetical states whether that dataset falls inside (<code>training</code>) or outside (<code>OOD</code>, out-of-distribution) the FP's own training data, whether the FP is a fine-tune of an OOD base model onto that dataset (<code>fine-tuned</code>), or whether that dataset was used to pretrain the model before it was fine-tuned on other data (<code>pretraining</code>).</p>
+  <p>Which FPs were evaluated on which FP-DeErr component/dataset. A checkmark means the FP was evaluated there; the parenthetical states whether that dataset falls inside (<code>training</code>) or outside (<code>OOD</code>, out-of-distribution) the FP's own training data, whether the FP is a fine-tune of an OOD base model onto that dataset (<code>fine-tuned</code>), or whether that dataset was used to pretrain the model before it was fine-tuned on other data (<code>pretraining</code>).</p>
   <div class="table-scroll-plain">
     <table class="matrix">
       <tr><th>FP</th><th>MatPES-PBE (Force Prediction)</th><th>OMat24 rattled-1000 (Force Prediction, SI)</th><th>Phase Stability &amp; Ordering</th><th>Ion Migration (NEB)</th></tr>
@@ -488,7 +489,7 @@
 <section id="contribute">
   <h2>Add a potential</h2>
   <p>
-    Interested in adding a foundation potential to FPBench? Follow our
+    Interested in adding a foundation potential to FP-DeErr? Follow our
     <a href="https://github.com/mogroupumd/FPBench/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a>
     guide to evaluate your model, and visit
     <a href="contribute.html" style="color:var(--accent);">Contribute</a>
@@ -498,7 +499,7 @@
 
 <section id="citation">
   <h2>Citation</h2>
-  <p>If you use FPBench, please cite:</p>
+  <p>If you use FP-DeErr, please cite the paper, which is posted under the project's former name:</p>
   <p style="color:var(--text);">
     Kiyan Amirian, Ramanuja Srinivasan Saravanan, Felix Adams, Charles E Schwarz and Yifei Mo,
     &ldquo;FPBench: Application-Oriented Error Decomposition for Foundation Potentials&rdquo;,

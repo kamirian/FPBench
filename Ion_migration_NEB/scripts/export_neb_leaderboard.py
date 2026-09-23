@@ -352,7 +352,7 @@ def build_leaderboard(reference_path, results_path, na, area_between_curves, sim
     leaderboard = {
         "schema_version": "1.0.0",
         "component": "ion_migration_neb",
-        "dataset_name": "FPBench ion-migration NEB leaderboard summary",
+        "dataset_name": "FP-DeErr ion-migration NEB leaderboard summary",
         "active_pathway_count": len(reference_data["pathways"]),
         "active_dft_reference_image_count": sum(
             len(p["dft_neb_images"]) for p in reference_data["pathways"].values()),

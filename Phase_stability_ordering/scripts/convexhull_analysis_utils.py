@@ -15,7 +15,7 @@ G. Structure comparison    – legacy_compute_rmsd_table
 H. Ordering metrics        – get_Epa, compute_metrics_one_group, summarize_one_potential
 
 Sections A-H above are the original data model (all_mlips_clean_*, endpoints_*,
-ordering_merged). Sections I-N below are the standardized FPBench data model
+ordering_merged). Sections I-N below are the standardized FP-DeErr data model
 that replaces it in the analysis notebook: explicit candidate identity shared
 between DFT and every FP, explicit success/missing status (no silent structure
 fallback), and corrected metrics (pooled ground-state agreement excluding
@@ -53,8 +53,8 @@ R. Results-table builders     – build_combined_hull_table, build_combined_orde
                                build_rmsd_table (one call each, hull/ordering/RMSD)
 S. Public builder             – build_phase_stability_ordering_results: normalizes
                                user-supplied DFT reference data + FP results (plain
-                               Python structures, not FPBench's historical FORMAT A/
-                               FORMAT B file layout) into the same standardized FPBench
+                               Python structures, not FP-DeErr's historical FORMAT A/
+                               FORMAT B file layout) into the same standardized FP-DeErr
                                data structures Sections I-R already consume, for
                                analyzing another dataset with this benchmark's own
                                metrics/table functions unchanged
@@ -3146,7 +3146,7 @@ def demonstrate_ordering_group(dft_ordering: dict, fp_ordering: dict, group_name
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# N. FPBench data validation summary. Prints actual populations/consistency
+# N. FP-DeErr data validation summary. Prints actual populations/consistency
 #    checks; never forces expected numbers -- prints exact affected
 #    identifiers and raises where a hard requirement is violated.
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -3282,7 +3282,7 @@ def validate_phase_stability_ordering_results(dft_hull: dict, fp_hull_by_fp: dic
 
     # ── Print ────────────────────────────────────────────────────────────────
     print("═" * 78)
-    print("FPBENCH DATA VALIDATION SUMMARY")
+    print("FP-DeErr DATA VALIDATION SUMMARY")
     print("═" * 78)
     print(f"\nHull:")
     for k, v in report["hull"].items():
@@ -3331,7 +3331,7 @@ def load_all_convexhull_ordering_data(
 ) -> dict:
     """
     LEGACY CONVERSION / PROVENANCE UTILITY -- not the recommended public
-    interface. This function reads FPBench's own historical, personal-path
+    interface. This function reads FP-DeErr's own historical, personal-path
     raw files (FORMAT A/FORMAT B) and is used only by
     scripts/convert_legacy_phase_stability_ordering_data.py, which serializes
     its output into the two canonical standardized files
@@ -3446,7 +3446,7 @@ def load_all_convexhull_ordering_data(
     all_mlips_relax_with_ep  = merge_endpoints_into_hull(all_mlips_clean_relax,  endpoints_relax)
     all_mlips_static_with_ep = merge_endpoints_into_hull(all_mlips_clean_static, endpoints_static)
 
-    print("Building standardized FPBench data model (dft_hull / fp_hull / dft_ordering / fp_ordering) ...")
+    print("Building standardized FP-DeErr data model (dft_hull / fp_hull / dft_ordering / fp_ordering) ...")
     dft_hull, hull_final_systems, hull_diag = build_dft_hull(
         hull_relax_records_by_fp[dft_reference_fp], ep_relax_records_by_fp[dft_reference_fp]
     )
@@ -4395,9 +4395,9 @@ def build_rmsd_table(dft_hull, fp_hull, fps, model_names, mode="relax",
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # S. Public builder for external datasets. Normalizes user-supplied DFT
-#    reference data + FP results (plain Python structures, not FPBench's
+#    reference data + FP results (plain Python structures, not FP-DeErr's
 #    historical FORMAT A/FORMAT B file layout) into the same standardized
-#    FPBench data structures Sections I-R already consume. Reuses those
+#    FP-DeErr data structures Sections I-R already consume. Reuses those
 #    structures and every downstream metric/table function unchanged; does
 #    not duplicate any metric logic. load_all_convexhull_ordering_data
 #    (Section O) is untouched and remains the manuscript-reproduction loader
@@ -4430,9 +4430,9 @@ def _n_atoms_and_epa(rec: dict) -> tuple[int, float]:
 
 def build_phase_stability_ordering_results(reference_data: dict, fp_results: dict) -> dict:
     """
-    Public, format-agnostic builder for the standardized FPBench data
+    Public, format-agnostic builder for the standardized FP-DeErr data
     structures (dft_hull, fp_hull, dft_ordering, fp_ordering), for datasets
-    that do not follow FPBench's historical FORMAT A/FORMAT B file layout.
+    that do not follow FP-DeErr's historical FORMAT A/FORMAT B file layout.
     See load_all_convexhull_ordering_data for that (unchanged) manuscript-
     reproduction loader.
 

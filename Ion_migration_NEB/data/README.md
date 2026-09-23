@@ -169,9 +169,9 @@ fp_results = {
 ```
 
 Three protocol branches, never mixed: `full_fp_neb` (the FP's own relaxed
-endpoints and climbing-image NEB path), `fp_static_on_dft_neb` (the FP
-evaluated, single-point, on the DFT-NEB reference's own images), and
-`dft_static_on_fp_neb` (DFT evaluated, single-point, on the FP's own final
+endpoints and climbing-image NEB path), `fp_static_on_dft_neb` (static FP
+evaluations on the DFT-NEB image structures), and
+`dft_static_on_fp_neb` (DFT static diagnostics on the FP's own final
 `full_fp_neb` images -- intentionally sparse coverage, never padded).
 
 ## Unsuccessful and non-converged records

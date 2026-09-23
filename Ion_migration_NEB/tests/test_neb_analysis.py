@@ -1,7 +1,7 @@
 """Synthetic tests for neb_analysis.py's reusable public API
 (build_neb_analysis_results, validate_neb_analysis_inputs) plus the
 example-record template. Runs against small, in-memory synthetic data --
-requires no personal paths and no downloaded FPBench data files.
+requires no personal paths and no downloaded FP-DeErr data files.
 
 Run with: python tests/test_neb_analysis.py (from the Ion_migration_NEB/ directory)
 """

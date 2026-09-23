@@ -1,4 +1,4 @@
-"""Non-plotting analysis helpers for the Ion Migration by NEB FPBench notebook.
+"""Non-plotting analysis helpers for the Ion Migration by NEB FP-DeErr notebook.
 
 Loads, validates, transforms, and calculates analysis results from the
 canonical DFT reference and FP results JSON files (see input_data/README.md
@@ -1652,14 +1652,14 @@ def build_static_barrier_case_membership(fp_path_metrics_by_protocol, dft_path_m
 # 10. Reusable public API for external datasets
 #
 # Everything above this point was written against, and is verified against,
-# the FPBench 154-path benchmark. The functions below add nothing new
+# the FP-DeErr 154-path benchmark. The functions below add nothing new
 # scientifically -- they orchestrate the existing functions above (same
 # formulas, same thresholds, same denominators, same averaging conventions)
 # behind one public entry point that does not assume a 154-path dataset,
 # plus general-purpose input validation and a documented example for anyone
 # supplying their own DFT reference + FP results in the same JSON schema.
 #
-# The FPBench-specific validate_neb_datasets(...) (with its 154-path
+# The FP-DeErr-specific validate_neb_datasets(...) (with its 154-path
 # expected_pathway_count check) is unchanged and still what the benchmark
 # notebook itself calls; validate_neb_analysis_inputs(...) below is the
 # general-purpose sibling used by build_neb_analysis_results(...) and by
@@ -1672,7 +1672,7 @@ def validate_neb_analysis_inputs(reference_data, fp_results, expected_pathways=N
     schema (DFT reference + FP results), usable on any dataset following the
     canonical JSON schema documented in input_data/README.md and
     results/README.md (and, briefly, in the analysis notebook's "Using
-    FPBench data or another NEB dataset" section) -- not only the FPBench
+    FP-DeErr data or another NEB dataset" section) -- not only the FP-DeErr
     154-path benchmark. `expected_pathways` is optional and, when given, is only
     checked as an informational count; no other check requires it or any
     other fixed pathway count.
@@ -1937,7 +1937,7 @@ def validate_neb_analysis_inputs(reference_data, fp_results, expected_pathways=N
                     continue
                 diag_xyz = np.array([s.get("xyz", []) for s in diag_sites], dtype=float)
                 full_xyz = np.array([s.get("xyz", []) for s in full_sites], dtype=float)
-                # atol=1e-6 A: real FPBench data duplicates these coordinates
+                # atol=1e-6 A: real FP-DeErr data duplicates these coordinates
                 # to ~1e-15 A (float64 machine epsilon, confirmed by direct
                 # inspection of all ~95k real site-pairs) since both branches
                 # store the exact same structure, not an independently-relaxed
@@ -1957,7 +1957,7 @@ def validate_neb_analysis_inputs(reference_data, fp_results, expected_pathways=N
                     if len(diag_forces) != len(full_forces):
                         dft_on_fp_structure_mismatches.append(
                             (fp_key, pkey, ik, "duplicated fp_forces array shape mismatch vs full_fp_neb"))
-                    # atol=5e-4 eV/A: real FPBench data has up to ~1.5e-4
+                    # atol=5e-4 eV/A: real FP-DeErr data has up to ~1.5e-4
                     # eV/A float32-vs-float64 serialization noise between the
                     # two branches' independently-stored copies (confirmed by
                     # direct inspection, exact-power-of-2-sized diffs -- a
@@ -1972,7 +1972,7 @@ def validate_neb_analysis_inputs(reference_data, fp_results, expected_pathways=N
                                                "record by more than 5e-4 eV/A"))
                 diag_energy = img.get("fp_energy_total_eV")
                 full_energy = full_img.get("fp_energy_total_eV")
-                # Tight numerical tolerance, not exact equality: real FPBench
+                # Tight numerical tolerance, not exact equality: real FP-DeErr
                 # data round-trips through JSON with up to ~1.5e-5 eV of
                 # float32-vs-float64 serialization noise between the two
                 # branches' independently-stored copies of the same value
@@ -2120,7 +2120,7 @@ class NEBAnalysisResults:
                                                neb_converged) used by non-converged diagnostics.
 
     Failed / missing / non-converged record semantics: this module and the
-    real FPBench data it operates on distinguish exactly three states, and
+    real FP-DeErr data it operates on distinguish exactly three states, and
     deliberately do not carry a richer status enum (e.g. a
     status: completed|failed|missing|not_run field with failure_stage/
     error_type/error_message) because no calculation in the real 154-pathway
@@ -2172,7 +2172,7 @@ def build_neb_analysis_results(reference_data, fp_results, expected_pathways=Non
     """Public entry point: build every canonical NEB analysis object from a
     DFT-NEB reference and FP results, both following the canonical JSON
     schema documented in input_data/README.md, results/README.md, and,
-    briefly, the analysis notebook's "Using FPBench data or another NEB
+    briefly, the analysis notebook's "Using FP-DeErr data or another NEB
     dataset" section. This is the one function external users should call;
     every object it returns comes from the same, already-verified functions
     this notebook itself uses (no new scientific definitions, thresholds, or
@@ -2193,7 +2193,7 @@ def build_neb_analysis_results(reference_data, fp_results, expected_pathways=Non
         or a path to such a JSON file.
     expected_pathways : int or None, default None
         If given, checked as an informational count during validation (see
-        validate_neb_analysis_inputs). The FPBench benchmark passes 154
+        validate_neb_analysis_inputs). The FP-DeErr benchmark passes 154
         here; external datasets should leave this None -- no other
         behavior in this function assumes any particular pathway count.
     fp_order : list of str or None, default None
@@ -2303,7 +2303,7 @@ def build_neb_analysis_results(reference_data, fp_results, expected_pathways=Non
         if any(fp_static_on_dft_neb_images_by_fp_path.values()) else None
     )
 
-    # benchmark_pathways_df: for FPBench this is the 154 common_pathway_keys;
+    # benchmark_pathways_df: for FP-DeErr this is the 154 common_pathway_keys;
     # for an external dataset with no such field, every DFT-reference
     # pathway is in scope (i.e. this join becomes a no-op, not a filter).
     pathway_keys = reference_data.get("common_pathway_keys") or list(reference_data.get("pathways", {}).keys())

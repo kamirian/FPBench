@@ -1,25 +1,25 @@
 # Force Prediction
 
-The Force Prediction component of [FPBench](../README.md): force-magnitude and force-angle error
+The Force Prediction component of [FP-DeErr](../README.md): force-magnitude and force-angle error
 metrics for foundation potentials (FPs) against DFT reference forces.
 
 Leaderboard: **https://mogroupumd.github.io/FPBench/force-error.html**
 
 ## Contents
 
-- [Using FPBench](#using-fpbench)
+- [Using FP-DeErr](#using-fp-deerr)
 - [Required inputs and outputs](#required-inputs-and-outputs)
 - [Quick start](#quick-start)
 - [Files and scripts](#files-and-scripts)
 - [Standardized data](#standardized-data)
-- [Metrics](#metrics)
+- [Error-decomposition metrics](#metrics)
 - [Registering a potential](#registering-a-potential)
 - [Reproducing the provided benchmark](#reproducing-the-provided-benchmark)
 - [Citation and license](#citation-and-license)
 
 ---
 
-## Using FPBench
+## Using FP-DeErr
 
 There are two ways to use this component:
 
@@ -32,7 +32,7 @@ Full generator calculations on a dataset
                    ↓
           validation and analysis
                    ↓
-       FPBench force-error tables
+       FP-DeErr force-error tables
 ```
 
 - **Build standardized force results directly from paired Cartesian DFT and FP forces.** Call
@@ -154,7 +154,9 @@ from the standardized file's metric arrays).
 
 ---
 
-## Metrics
+<a name="metrics"></a>
+
+## Error-decomposition metrics
 
 Evaluated for atoms with `|F_DFT| > 0.01 eV/Å` (except the all-atom average-error analysis, which
 uses every atom); far-from-equilibrium (FE) atoms are `|F_DFT| > 1 eV/Å`. See the paper for
@@ -209,13 +211,13 @@ Once you have results for MatPES-PBE, MatPES-r2SCAN, or OMat24 rattled-1000, ope
 training data, checkpoint/version, and computed metrics.
 
 Model versions and official sources for the evaluated FPs are documented once on the
-[FPBench home page](../README.md#foundation-potentials-evaluated) rather than duplicated here.
+[FP-DeErr home page](../README.md#foundation-potentials-evaluated) rather than duplicated here.
 
 ---
 
 ## Citation and license
 
-If you use FPBench, please cite:
+If you use FP-DeErr, please cite the paper, which is posted under the project's former name:
 
 Kiyan Amirian, Ramanuja Srinivasan Saravanan, Felix Adams, Charles E Schwarz and Yifei Mo,
 "FPBench: Application-Oriented Error Decomposition for Foundation Potentials",

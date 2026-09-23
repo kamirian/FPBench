@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FPBench: Ion Migration by NEB</title>
-  <meta name="description" content="FPBench application-oriented error decomposition for foundation potentials in ion migration, including migration-barrier errors, energy-profile shape agreement, endpoint energy-ranking agreement, endpoint-structure relaxation error, and along-path force errors." />
+  <title>FP-DeErr: Ion Migration by NEB</title>
+  <meta name="description" content="FP-DeErr application-oriented error decomposition for foundation potentials in ion migration, including migration-barrier errors, energy-profile shape agreement, endpoint energy-ranking agreement, endpoint-structure relaxation error, and along-path force errors." />
   <link rel="canonical" href="https://mogroupumd.github.io/FPBench/ion-migration-neb.html" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="FPBench" />
-  <meta property="og:title" content="FPBench: Ion Migration by NEB" />
-  <meta property="og:description" content="FPBench application-oriented error decomposition for foundation potentials in ion migration, including migration-barrier errors, energy-profile shape agreement, endpoint energy-ranking agreement, endpoint-structure relaxation error, and along-path force errors." />
+  <meta property="og:site_name" content="FP-DeErr" />
+  <meta property="og:title" content="FP-DeErr: Ion Migration by NEB" />
+  <meta property="og:description" content="FP-DeErr application-oriented error decomposition for foundation potentials in ion migration, including migration-barrier errors, energy-profile shape agreement, endpoint energy-ranking agreement, endpoint-structure relaxation error, and along-path force errors." />
   <meta property="og:url" content="https://mogroupumd.github.io/FPBench/ion-migration-neb.html" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="FPBench: Ion Migration by NEB" />
-  <meta name="twitter:description" content="FPBench application-oriented error decomposition for foundation potentials in ion migration, including migration-barrier errors, energy-profile shape agreement, endpoint energy-ranking agreement, endpoint-structure relaxation error, and along-path force errors." />
+  <meta name="twitter:title" content="FP-DeErr: Ion Migration by NEB" />
+  <meta name="twitter:description" content="FP-DeErr application-oriented error decomposition for foundation potentials in ion migration, including migration-barrier errors, energy-profile shape agreement, endpoint energy-ranking agreement, endpoint-structure relaxation error, and along-path force errors." />
   <style>
     :root {
       --bg:       #0d1117;
@@ -278,7 +278,7 @@
 <body>
 
 <nav>
-  <a class="logo" href="index.html">FPBench</a>
+  <a class="logo" href="index.html">FP-DeErr</a>
   <div class="nav-links">
     <a href="index.html">Home</a>
     <a href="force-error.html">Force Prediction</a>
@@ -290,8 +290,8 @@
 </nav>
 
 <div class="hero">
-  <div class="tag-line">FPBench &middot; Ion Migration by NEB</div>
-  <h1>FPBench: Ion Migration by NEB</h1>
+  <div class="tag-line">FP-DeErr &middot; Ion Migration by NEB</div>
+  <h1>FP-DeErr: Ion Migration by NEB</h1>
   <p>
     Migration-barrier and migration-pathway metrics for foundation potentials (FPs),
     evaluated on 154 real Li- and Na-ion migration pathways using the nudged elastic
@@ -299,7 +299,7 @@
   </p>
   <div class="cta">
     <a class="btn btn-primary" href="#results">View Leaderboard</a>
-    <a class="btn btn-green"  href="#use-fpbench">Use FPBench</a>
+    <a class="btn btn-green"  href="#use-fpbench">Use FP-DeErr</a>
     <a class="btn btn-outline" href="https://doi.org/10.6084/m9.figshare.33332610">Dataset (Figshare)</a>
     <a class="btn btn-outline" href="https://arxiv.org/abs/2609.05714">Paper (arXiv)</a>
     <a class="btn btn-outline" href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB">GitHub</a>
@@ -314,10 +314,10 @@
   <div class="toc-title">On this page</div>
   <div class="toc-links">
     <a href="#results">Leaderboard</a>
-    <a href="#metrics">Metrics</a>
+    <a href="#metrics">Error-decomposition metrics</a>
     <a href="#protocols">Protocols</a>
     <a href="#dataset">Benchmark Dataset</a>
-    <a href="#use-fpbench">Use FPBench</a>
+    <a href="#use-fpbench">Use FP-DeErr</a>
     <a href="#contribute">Add a potential</a>
   </div>
 </details>
@@ -347,7 +347,7 @@
       <span class="mx">Barrier error</span> measures migration-barrier accuracy,
       <span class="mx">endpoint energy-difference error</span> and <span class="mx">endpoint energy ranking agreement</span>
       assess the relative endpoint energies, and <span class="mx">energy-profile shape agreement</span> measures
-      whether the FP reproduces the DFT migration-profile shape. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
+      whether the FP reproduces the DFT migration-profile shape. See <a href="#metrics"><span class="mx">Error-decomposition metrics</span></a> for full definitions.
     </p>
     <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin:-0.4rem 0 1.2rem;">
       The per-column best value (green) updates when you click a column header. The
@@ -375,7 +375,7 @@
     <p class="lb-intro">
       Restricted to full FP-NEB converged paths.
       <span class="mx">RMSD</span> is the geometric deviation between the FP-relaxed and DFT-relaxed
-      endpoint structures after alignment. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
+      endpoint structures after alignment. See <a href="#metrics"><span class="mx">Error-decomposition metrics</span></a> for full definitions.
     </p>
     <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin:-0.4rem 0 1.2rem;">
       The per-column best value (green) updates when you click a column header. The
@@ -401,7 +401,7 @@
 
 <!-- ============== METRIC DESCRIPTIONS ============== -->
 <section id="metrics">
-  <h2>Metrics</h2>
+  <h2>Error-decomposition metrics</h2>
   <div class="protocol-table-wrap"><table class="gen">
     <tr><th>Name</th><th>Metrics</th></tr>
     <tr><td>Non-converged paths</td><td>Fraction of FP-NEB calculations that do not satisfy the NEB convergence criterion before reaching the maximum number of optimization steps.</td></tr>
@@ -444,7 +444,7 @@
   </div>
   <p style="margin-top:1rem;font-size:0.9rem;">
     <strong style="color:var(--heading);">Data availability.</strong>
-    The 154-pathway DFT-NEB reference dataset used in FPBench is available on
+    The 154-pathway DFT-NEB reference dataset used in FP-DeErr is available on
     <a href="https://doi.org/10.6084/m9.figshare.33332610" style="color:var(--accent);font-weight:600;">Figshare</a>.
     The underlying migration pathways are from the
     <a href="https://doi.org/10.6084/m9.figshare.32221506" style="color:var(--muted);">original data release</a> of Saravanan et al.
@@ -453,16 +453,16 @@
     Endpoint structures were relaxed with a convergence threshold of 0.002 eV/&Aring; and fixed cell
     shape/volume; the full FP-NEB workflow uses a convergence threshold of 0.05 eV/&Aring; and a
     maximum of 1000 NEB steps. Model versions and official sources for the 15 FPs evaluated here
-    are documented once on the <a href="index.html#models" style="color:var(--accent);">FPBench home page</a>.
+    are documented once on the <a href="index.html#models" style="color:var(--accent);">FP-DeErr home page</a>.
     See the <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB" style="color:var(--accent);">Ion_migration_NEB README</a>
     for the full standardized-file schema.
   </p>
 </section>
 
-<!-- ============== USE FPBENCH ============== -->
+<!-- ============== USE FP-DeErr ============== -->
 <section id="use-fpbench">
-  <h2>Use FPBench</h2>
-  <pre><code>Provided FPBench reference + new FP calculations
+  <h2>Use FP-DeErr</h2>
+  <pre><code>Provided FP-DeErr reference + new FP calculations
                          or
 User DFT reference + user FP results
                           &darr;
@@ -486,7 +486,7 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
 <section id="contribute">
   <h2>Add a potential</h2>
   <p>
-    Interested in adding a foundation potential to FPBench? Follow our
+    Interested in adding a foundation potential to FP-DeErr? Follow our
     <a href="https://github.com/mogroupumd/FPBench/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a>
     guide to evaluate your model, and visit
     <a href="contribute.html" style="color:var(--accent);">Contribute</a>
@@ -717,7 +717,7 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
 
   // Checkpoint/version and training dataset per FP. Provenance metadata only --
   // no scientific value is stored here. Versions are the ones documented in the
-  // "Model & version" table on the FPBench landing page; training strings are the
+  // "Model & version" table on the FP-DeErr landing page; training strings are the
   // ones already published on the Force Prediction leaderboard for the same FPs.
   // Number of FP records both leaderboard tables expect to find in the summary
   // JSON. Bump this in one place when a wave of potentials is added.

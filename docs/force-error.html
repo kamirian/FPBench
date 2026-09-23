@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FPBench: Force Prediction</title>
-  <meta name="description" content="FPBench application-oriented error decomposition for foundation potentials in force prediction, including force-magnitude and force-angle errors, highly accurate force predictions, large-force-error atoms, and far-from-equilibrium atoms." />
+  <title>FP-DeErr: Force Prediction</title>
+  <meta name="description" content="FP-DeErr application-oriented error decomposition for foundation potentials in force prediction, including force-magnitude and force-angle errors, highly accurate force predictions, large-force-error atoms, and far-from-equilibrium atoms." />
   <link rel="canonical" href="https://mogroupumd.github.io/FPBench/force-error.html" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="FPBench" />
-  <meta property="og:title" content="FPBench: Force Prediction" />
-  <meta property="og:description" content="FPBench application-oriented error decomposition for foundation potentials in force prediction, including force-magnitude and force-angle errors, highly accurate force predictions, large-force-error atoms, and far-from-equilibrium atoms." />
+  <meta property="og:site_name" content="FP-DeErr" />
+  <meta property="og:title" content="FP-DeErr: Force Prediction" />
+  <meta property="og:description" content="FP-DeErr application-oriented error decomposition for foundation potentials in force prediction, including force-magnitude and force-angle errors, highly accurate force predictions, large-force-error atoms, and far-from-equilibrium atoms." />
   <meta property="og:url" content="https://mogroupumd.github.io/FPBench/force-error.html" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="FPBench: Force Prediction" />
-  <meta name="twitter:description" content="FPBench application-oriented error decomposition for foundation potentials in force prediction, including force-magnitude and force-angle errors, highly accurate force predictions, large-force-error atoms, and far-from-equilibrium atoms." />
+  <meta name="twitter:title" content="FP-DeErr: Force Prediction" />
+  <meta name="twitter:description" content="FP-DeErr application-oriented error decomposition for foundation potentials in force prediction, including force-magnitude and force-angle errors, highly accurate force predictions, large-force-error atoms, and far-from-equilibrium atoms." />
   <style>
     :root {
       --bg:       #0d1117;
@@ -345,7 +345,7 @@
 <body>
 
 <nav>
-  <a class="logo" href="index.html">FPBench</a>
+  <a class="logo" href="index.html">FP-DeErr</a>
   <div class="nav-links">
     <a href="index.html">Home</a>
     <a class="nav-highlight" href="force-error.html">Force Prediction</a>
@@ -357,15 +357,15 @@
 </nav>
 
 <div class="hero">
-  <div class="tag-line">FPBench &middot; Force Prediction</div>
-  <h1>FPBench: Force Prediction</h1>
+  <div class="tag-line">FP-DeErr &middot; Force Prediction</div>
+  <h1>FP-DeErr: Force Prediction</h1>
   <p>
     Application-oriented force-error metrics for foundation potentials (FPs), evaluated on
     MatPES-PBE, MatPES-r2SCAN, and OMat24 rattled-1000.
   </p>
   <div class="cta">
     <a class="btn btn-primary" href="#results">View Leaderboard</a>
-    <a class="btn btn-green"  href="#use-fpbench">Use FPBench</a>
+    <a class="btn btn-green"  href="#use-fpbench">Use FP-DeErr</a>
     <a class="btn btn-outline" href="#datasets">Datasets</a>
     <a class="btn btn-outline" href="https://arxiv.org/abs/2609.05714">Paper (arXiv)</a>
     <a class="btn btn-outline" href="https://github.com/mogroupumd/FPBench/tree/main/Force_error">GitHub</a>
@@ -380,10 +380,10 @@
   <div class="toc-title">On this page</div>
   <div class="toc-links">
     <a href="#results">Leaderboard</a>
-    <a href="#metrics">Metrics</a>
+    <a href="#metrics">Error-decomposition metrics</a>
     <a href="#detailed">Detailed results</a>
     <a href="#datasets">Benchmark Datasets</a>
-    <a href="#use-fpbench">Use FPBench</a>
+    <a href="#use-fpbench">Use FP-DeErr</a>
     <a href="#contribute">Add a potential</a>
   </div>
 </details>
@@ -414,7 +414,7 @@
     |&Delta;|<i>F</i>|| &lt; 0.01 eV/&Aring;, <span class="mx">large-force-error atoms</span>
     have |&Delta;|<i>F</i>|| &gt; 1 eV/&Aring;, and <span class="mx">FE atoms</span> are
     defined by |<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;. Full definitions are in
-    <a href="#metrics">Metrics</a>, below the leaderboard.
+    <a href="#metrics">Error-decomposition metrics</a>, below the leaderboard.
   </p>
   <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin:-0.4rem 0 1.2rem;">
     The per-column best value (green) updates when you click a column header. FP badges
@@ -466,9 +466,9 @@
       <div class="notes-title">Notes</div>
       <p class="notes-hint">Hover or click the model markers (<span class="fn-sym">*</span> <span class="fn-sym">&dagger;</span> <span class="fn-sym">&Dagger;</span> <span class="fn-sym">&sect;</span>) in the table for model-specific details.</p>
       <p class="lb-note" id="note-mattersim" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>*</sup> MatterSim&rsquo;s training dataset is not publicly documented in detail. The model card states only that the released <code>MatterSim-v1.0.0-5M</code> checkpoint was trained on a PBE-based dataset of approximately 6M structures; the dataset is neither named nor released. Its <span class="tag-ood">OOD</span> label therefore reflects the absence of any documented MatPES or OMat24 training exposure, not a verified dataset composition.</p>
-    <p class="lb-note" id="note-nequix" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>&dagger;</sup> The FPBench checkpoint is <code>nequix-oam-1</code>. The official <a href="https://github.com/atomicarchitects/nequix">nequix repository</a> documents this checkpoint as trained on OMat24, sAlex and MPtrj at the DFT (PBE+U) level. The Nequix paper (Koker, Kotak &amp; Smidt, <a href="https://arxiv.org/abs/2508.16067">arXiv:2508.16067</a>) describes a model trained on MPtrj and does not report a training-set size or parameter count for this released OAM checkpoint; the 707,569-parameter model size shown here was measured from the loaded checkpoint by FPBench.</p>
+    <p class="lb-note" id="note-nequix" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>&dagger;</sup> The FP-DeErr checkpoint is <code>nequix-oam-1</code>. The official <a href="https://github.com/atomicarchitects/nequix">nequix repository</a> documents this checkpoint as trained on OMat24, sAlex and MPtrj at the DFT (PBE+U) level. The Nequix paper (Koker, Kotak &amp; Smidt, <a href="https://arxiv.org/abs/2508.16067">arXiv:2508.16067</a>) describes a model trained on MPtrj and does not report a training-set size or parameter count for this released OAM checkpoint; the 707,569-parameter model size shown here was measured from the loaded checkpoint by FP-DeErr.</p>
     <p class="lb-note" id="note-nep89" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>&sect;</sup> NEP89 (<code>nep89_20250409</code>) is trained on eleven datasets computed at different quantum-mechanical levels rather than a single reference functional. Its scores on this board therefore measure practical agreement with the MatPES-PBE reference rather than agreement with a single matched reference functional. The eleven datasets and the 537,641-configuration training total are reported in the <a href="https://arxiv.org/abs/2504.21286">NEP89 paper</a>.</p>
-    <p class="lb-note" id="note-alignn" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>&Dagger;</sup> ALIGNN (<code>alignnff_wt10</code>) is trained on JARVIS-DFT at the <strong>OptB88vdW</strong> level, not PBE. It is the only potential on this board whose training reference functional differs from the evaluation reference, so its scores measure agreement with the FPBench MatPES-PBE reference rather than a functional-matched fitting error.</p>
+    <p class="lb-note" id="note-alignn" style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;"><sup>&Dagger;</sup> ALIGNN (<code>alignnff_wt10</code>) is trained on JARVIS-DFT at the <strong>OptB88vdW</strong> level, not PBE. It is the only potential on this board whose training reference functional differs from the evaluation reference, so its scores measure agreement with the FP-DeErr MatPES-PBE reference rather than a functional-matched fitting error.</p>
     </div>
   </div>
 
@@ -535,7 +535,7 @@
 
 <!-- ============== METRICS ============== -->
 <section id="metrics">
-  <h2>Metrics</h2>
+  <h2>Error-decomposition metrics</h2>
   <p>Evaluated for atoms with |<i>F</i><sub>DFT</sub>| &gt; 0.01 eV/&Aring; (except the all-atom average-error analysis, which uses every atom); far-from-equilibrium (FE) atoms are |<i>F</i><sub>DFT</sub>| &gt; 1 eV/&Aring;.</p>
 
   <div class="table-scroll-plain"><table class="gen">
@@ -792,19 +792,19 @@
     <div class="dataset-card">
       <div class="ds-name">OMat24 rattled-1000</div>
       <div class="ds-stat">DFT functional: <span>PBE</span></div>
-      <div class="ds-desc">The OMat24 rattled-1000 validation subset (approximately 117,000 structures rattled at a sampling temperature of 1000 K), evaluated against the FPs included in the FPBench leaderboard.</div>
+      <div class="ds-desc">The OMat24 rattled-1000 validation subset (approximately 117,000 structures rattled at a sampling temperature of 1000 K), evaluated against the FPs included in the FP-DeErr leaderboard.</div>
       <div class="ds-link"><a href="https://huggingface.co/datasets/facebook/OMAT24">Source: OMat24 &#8599;</a></div>
     </div>
   </div>
   <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted);">
     Model versions and official sources for the evaluated FPs are documented once on the
-    <a href="index.html#models" style="color:var(--accent);">FPBench home page</a>.
+    <a href="index.html#models" style="color:var(--accent);">FP-DeErr home page</a>.
   </p>
 </section>
 
-<!-- ============== USE FPBENCH ============== -->
+<!-- ============== USE FP-DeErr ============== -->
 <section id="use-fpbench">
-  <h2>Use FPBench</h2>
+  <h2>Use FP-DeErr</h2>
   <pre><code>Paired Cartesian DFT and FP forces
                   or
 Full generator calculations on a dataset
@@ -813,7 +813,7 @@ Full generator calculations on a dataset
                    &darr;
           validation and analysis
                    &darr;
-       FPBench force-error tables</code></pre>
+       FP-DeErr force-error tables</code></pre>
   <p style="margin-top:1rem;"><strong style="color:var(--heading);">Build standardized force results directly from paired Cartesian DFT and FP forces.</strong> Call <code>build_force_results(dft_forces, fp_forces, structure_ids=None)</code> from <code>scripts/force_results.py</code> with your own data.</p>
   <p><strong style="color:var(--heading);">Use a generator notebook as a template for full dataset/cluster generation.</strong> Register your FP's checkpoint and calculator setup in one of the three generator notebooks' <code>POTENTIAL_REGISTRY</code>, run the jobs on your cluster (the notebooks never submit jobs by themselves), then run the matching analysis notebook -- your FP appears in every table above.</p>
   <pre><code>git clone https://github.com/mogroupumd/FPBench.git
@@ -829,7 +829,7 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb</code></pre>
 <section id="contribute">
   <h2>Add a potential</h2>
   <p>
-    Interested in adding a foundation potential to FPBench? Follow our
+    Interested in adding a foundation potential to FP-DeErr? Follow our
     <a href="https://github.com/mogroupumd/FPBench/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a>
     guide to evaluate your model, and visit
     <a href="contribute.html" style="color:var(--accent);">Contribute</a>

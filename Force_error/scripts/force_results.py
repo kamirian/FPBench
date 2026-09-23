@@ -1,10 +1,10 @@
 """
-FPBench standard force-results schema.
+FP-DeErr standard force-results schema.
 
 This module defines the one standard per-model force-results format used
-throughout FPBench, and a small public entry point — `build_force_results` —
+throughout FP-DeErr, and a small public entry point — `build_force_results` —
 that lets a user build that same format from their own Cartesian DFT/FP
-forces, so their dataset can be passed directly to the FPBench analysis
+forces, so their dataset can be passed directly to the FP-DeErr analysis
 functions.
 
 Standard per-model schema
@@ -60,7 +60,7 @@ def _atom_count(structure_forces, label):
 
 def build_force_results(dft_forces, fp_forces, structure_ids=None):
     """
-    Build the standard FPBench force_results dict from Cartesian forces.
+    Build the standard FP-DeErr force_results dict from Cartesian forces.
 
     Parameters
     ----------

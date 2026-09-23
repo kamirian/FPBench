@@ -1,6 +1,6 @@
 # Ion Migration by NEB
 
-The Ion Migration by NEB component of [FPBench](../README.md): migration-barrier and
+The Ion Migration by NEB component of [FP-DeErr](../README.md): migration-barrier and
 migration-pathway metrics for foundation potentials (FPs), using the nudged elastic band
 (NEB) method.
 
@@ -8,14 +8,14 @@ Leaderboard: **https://mogroupumd.github.io/FPBench/ion-migration-neb.html**
 
 ## Contents
 
-- [Using FPBench](#using-fpbench)
+- [Using FP-DeErr](#using-fp-deerr)
 - [What this component evaluates](#what-this-component-evaluates)
 - [Required inputs and outputs](#required-inputs-and-outputs)
 - [Quick start](#quick-start)
 - [Files and scripts](#files-and-scripts)
 - [Standardized data](#standardized-data)
   - [Data availability](#data-availability)
-- [Metrics](#metrics)
+- [Error-decomposition metrics](#metrics)
 - [Failure and convergence records](#failure-and-convergence-records)
 - [Registering a potential](#registering-a-potential)
 - [Reproducing the provided benchmark](#reproducing-the-provided-benchmark)
@@ -23,12 +23,12 @@ Leaderboard: **https://mogroupumd.github.io/FPBench/ion-migration-neb.html**
 
 ---
 
-## Using FPBench
+## Using FP-DeErr
 
 There are two ways to use this component:
 
 ```text
-Provided FPBench reference + new FP calculations
+Provided FP-DeErr reference + new FP calculations
                          or
 User DFT reference + user FP results
                           |
@@ -39,7 +39,7 @@ User DFT reference + user FP results
      barrier, profile, RMSD, and force-error tables
 ```
 
-- **Evaluate a new FP on the provided FPBench reference dataset.** Use
+- **Evaluate a new FP on the provided FP-DeErr reference dataset.** Use
   `generation/fp_neb_generation_and_run.ipynb` to generate `full_fp_neb` and
   `fp_static_on_dft_neb` jobs against the shipped DFT reference, run them on your
   cluster, merge the results, then optionally use
@@ -59,7 +59,7 @@ functions -- nothing about the metrics or analysis code differs between them.
 
 ## What this component evaluates
 
-FPBench evaluates FPs on 154 Li- and Na-ion migration pathways spanning 106 structurally
+FP-DeErr evaluates FPs on 154 Li- and Na-ion migration pathways spanning 106 structurally
 distinct materials (a subset of the ion-migration dataset of Saravanan et al., 7 finalized
 DFT-NEB images per pathway), using three separate, never-mixed protocols:
 
@@ -100,7 +100,7 @@ is the entry point for both routes above:
   or `None`, never fabricated from another protocol.
 
 See that function's full docstring in `scripts/neb_analysis.py`, Section 0.6 of
-`analysis/neb_analysis.ipynb` ("Using FPBench data or another NEB dataset") for a worked
+`analysis/neb_analysis.ipynb` ("Using FP-DeErr data or another NEB dataset") for a worked
 example, [`examples/README.md`](examples/README.md) for a small runnable slice of real
 data, and [`data/README.md`](data/README.md) for how this maps onto the on-disk JSON
 serialization.
@@ -159,7 +159,7 @@ dataset.
 
 | File | What it does |
 |---|---|
-| `analysis/neb_analysis.ipynb` | Loads the standardized reference/results, validates them, and computes every table and figure on the leaderboard. Also documents the public "Using FPBench data or another NEB dataset" workflow (Section 0.6) and a small runnable example requiring no download (Section 0.7). Start here to explore results or reproduce the paper's tables. |
+| `analysis/neb_analysis.ipynb` | Loads the standardized reference/results, validates them, and computes every table and figure on the leaderboard. Also documents the public "Using FP-DeErr data or another NEB dataset" workflow (Section 0.6) and a small runnable example requiring no download (Section 0.7). Start here to explore results or reproduce the paper's tables. |
 | `generation/fp_neb_generation_and_run.ipynb` | Generates `full_fp_neb` and `fp_static_on_dft_neb` job/submission scripts against the standardized DFT reference, and merges completed results into a standardized results file. Use this to evaluate a new FP. |
 | `generation/dft_static_on_fp_neb.ipynb` | Generates DFT static (VASP, no relaxation) calculations on the final full FP-NEB image structures, and merges parsed results into the `dft_static_on_fp_neb` branch. |
 | `scripts/neb_analysis.py` | The module both the analysis notebook and generator notebooks' validation logic build on: loaders, validator, canonical table/metric functions. See [Public entry points](#public-entry-points-scriptsneb_analysispy) below. |
@@ -230,7 +230,7 @@ checksums, and file sizes.
 
 ### Data availability
 
-The 154-pathway DFT-NEB reference dataset used in FPBench is archived on
+The 154-pathway DFT-NEB reference dataset used in FP-DeErr is archived on
 [Figshare](https://doi.org/10.6084/m9.figshare.33332610). The migration pathways were selected
 from the ion-migration dataset of Saravanan et al., available in the
 [original data release](https://doi.org/10.6084/m9.figshare.32221506); the DFT-NEB reference
@@ -238,7 +238,9 @@ calculations were performed for this work.
 
 ---
 
-## Metrics
+<a name="metrics"></a>
+
+## Error-decomposition metrics
 
 Table 8 in the manuscript; implementation details in the Methods.
 
@@ -314,14 +316,14 @@ See [Adding a potential](../ADDING_A_POTENTIAL.md) for the full workflow.
 [`data/README.md`](data/README.md) for how to obtain it) and
 `analysis/neb_analysis.ipynb` together reproduce every NEB result reported in the paper.
 Model versions and official sources for the seven evaluated FPs are documented once on
-the [FPBench home page](../README.md#foundation-potentials-evaluated) rather than
+the [FP-DeErr home page](../README.md#foundation-potentials-evaluated) rather than
 duplicated here.
 
 ---
 
 ## Citation and license
 
-If you use FPBench, please cite:
+If you use FP-DeErr, please cite the paper, which is posted under the project's former name:
 
 Kiyan Amirian, Ramanuja Srinivasan Saravanan, Felix Adams, Charles E Schwarz and Yifei Mo,
 "FPBench: Application-Oriented Error Decomposition for Foundation Potentials",

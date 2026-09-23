@@ -1,6 +1,6 @@
 # Adding a Potential
 
-FPBench evaluates a foundation potential (FP) through an ASE calculator. Adding an FP that is not
+FP-DeErr evaluates a foundation potential (FP) through an ASE calculator. Adding an FP that is not
 already on the leaderboard means describing, in one registry entry, how that calculator is built:
 which environment to run it in, which checkpoint to load, and the few lines of Python that produce
 a `calc` object. The existing component workflow does the rest.
@@ -16,7 +16,7 @@ needed.
   `get_forces()`.
 - A **working Python environment** in which that calculator imports and runs.
 - A **checkpoint or model weights**, where the FP requires one.
-- **Access to a machine or cluster** able to run the calculations. FPBench generates the jobs; it
+- **Access to a machine or cluster** able to run the calculations. FP-DeErr generates the jobs; it
   does not execute them.
 
 ---
@@ -93,7 +93,7 @@ as the template, rather than an entry from another component.
 
 ## Run a benchmark
 
-Generation, submission, merging and analysis are documented per component, under "Using FPBench"
+Generation, submission, merging and analysis are documented per component, under "Using FP-DeErr"
 and "Quick start" in each README. Those READMEs and their notebooks are the source for detailed
 operational instructions.
 
@@ -107,14 +107,14 @@ operational instructions.
 
 Where DFT and FP results already exist and only the metrics are required, the generators are not
 needed. Each component's analysis functions are importable from its `scripts/` directory and
-accept standardized inputs directly. See the "Using FPBench" and "Required inputs and outputs"
+accept standardized inputs directly. See the "Using FP-DeErr" and "Required inputs and outputs"
 sections of the component README.
 
 ---
 
 ## Public leaderboard
 
-Everything above lets you evaluate any FP against the FPBench reference data on your own machine;
+Everything above lets you evaluate any FP against the FP-DeErr reference data on your own machine;
 no permission or coordination is needed. Being listed on the public leaderboard is separate.
 
 For a new FP to be considered for inclusion in the public leaderboard, please contact

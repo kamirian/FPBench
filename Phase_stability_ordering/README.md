@@ -1,6 +1,6 @@
 # Phase Stability and Elemental Ordering
 
-The Phase Stability and Elemental Ordering component of [FPBench](../README.md): convex-hull/
+The Phase Stability and Elemental Ordering component of [FP-DeErr](../README.md): convex-hull/
 relative-phase-stability, elemental-ordering energy ranking, and structural-relaxation (RMSD)
 metrics for foundation potentials (FPs).
 
@@ -8,25 +8,25 @@ Leaderboard: **https://mogroupumd.github.io/FPBench/phase-stability-ordering.htm
 
 ## Contents
 
-- [Using FPBench](#using-fpbench)
+- [Using FP-DeErr](#using-fp-deerr)
 - [Required inputs and outputs](#required-inputs-and-outputs)
 - [Quick start](#quick-start)
 - [Files and scripts](#files-and-scripts)
 - [Standardized data](#standardized-data)
   - [Data availability](#data-availability)
-- [Metrics](#metrics)
+- [Error-decomposition metrics](#metrics)
 - [Registering a potential](#registering-a-potential)
 - [Reproducing the provided benchmark](#reproducing-the-provided-benchmark)
 - [Citation and license](#citation-and-license)
 
 ---
 
-## Using FPBench
+## Using FP-DeErr
 
 There are two ways to use this component:
 
 ```text
-Provided FPBench reference + new FP calculations
+Provided FP-DeErr reference + new FP calculations
                          or
 User DFT reference + user FP results
                           ↓
@@ -37,7 +37,7 @@ User DFT reference + user FP results
           hull, ordering, and RMSD tables
 ```
 
-- **Evaluate a new FP on the provided FPBench reference dataset.** Use
+- **Evaluate a new FP on the provided FP-DeErr reference dataset.** Use
   `generation/convexhull_ordering_run_generator.ipynb` to generate per-FP jobs and submission
   scripts against the shipped DFT reference, run them on your cluster, merge the results, then load
   the merged file directly in `analysis/convexhull_ordering_analysis_all_models.ipynb` -- see
@@ -69,7 +69,7 @@ routes above:
 
 See that function's full docstring in `scripts/convexhull_analysis_utils.py` (Section S) for the
 complete field-level contract, the worked demonstration in
-`analysis/convexhull_ordering_analysis_all_models.ipynb` ("Using FPBench with another dataset"),
+`analysis/convexhull_ordering_analysis_all_models.ipynb` ("Using FP-DeErr with another dataset"),
 [`examples/README.md`](examples/README.md) for a small runnable slice of real data, and
 [`data/README.md`](data/README.md) for how this maps onto the on-disk `.json.gz` serialization.
 
@@ -140,7 +140,7 @@ dataset.
 
 | File | What it does |
 |---|---|
-| `analysis/convexhull_ordering_analysis_all_models.ipynb` | Loads the two standardized files, builds and validates the benchmark data structures, and computes every table on the leaderboard. Also documents the public "Using FPBench with another dataset" workflow. Start here to explore results or reproduce the paper's tables. |
+| `analysis/convexhull_ordering_analysis_all_models.ipynb` | Loads the two standardized files, builds and validates the benchmark data structures, and computes every table on the leaderboard. Also documents the public "Using FP-DeErr with another dataset" workflow. Start here to explore results or reproduce the paper's tables. |
 | `generation/convexhull_ordering_run_generator.ipynb` | Generates per-FP job/submission scripts against the standardized DFT reference, and merges completed results into the standardized results file. Use this to evaluate a new FP or extend the benchmark. |
 | `scripts/convexhull_analysis_utils.py` | The module both notebooks import: builders, validator, table functions, and metric implementations. See [Public entry points](#public-entry-points-scriptsconvexhull_analysis_utilspy) below. |
 | `data/phase_stability_ordering_reference.json.gz` | The standardized DFT reference (hull + ordering). See [Standardized data](#standardized-data). |
@@ -192,14 +192,16 @@ See [`data/README.md`](data/README.md) for the full field-level schema, checksum
 
 ### Data availability
 
-The FPBench convex-hull and elemental-ordering benchmark subsets are archived on
+The FP-DeErr convex-hull and elemental-ordering benchmark subsets are archived on
 [Figshare](https://doi.org/10.6084/m9.figshare.33334329). The underlying ternary chalcogenide DFT
 data are available from Adams et al. on [Dryad](https://doi.org/10.5061/dryad.xd2547dxn) and
 should be cited as the source dataset.
 
 ---
 
-## Metrics
+<a name="metrics"></a>
+
+## Error-decomposition metrics
 
 ### Convex hull and relative phase stability
 
@@ -267,13 +269,13 @@ The two standardized files under `data/` and `analysis/convexhull_ordering_analy
 together reproduce every result reported in the paper -- running the notebook top to bottom
 requires only those files plus `scripts/convexhull_analysis_utils.py`, no cluster or FP packages.
 Model versions and official sources for the seven evaluated FPs are documented once on the
-[FPBench home page](../README.md#foundation-potentials-evaluated) rather than duplicated here.
+[FP-DeErr home page](../README.md#foundation-potentials-evaluated) rather than duplicated here.
 
 ---
 
 ## Citation and license
 
-If you use FPBench, please cite:
+If you use FP-DeErr, please cite the paper, which is posted under the project's former name:
 
 Kiyan Amirian, Ramanuja Srinivasan Saravanan, Felix Adams, Charles E Schwarz and Yifei Mo,
 "FPBench: Application-Oriented Error Decomposition for Foundation Potentials",

@@ -5,7 +5,7 @@ project's own PCM reference data and MACE results, already shaped as one
 `{"reference_data": ..., "fp_results": ...}` pair -- the exact input contract
 `build_phase_stability_ordering_results(reference_data, fp_results)` accepts
 (see that function's docstring in `convexhull_analysis_utils.py`, Section S,
-and the "Using FPBench with another dataset" section of
+and the "Using FP-DeErr with another dataset" section of
 `convexhull_ordering_analysis_all_models.ipynb` for the full schema and
 required identifiers). It exists only to demonstrate the public workflow
 (build -> validate -> hull/ordering/RMSD tables) end to end on real numbers;
@@ -36,9 +36,9 @@ every result kept in its own `demo_`-prefixed variable, never mixed into the
 manuscript's `dft_hull`/`fp_hull`/`dft_ordering`/`fp_ordering`.
 
 Regenerate by re-running the extraction against this directory's own loaded
-standardized FPBench data structures (`dft_hull["Bi2Te3_SiTe2"]`,
+standardized FP-DeErr data structures (`dft_hull["Bi2Te3_SiTe2"]`,
 `fp_hull["mace"]`, `dft_ordering["mp-938_Ge2+1_Bi3+2_Te2-4"]`,
-`fp_ordering["mace"]`, from Section 1) -- see the "Using FPBench with another
+`fp_ordering["mace"]`, from Section 1) -- see the "Using FP-DeErr with another
 dataset" section of `convexhull_ordering_analysis_all_models.ipynb` for the
 exact field mapping.
 
@@ -73,8 +73,8 @@ mapping above, validating each fragment's schema version, dataset name, and
 reference checksum against the existing file, and every candidate/ordering
 identifier it references against the shared reference -- it never silently
 overwrites a model that's already present. See that function's docstring in
-`convexhull_analysis_utils.py` (Section T) and the "Using FPBench with
-another dataset" -> "Reproducing FPBench from the standardized files" /
+`convexhull_analysis_utils.py` (Section T) and the "Using FP-DeErr with
+another dataset" -> "Reproducing FP-DeErr from the standardized files" /
 "Adding another FP later" subsections of
 `convexhull_ordering_analysis_all_models.ipynb` for the exact fragment shape
 and a worked call.

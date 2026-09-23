@@ -2,7 +2,7 @@
   "reference_data": {
     "schema_version": "1.0.0",
     "component": "ion_migration_neb",
-    "dataset_name": "FPBench ion-migration NEB demo (real single-pathway slice)",
+    "dataset_name": "FP-DeErr ion-migration NEB demo (real single-pathway slice)",
     "units": {
       "energy": "eV",
       "forces": "eV/angstrom"
@@ -13159,7 +13159,7 @@
   "fp_results": {
     "schema_version": "1.0.0",
     "component": "ion_migration_neb",
-    "dataset_name": "FPBench ion-migration NEB demo (real single-pathway slice)",
+    "dataset_name": "FP-DeErr ion-migration NEB demo (real single-pathway slice)",
     "units": {
       "energy": "eV",
       "forces": "eV/angstrom"

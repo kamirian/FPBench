@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FPBench: Phase Stability and Elemental Ordering</title>
-  <meta name="description" content="FPBench application-oriented error decomposition for foundation potentials in phase stability and elemental ordering, including average energy error, ground-state agreement, hull-minimum agreement, and energy rankings of elemental orderings." />
+  <title>FP-DeErr: Phase Stability and Elemental Ordering</title>
+  <meta name="description" content="FP-DeErr application-oriented error decomposition for foundation potentials in phase stability and elemental ordering, including average energy error, ground-state agreement, hull-minimum agreement, and energy rankings of elemental orderings." />
   <link rel="canonical" href="https://mogroupumd.github.io/FPBench/phase-stability-ordering.html" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="FPBench" />
-  <meta property="og:title" content="FPBench: Phase Stability and Elemental Ordering" />
-  <meta property="og:description" content="FPBench application-oriented error decomposition for foundation potentials in phase stability and elemental ordering, including average energy error, ground-state agreement, hull-minimum agreement, and energy rankings of elemental orderings." />
+  <meta property="og:site_name" content="FP-DeErr" />
+  <meta property="og:title" content="FP-DeErr: Phase Stability and Elemental Ordering" />
+  <meta property="og:description" content="FP-DeErr application-oriented error decomposition for foundation potentials in phase stability and elemental ordering, including average energy error, ground-state agreement, hull-minimum agreement, and energy rankings of elemental orderings." />
   <meta property="og:url" content="https://mogroupumd.github.io/FPBench/phase-stability-ordering.html" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="FPBench: Phase Stability and Elemental Ordering" />
-  <meta name="twitter:description" content="FPBench application-oriented error decomposition for foundation potentials in phase stability and elemental ordering, including average energy error, ground-state agreement, hull-minimum agreement, and energy rankings of elemental orderings." />
+  <meta name="twitter:title" content="FP-DeErr: Phase Stability and Elemental Ordering" />
+  <meta name="twitter:description" content="FP-DeErr application-oriented error decomposition for foundation potentials in phase stability and elemental ordering, including average energy error, ground-state agreement, hull-minimum agreement, and energy rankings of elemental orderings." />
   <style>
     :root {
       --bg:       #0d1117;
@@ -304,7 +304,7 @@
 <body>
 
 <nav>
-  <a class="logo" href="index.html">FPBench</a>
+  <a class="logo" href="index.html">FP-DeErr</a>
   <div class="nav-links">
     <a href="index.html">Home</a>
     <a href="force-error.html">Force Prediction</a>
@@ -316,16 +316,16 @@
 </nav>
 
 <div class="hero">
-  <div class="tag-line">FPBench &middot; Phase Stability and Elemental Ordering</div>
-  <h1>FPBench: Phase Stability and Elemental Ordering</h1>
+  <div class="tag-line">FP-DeErr &middot; Phase Stability and Elemental Ordering</div>
+  <h1>FP-DeErr: Phase Stability and Elemental Ordering</h1>
   <p>
     Convex-hull/relative-phase-stability, elemental-ordering energy-ranking, and
     structural-relaxation (RMSD) metrics for foundation potentials (FPs), evaluated on the
-    FPBench convex-hull and elemental-ordering benchmark subsets.
+    FP-DeErr convex-hull and elemental-ordering benchmark subsets.
   </p>
   <div class="cta">
     <a class="btn btn-primary" href="#results">View Leaderboard</a>
-    <a class="btn btn-green"  href="#use-fpbench">Use FPBench</a>
+    <a class="btn btn-green"  href="#use-fpbench">Use FP-DeErr</a>
     <a class="btn btn-outline" href="https://doi.org/10.6084/m9.figshare.33334329">Dataset (Figshare)</a>
     <a class="btn btn-outline" href="https://arxiv.org/abs/2609.05714">Paper (arXiv)</a>
     <a class="btn btn-outline" href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering">GitHub</a>
@@ -340,9 +340,9 @@
   <div class="toc-title">On this page</div>
   <div class="toc-links">
     <a href="#results">Leaderboard</a>
-    <a href="#metrics">Metrics</a>
+    <a href="#metrics">Error-decomposition metrics</a>
     <a href="#dataset">Benchmark Dataset</a>
-    <a href="#use-fpbench">Use FPBench</a>
+    <a href="#use-fpbench">Use FP-DeErr</a>
     <a href="#contribute">Add a potential</a>
   </div>
 </details>
@@ -370,7 +370,7 @@
       full FP relaxation and static FP evaluations on the DFT-relaxed structures.
       <span class="mx">Ground-state agreement</span> measures whether the FP identifies the same lowest-energy
       phase at each composition as DFT, while <span class="mx">within-phase hull-minimum agreement</span> and
-      <span class="mx">hull-minimum agreement</span> compare the predicted hull minima. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
+      <span class="mx">hull-minimum agreement</span> compare the predicted hull minima. See <a href="#metrics"><span class="mx">Error-decomposition metrics</span></a> for full definitions.
     </p>
     <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin:-0.4rem 0 1.2rem;">
       The per-column best value (green) updates when you click a column header. The
@@ -446,7 +446,7 @@
       for both full FP relaxation and static FP evaluations on the DFT-relaxed structures.
       <span class="mx">Top-1 accuracy</span> measures recovery of the DFT-preferred ordering,
       <span class="mx">Recall@k</span> whether it is recovered among the top-ranked candidates, and
-      <span class="mx">Spearman &rho;</span> overall ranking agreement. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
+      <span class="mx">Spearman &rho;</span> overall ranking agreement. See <a href="#metrics"><span class="mx">Error-decomposition metrics</span></a> for full definitions.
     </p>
     <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin:-0.4rem 0 1.2rem;">
       The per-column best value (green) updates when you click a column header. The
@@ -527,7 +527,7 @@
       <span class="mx">RMSD</span> applies only to <span class="mx">full FP relaxation</span> --
       static evaluation does not produce an FP-relaxed structure to compare against DFT. Computed
       via pymatgen <code>StructureMatcher</code>, converted to &Aring; via the geometric-mean cell
-      volume. See <a href="#metrics"><span class="mx">Metrics</span></a> for full definitions.
+      volume. See <a href="#metrics"><span class="mx">Error-decomposition metrics</span></a> for full definitions.
     </p>
     <p class="lb-note" style="font-size:0.85rem;color:var(--muted);margin:-0.4rem 0 1.2rem;">
       The per-column best value (green) updates when you click a column header. The
@@ -570,7 +570,7 @@
 
 <!-- ============== METRICS ============== -->
 <section id="metrics">
-  <h2>Metrics</h2>
+  <h2>Error-decomposition metrics</h2>
   <p>Evaluated for both full FP relaxation and static FP evaluation on the DFT-relaxed structure.</p>
 
   <h3 style="margin-top:1.4rem;">Convex hull and relative phase stability</h3>
@@ -624,7 +624,7 @@
   </div>
   <p style="margin-top:1rem;font-size:0.9rem;">
     <strong style="color:var(--heading);">Data availability.</strong>
-    The FPBench convex-hull and elemental-ordering benchmark subsets are available on
+    The FP-DeErr convex-hull and elemental-ordering benchmark subsets are available on
     <a href="https://doi.org/10.6084/m9.figshare.33334329" style="color:var(--accent);font-weight:600;">Figshare</a>.
     The underlying ternary chalcogenide DFT data are available from Adams et al. on
     <a href="https://doi.org/10.5061/dryad.xd2547dxn" style="color:var(--muted);">Dryad</a>.
@@ -633,16 +633,16 @@
     All DFT energies are raw, uncorrected VASP-PBE energies -- no Materials Project MP2020
     compatibility correction is applied anywhere. Model versions and official sources for the
     17 FPs evaluated here are documented once on the
-    <a href="index.html#models" style="color:var(--accent);">FPBench home page</a>. See the
+    <a href="index.html#models" style="color:var(--accent);">FP-DeErr home page</a>. See the
     <a href="https://github.com/mogroupumd/FPBench/tree/main/Phase_stability_ordering" style="color:var(--accent);">Phase_stability_ordering README</a>
     for the full standardized-file schema.
   </p>
 </section>
 
-<!-- ============== USE FPBENCH ============== -->
+<!-- ============== USE FP-DeErr ============== -->
 <section id="use-fpbench">
-  <h2>Use FPBench</h2>
-  <pre><code>Provided FPBench reference + new FP calculations
+  <h2>Use FP-DeErr</h2>
+  <pre><code>Provided FP-DeErr reference + new FP calculations
                          or
 User DFT reference + user FP results
                           &darr;
@@ -666,7 +666,7 @@ jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb</code></pre>
 <section id="contribute">
   <h2>Add a potential</h2>
   <p>
-    Interested in adding a foundation potential to FPBench? Follow our
+    Interested in adding a foundation potential to FP-DeErr? Follow our
     <a href="https://github.com/mogroupumd/FPBench/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a>
     guide to evaluate your model, and visit
     <a href="contribute.html" style="color:var(--accent);">Contribute</a>

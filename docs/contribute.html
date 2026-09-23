@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FPBench: Contribute a Foundation Potential</title>
-  <meta name="description" content="How to evaluate a new foundation potential with FPBench and submit it for the public leaderboard: registering an ASE calculator, the standardized results file formats for force prediction, phase stability and ordering, and ion migration by NEB, worked examples, and what to email." />
+  <title>FP-DeErr: Contribute a Foundation Potential</title>
+  <meta name="description" content="How to evaluate a new foundation potential with FP-DeErr and submit it for the public leaderboard: registering an ASE calculator, the standardized results file formats for force prediction, phase stability and ordering, and ion migration by NEB, worked examples, and what to email." />
   <link rel="canonical" href="https://mogroupumd.github.io/FPBench/contribute.html" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="FPBench" />
-  <meta property="og:title" content="FPBench: Contribute a Foundation Potential" />
-  <meta property="og:description" content="How to evaluate a new foundation potential with FPBench and submit it for the public leaderboard: registering an ASE calculator, the standardized results file formats for force prediction, phase stability and ordering, and ion migration by NEB, worked examples, and what to email." />
+  <meta property="og:site_name" content="FP-DeErr" />
+  <meta property="og:title" content="FP-DeErr: Contribute a Foundation Potential" />
+  <meta property="og:description" content="How to evaluate a new foundation potential with FP-DeErr and submit it for the public leaderboard: registering an ASE calculator, the standardized results file formats for force prediction, phase stability and ordering, and ion migration by NEB, worked examples, and what to email." />
   <meta property="og:url" content="https://mogroupumd.github.io/FPBench/contribute.html" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="FPBench: Contribute a Foundation Potential" />
-  <meta name="twitter:description" content="How to evaluate a new foundation potential with FPBench and submit it for the public leaderboard: registering an ASE calculator, the standardized results file formats for force prediction, phase stability and ordering, and ion migration by NEB, worked examples, and what to email." />
+  <meta name="twitter:title" content="FP-DeErr: Contribute a Foundation Potential" />
+  <meta name="twitter:description" content="How to evaluate a new foundation potential with FP-DeErr and submit it for the public leaderboard: registering an ASE calculator, the standardized results file formats for force prediction, phase stability and ordering, and ion migration by NEB, worked examples, and what to email." />
   <style>
     :root {
       --bg:       #0d1117;
@@ -369,7 +369,7 @@
 <body>
 
 <nav>
-  <a class="logo" href="index.html">FPBench</a>
+  <a class="logo" href="index.html">FP-DeErr</a>
   <div class="nav-links">
     <a href="index.html">Home</a>
     <a href="force-error.html">Force Prediction</a>
@@ -381,10 +381,10 @@
 </nav>
 
 <div class="hero">
-  <div class="tag-line">FPBench &middot; Contribute</div>
+  <div class="tag-line">FP-DeErr &middot; Contribute</div>
   <h1>Contribute a Foundation Potential</h1>
   <p>
-    Evaluate a foundation potential with FPBench and submit your results for consideration in the
+    Evaluate a foundation potential with FP-DeErr and submit your results for consideration in the
     public leaderboard.
   </p>
 </div>
@@ -396,7 +396,7 @@
   <summary>On this page</summary>
   <div class="toc-title">On this page</div>
   <div class="toc-links">
-    <a href="#evaluate">1. Run FPBench</a>
+    <a href="#evaluate">1. Run FP-DeErr</a>
     <a class="sub" href="#register">Example: register your potential</a>
     <a href="#formats">2. Prepare your results</a>
     <a class="sub" href="#formats" data-tab="force">Force Prediction</a>
@@ -409,9 +409,9 @@
 <main class="page-main">
 
 <section id="evaluate">
-  <h2>1. Run FPBench</h2>
+  <h2>1. Run FP-DeErr</h2>
   <p>
-    FPBench evaluates foundation potentials through ASE calculators. Adding one means a single entry in
+    FP-DeErr evaluates foundation potentials through ASE calculators. Adding one means a single entry in
     the component's <code>POTENTIAL_REGISTRY</code> &mdash; no metric or analysis code changes. Full
     procedure:
     <a href="https://github.com/mogroupumd/FPBench/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a>.
@@ -419,7 +419,7 @@
   <ol class="steps">
     <li><strong>Register</strong> &mdash; one entry in the component's <code>POTENTIAL_REGISTRY</code>.</li>
     <li><strong>Generate</strong> &mdash; the generator writes one standalone script per job. Nothing is submitted.</li>
-    <li><strong>Run</strong> &mdash; on your own machine or cluster. FPBench generates jobs; it does not execute them.</li>
+    <li><strong>Run</strong> &mdash; on your own machine or cluster. FP-DeErr generates jobs; it does not execute them.</li>
     <li><strong>Merge</strong> &mdash; validates each job against the shared reference and writes the standardized results file.</li>
     <li><strong>Analyze</strong> &mdash; the analysis notebook reads that file and reproduces the leaderboard tables.</li>
   </ol>
