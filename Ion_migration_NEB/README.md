@@ -196,7 +196,7 @@ output is exactly what the analysis notebook loads, with no manual conversion st
    `full_fp_neb` jobs use `matcalc.RelaxCalc` for fixed-cell endpoint relaxation and
    `matcalc.NEBCalc` for climbing-image NEB, both driven by an ASE BFGS optimizer that
    MatCalc itself constructs and runs; generated `fp_static_on_dft_neb` jobs are
-   calculator-only single-point evaluations, with no relaxation or NEB optimization at all.
+   calculator-only static FP evaluations, with no relaxation or NEB optimization at all.
 3. You run the generated jobs on your cluster (the notebook never submits jobs itself).
 4. The notebook's merge step writes one complete candidate results file under its own
    `runs/.../merged/` directory -- never overwriting a canonical results file.

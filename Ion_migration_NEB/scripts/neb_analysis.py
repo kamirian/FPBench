@@ -513,7 +513,7 @@ def build_fp_static_on_dft_neb_image_map(fp_results_data, dft_reference_data, fp
 
 def build_full_fp_neb_status_map(fp_results_data, fp_order):
     """{fp_key: {(icsd_str, path_str): status_record}} for the full_fp_neb
-    protocol only. Static FP evaluations on DFT-NEB images are single-point
+    protocol only. Static FP evaluations on DFT-NEB images are static
     calculations with no NEB optimization step, so there is no equivalent
     status for that protocol -- it is not represented here at all (not
     defaulted, not zero-filled)."""
@@ -862,7 +862,7 @@ def _force_error_rows_to_df(rows):
 
 def build_full_fp_neb_path_force_errors(dft_static_on_fp_neb_records_by_fp, fp_order):
     """Force errors on the FP-NEB path (protocol dft_static_on_fp_neb):
-    DFT single-point evaluated on the FP's own final full-mode NEB images.
+    DFT static calculations on the FP's own final full-mode NEB images.
     Limited to the case-study + non-converged-supplemental populations (142
     pathway-FP combinations); NOT all 154 common paths. Returns
     full_fp_neb_path_force_errors_df."""
@@ -892,8 +892,8 @@ def build_full_fp_neb_path_force_errors(dft_static_on_fp_neb_records_by_fp, fp_o
 
 
 def build_dft_neb_path_force_errors(fp_static_on_dft_neb_images_by_fp_path, dft_neb_images_by_path, fp_order):
-    """Force errors on the DFT-NEB path (protocol fp_static_on_dft_neb): FP
-    single-point evaluated on the DFT-NEB's own image structures. Covers all
+    """Force errors on the DFT-NEB path (protocol fp_static_on_dft_neb): static
+    FP evaluations on the DFT-NEB's own image structures. Covers all
     154 common paths (subject to per-FP source coverage). Returns
     dft_neb_path_force_errors_df."""
     rows = []
@@ -980,7 +980,7 @@ def compute_barrier_error_summaries(dft_valid_path_metrics_df, fp_path_metrics_b
     compute_key_neb_metrics_summary's pooled barrier_combination.
 
     full_fp_neb: n_neb_not_conv is an int count (from
-    full_fp_neb_status_by_fp_path). fp_static_on_dft_neb: single-point
+    full_fp_neb_status_by_fp_path). fp_static_on_dft_neb: static FP
     evaluation has no NEB run, so n_neb_not_conv is the string
     'not applicable' -- never defaulted to 0 or True (spec section 15).
 
@@ -1022,7 +1022,7 @@ def compute_barrier_error_summaries(dft_valid_path_metrics_df, fp_path_metrics_b
                 n_neb_not_conv = int((~neb_conv_mask).sum())
                 merged_conv = merged[neb_conv_mask]
             else:
-                # Static single-point evaluation: no NEB run, so NEB
+                # Static FP evaluation: no NEB run, so NEB
                 # convergence is not applicable -- no filter is applied.
                 n_neb_not_conv = "not applicable"
                 merged_conv = merged
@@ -2442,7 +2442,7 @@ def example_canonical_pathway_records():
     fp_static_on_dft_neb_pathway = {
         "identifiers": {"icsd_id": "999001", "source_path_id": "1"},
         "status": "present",
-        # No "structure" key per image: this protocol single-point-evaluates
+        # No "structure" key per image: this protocol statically evaluates
         # the FP on the DFT-NEB reference's own structures at the same
         # image index -- it has no structure of its own to store.
         "images": {

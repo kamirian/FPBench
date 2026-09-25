@@ -522,7 +522,7 @@ check("33b. build_dft_neb_path_force_errors on genuinely empty input also return
 
 # Non-empty inputs must be completely unaffected by the empty-case fix.
 # build_full_fp_neb_path_force_errors expects protocol dft_static_on_fp_neb's
-# shape (DFT single-point on the FP's own final images: both dft_* and fp_*
+# shape (DFT static on the FP's own final images: both dft_* and fp_*
 # energy/forces per image), not fp_static_on_dft_neb's.
 ref33c, fp33c, _ = _base_dataset()
 dft_static_records_33c = {"MyFP": {"999001|1": fp33c["models"]["MyFP"]["dft_static_on_fp_neb"]["pathways"]["999001|1"]}}
