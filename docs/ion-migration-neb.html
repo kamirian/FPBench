@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FP-DeErr: Ion Migration by NEB</title>
   <meta name="description" content="FP-DeErr application-oriented error decomposition for foundation potentials in ion migration, including migration-barrier errors, energy-profile shape agreement, endpoint energy-ranking agreement, endpoint-structure relaxation error, and along-path force errors." />
-  <link rel="canonical" href="https://mogroupumd.github.io/FPBench/ion-migration-neb.html" />
+  <link rel="canonical" href="https://mogroupumd.github.io/FP-DeErr/ion-migration-neb.html" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="FP-DeErr" />
   <meta property="og:title" content="FP-DeErr: Ion Migration by NEB" />
   <meta property="og:description" content="FP-DeErr application-oriented error decomposition for foundation potentials in ion migration, including migration-barrier errors, energy-profile shape agreement, endpoint energy-ranking agreement, endpoint-structure relaxation error, and along-path force errors." />
-  <meta property="og:url" content="https://mogroupumd.github.io/FPBench/ion-migration-neb.html" />
+  <meta property="og:url" content="https://mogroupumd.github.io/FP-DeErr/ion-migration-neb.html" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="FP-DeErr: Ion Migration by NEB" />
   <meta name="twitter:description" content="FP-DeErr application-oriented error decomposition for foundation potentials in ion migration, including migration-barrier errors, energy-profile shape agreement, endpoint energy-ranking agreement, endpoint-structure relaxation error, and along-path force errors." />
@@ -285,7 +285,7 @@
     <a href="phase-stability-ordering.html">Phase Stability &amp; Ordering</a>
     <a class="nav-highlight" href="ion-migration-neb.html">Ion Migration (NEB)</a>
     <a href="contribute.html">Contribute</a>
-    <a href="https://github.com/mogroupumd/FPBench">GitHub</a>
+    <a href="https://github.com/mogroupumd/FP-DeErr">GitHub</a>
   </div>
 </nav>
 
@@ -302,7 +302,7 @@
     <a class="btn btn-green"  href="#use-fpbench">Use FP-DeErr</a>
     <a class="btn btn-outline" href="https://doi.org/10.6084/m9.figshare.33332610">Dataset (Figshare)</a>
     <a class="btn btn-outline" href="https://arxiv.org/abs/2609.05714">Paper (arXiv)</a>
-    <a class="btn btn-outline" href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB">GitHub</a>
+    <a class="btn btn-outline" href="https://github.com/mogroupumd/FP-DeErr/tree/main/Ion_migration_NEB">GitHub</a>
   </div>
 </div>
 
@@ -343,7 +343,7 @@
       Results are reported for 154 active migration pathways, using the full FP-NEB workflow and
       static FP evaluations on the finalized DFT-NEB image structures; one excluded pathway is
       documented in the
-      <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB/data">data README</a>.
+      <a href="https://github.com/mogroupumd/FP-DeErr/tree/main/Ion_migration_NEB/data">data README</a>.
       <span class="mx">Barrier error</span> measures migration-barrier accuracy,
       <span class="mx">endpoint energy-difference error</span> and <span class="mx">endpoint energy ranking agreement</span>
       assess the relative endpoint energies, and <span class="mx">energy-profile shape agreement</span> measures
@@ -454,7 +454,7 @@
     shape/volume; the full FP-NEB workflow uses a convergence threshold of 0.05 eV/&Aring; and a
     maximum of 1000 NEB steps. Model versions and official sources for the 15 FPs evaluated here
     are documented once on the <a href="index.html#models" style="color:var(--accent);">FP-DeErr home page</a>.
-    See the <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB" style="color:var(--accent);">Ion_migration_NEB README</a>
+    See the <a href="https://github.com/mogroupumd/FP-DeErr/tree/main/Ion_migration_NEB" style="color:var(--accent);">Ion_migration_NEB README</a>
     for the full standardized-file schema.
   </p>
 </section>
@@ -473,12 +473,12 @@ User DFT reference + user FP results
      barrier, profile, RMSD, and force-error tables</code></pre>
   <p style="margin-top:1rem;"><strong style="color:var(--heading);">Evaluate a new FP on the provided benchmark.</strong> Use <code>generation/fp_neb_generation_and_run.ipynb</code> to generate <code>full_fp_neb</code> and <code>fp_static_on_dft_neb</code> jobs and submission scripts against the shipped DFT reference, run them on your cluster, merge the results, then load the merged file directly in the analysis notebook. Your FP appears in every table above.</p>
   <p><strong style="color:var(--heading);">Apply the analysis functions to another dataset.</strong> Call <code>build_neb_analysis_results(...)</code> and the table/metric functions in <code>scripts/neb_analysis.py</code> directly with your own DFT reference and FP results.</p>
-  <pre><code>git clone https://github.com/mogroupumd/FPBench.git
-cd FPBench/Ion_migration_NEB
+  <pre><code>git clone https://github.com/mogroupumd/FP-DeErr.git
+cd FP-DeErr/Ion_migration_NEB
 pip install -r requirements.txt
 pip install jupyterlab
 jupyter lab analysis/neb_analysis.ipynb</code></pre>
-  <p style="margin-top:0.8rem;">See the <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB" style="color:var(--accent);">Ion_migration_NEB README</a> for the full quick start, the generator and analysis notebooks for complete operational detail, and <a href="https://github.com/mogroupumd/FPBench/tree/main/Ion_migration_NEB/examples" style="color:var(--accent);">examples/</a> for a small runnable slice of real data.</p>
+  <p style="margin-top:0.8rem;">See the <a href="https://github.com/mogroupumd/FP-DeErr/tree/main/Ion_migration_NEB" style="color:var(--accent);">Ion_migration_NEB README</a> for the full quick start, the generator and analysis notebooks for complete operational detail, and <a href="https://github.com/mogroupumd/FP-DeErr/tree/main/Ion_migration_NEB/examples" style="color:var(--accent);">examples/</a> for a small runnable slice of real data.</p>
 
 </section>
 
@@ -487,7 +487,7 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
   <h2>Add a potential</h2>
   <p>
     Interested in adding a foundation potential to FP-DeErr? Follow our
-    <a href="https://github.com/mogroupumd/FPBench/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a>
+    <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a>
     guide to evaluate your model, and visit
     <a href="contribute.html" style="color:var(--accent);">Contribute</a>
     for example outputs, results formats, and email submission instructions.
@@ -498,7 +498,7 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
 </div>
 
 <footer>
-  <p><strong>Kiyan Amirian</strong> &amp; <strong>Yifei Mo</strong> &middot; <a href="https://github.com/mogroupumd/FPBench">github.com/mogroupumd/FPBench</a></p>
+  <p><strong>Kiyan Amirian</strong> &amp; <strong>Yifei Mo</strong> &middot; <a href="https://github.com/mogroupumd/FP-DeErr">github.com/mogroupumd/FP-DeErr</a></p>
   <p class="affil">University of Maryland &middot; MIT License</p>
 </footer>
 
@@ -724,21 +724,21 @@ jupyter lab analysis/neb_analysis.ipynb</code></pre>
   const EXPECTED_FP_COUNT = 15;
 
   const FP_PROVENANCE = {
-    "MACE":             [">=v0.3.10 (MACE-MPA-0, medium)", "MPtrj + sAlex"],
-    "CHGNet":           ["v0.3.0",                         "MPtrj"],
+    "MACE":             [">=v0.3.10 (MACE-MPA-0, medium)", "MPTrj + sAlex"],
+    "CHGNet":           ["v0.3.0",                         "MPTrj"],
     "M3GNet":           ["MP-2021.2.8-PES",                "MP-2021.2.8"],
     "UMA":              ["s-1p1",                          "OC20+ODAC23+OMat24+OMC25+OMol25"],
     "M3GNet-MatPES":    ["v2025.1",                        "MatPES-PBE"],
     "TensorNet-MatPES": ["v2025.1",                        "MatPES-PBE"],
     "MACE-MatPES":      [">=v0.3.10",                      "MatPES-PBE (fine-tuned)"],
     "Orb":              ["orb-v3-conservative-inf-omat-20250404", "OMat24"],
-    "SevenNet":         ["7net-mf-ompa (modal mpa)",         "OMat24 + sAlex + MPtrj"],
+    "SevenNet":         ["7net-mf-ompa (modal mpa)",         "OMat24 + sAlex + MPTrj"],
     "MatterSim":        ["MatterSim-v1.0.0-5M",              "MatterSim dataset (PBE)"],
-    "Nequix":           ["nequix-oam-1",                     "OMat24 + sAlex + MPtrj"],
+    "Nequix":           ["nequix-oam-1",                     "OMat24 + sAlex + MPTrj"],
     "GPTFF":            ["gptff_v2",                         "Atomly (PBE)"],
     "NEP89":            ["nep89_20250409",                   "mixed QM levels"],
     "DPA4":             ["DPA4-Plus-OMat24-v20260805",       "OMat24"],
-    "GRACE":            ["GRACE-3L-OMAT-large-ft-AM",        "OMat24 \u2192 sAlex + MPtrj"],
+    "GRACE":            ["GRACE-3L-OMAT-large-ft-AM",        "OMat24 \u2192 sAlex + MPTrj"],
   };
   function appendProvenanceCell(tr, displayName) {
     const meta = FP_PROVENANCE[displayName];

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mogroupumd.github.io/FPBench/sitemap.xml
+Sitemap: https://mogroupumd.github.io/FP-DeErr/sitemap.xml

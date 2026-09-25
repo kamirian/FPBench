@@ -4,7 +4,7 @@ The Phase Stability and Elemental Ordering component of [FP-DeErr](../README.md)
 relative-phase-stability, elemental-ordering energy ranking, and structural-relaxation (RMSD)
 metrics for foundation potentials (FPs).
 
-Leaderboard: **https://mogroupumd.github.io/FPBench/phase-stability-ordering.html**
+Leaderboard: **https://mogroupumd.github.io/FP-DeErr/phase-stability-ordering.html**
 
 ## Contents
 
@@ -78,8 +78,8 @@ complete field-level contract, the worked demonstration in
 ## Quick start
 
 ```bash
-git clone https://github.com/mogroupumd/FPBench.git
-cd FPBench/Phase_stability_ordering
+git clone https://github.com/mogroupumd/FP-DeErr.git
+cd FP-DeErr/Phase_stability_ordering
 pip install -r requirements.txt
 pip install jupyterlab
 jupyter lab analysis/convexhull_ordering_analysis_all_models.ipynb

@@ -11,7 +11,7 @@
 > differs, because the internal source-file references were removed for the public deposit. Verify
 > the repository copy with the SHA-256 below, and the deposited copy with the SHA-256 given in the
 > deposit's own README.
-> The code that consumes it lives at <https://github.com/mogroupumd/FPBench>. The FP results file
+> The code that consumes it lives at <https://github.com/mogroupumd/FP-DeErr>. The FP results file
 > below is not part of the deposit.
 
 Unlike Force Prediction's multi-gigabyte standardized files, both of this component's files are

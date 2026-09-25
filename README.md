@@ -18,7 +18,7 @@ within specific computational tasks, providing targeted guidance for model devel
 FP-DeErr provides the reference datasets, the evaluation code, and a public leaderboard for three
 components: force prediction, phase stability and elemental ordering, and ion migration by NEB.
 
-**Leaderboard: https://mogroupumd.github.io/FPBench/**
+**Leaderboard: https://mogroupumd.github.io/FP-DeErr/**
 
 **Paper: [arXiv:2609.05714](https://arxiv.org/abs/2609.05714)**
 
@@ -40,7 +40,7 @@ components: force prediction, phase stability and elemental ordering, and ion mi
 
 FP-DeErr supports three modes of use.
 
-- **Reported results.** The [leaderboard](https://mogroupumd.github.io/FPBench/) gives the
+- **Reported results.** The [leaderboard](https://mogroupumd.github.io/FP-DeErr/) gives the
   current metrics for every evaluated FP and requires no installation.
 - **Evaluation of an additional potential.** The FP is registered in the relevant generator
   notebook and run against the provided reference datasets. See [Contribute](#contribute).
@@ -77,8 +77,8 @@ The following example uses a five-structure subset of MatPES-PBE included in the
 requires no additional download.
 
 ```bash
-git clone https://github.com/mogroupumd/FPBench.git
-cd FPBench/Force_error
+git clone https://github.com/mogroupumd/FP-DeErr.git
+cd FP-DeErr/Force_error
 pip install -r requirements.txt
 ```
 
@@ -118,7 +118,7 @@ jupyter lab analysis/force_error_analysis_matpes_pbe.ipynb
 MatPES-PBE, MatPES-r2SCAN, and OMat24 rattled-1000. In addition to average MAE and RMSE, it
 reports the fraction of highly accurate force predictions, joint force magnitude-angle accuracy,
 large-force-error atoms, and errors on far-from-equilibrium atoms.
-[Leaderboard](https://mogroupumd.github.io/FPBench/force-error.html)
+[Leaderboard](https://mogroupumd.github.io/FP-DeErr/force-error.html)
 
 **[Phase stability and elemental ordering](Phase_stability_ordering/README.md)** evaluates whether
 an FP reproduces the relative energies of competing phases, compositions, and elemental orderings,
@@ -127,7 +127,7 @@ across 22 ternary chalcogenide tie-line systems, and 305 elemental-ordering grou
 candidates each. It reports ground-state agreement, within-phase and global hull-minimum
 agreement, Top-1 accuracy, Recall@k, Spearman rank correlation, and relaxation RMSD against the
 DFT-relaxed structure.
-[Leaderboard](https://mogroupumd.github.io/FPBench/phase-stability-ordering.html)
+[Leaderboard](https://mogroupumd.github.io/FP-DeErr/phase-stability-ordering.html)
 
 **[Ion migration by NEB](Ion_migration_NEB/README.md)** applies the nudged elastic band method to
 154 Li- and Na-ion migration pathways spanning 106 structurally distinct materials. It reports
@@ -136,7 +136,7 @@ and energy-difference errors, energy-profile shape agreement, endpoint relaxatio
 along-path force errors. Comparing the full FP-NEB workflow with static FP evaluations on the
 DFT-NEB image structures separates intrinsic potential-energy-surface error from error introduced
 by FP endpoint relaxation and pathway optimization.
-[Leaderboard](https://mogroupumd.github.io/FPBench/ion-migration-neb.html)
+[Leaderboard](https://mogroupumd.github.io/FP-DeErr/ion-migration-neb.html)
 
 ---
 
@@ -174,8 +174,8 @@ not silently replaced.
 
 | FP | Model &amp; version | Model size | Training dataset | Approx. training-set size | Source |
 |---|---|---|---|---|---|
-| MACE | &gt;=v0.3.10 (MACE-MPA-0, medium) | 9.06M | MPtrj + sAlex | ~3.5M | [MACE foundation models](https://mace-docs.readthedocs.io/en/latest/guide/foundation_models.html) |
-| CHGNet | v0.3.0 | 412.5K | MPtrj | ~1.58M | [CHGNet](https://github.com/CederGroupHub/chgnet) |
+| MACE | &gt;=v0.3.10 (MACE-MPA-0, medium) | 9.06M | MPTrj + sAlex | ~3.5M | [MACE foundation models](https://mace-docs.readthedocs.io/en/latest/guide/foundation_models.html) |
+| CHGNet | v0.3.0 | 412.5K | MPTrj | ~1.58M | [CHGNet](https://github.com/CederGroupHub/chgnet) |
 | M3GNet | MP-2021.2.8-PES | 288.2K | MP-2021.2.8 | ~176.6K | [MatGL](https://matgl.ai/) |
 | UMA | s-1p1 | 146.5M | OC20 + ODAC23 + OMat24 + OMC25 + OMol25 | ~500M | [FAIR Chemistry](https://fair-chem.github.io/) |
 | M3GNet-MatPES | v2025.1 | 664.2K | MatPES-PBE | ~435K | [MatGL](https://matgl.ai/) &middot; [MatPES](https://matpes.ai/) |
@@ -185,16 +185,16 @@ not silently replaced.
 | TensorNet-MatPES-r2SCAN | v2025.1 | 837.9K | MatPES-r2SCAN | ~388K | [MatGL](https://matgl.ai/) &middot; [MatPES](https://matpes.ai/) |
 | MACE-MatPES-r2SCAN | &gt;=v0.3.10 | 9.06M | Fine-tuned on MatPES-r2SCAN* | ~388K | [MACE](https://github.com/acesuit/mace) |
 | Orb | orb-v3-conservative-inf-omat-20250404 | 25.5M | OMat24, AIMD subset only | ~55M&Dagger; | [Rhodes et al. 2025](https://arxiv.org/abs/2504.06231) |
-| SevenNet | 7net-mf-ompa (modal `mpa`) | 25.7M | MPtrj + sAlex + OMat24, multi-fidelity; `mpa` selects the MPtrj + sAlex task | not reported for this checkpoint | [SevenNet pretrained models](https://sevennet.readthedocs.io/en/latest/user_guide/pretrained.html) &middot; [Kim et al. 2025](https://doi.org/10.1021/jacs.4c14455) |
+| SevenNet | 7net-mf-ompa (modal `mpa`) | 25.7M | MPTrj + sAlex + OMat24, multi-fidelity; `mpa` selects the MPTrj + sAlex task | not reported for this checkpoint | [SevenNet pretrained models](https://sevennet.readthedocs.io/en/latest/user_guide/pretrained.html) &middot; [Kim et al. 2025](https://doi.org/10.1021/jacs.4c14455) |
 | MatterSim | MatterSim-v1.0.0-5M | 4.55M | Nonpublic MatterSim active-learning dataset, GGA-PBE(+U)&dagger; | 6M | [Model card](https://github.com/microsoft/mattersim/blob/main/MODEL_CARD.md) &middot; [Yang et al. 2024](https://arxiv.org/abs/2405.04967) |
-| Nequix | nequix-oam-1 | 707.6K | OMat24 + sAlex + MPtrj, DFT (PBE+U)&sect; | not reported for this checkpoint | [nequix repository](https://github.com/atomicarchitects/nequix) &middot; [Koker et al. 2025](https://arxiv.org/abs/2508.16067) |
+| Nequix | nequix-oam-1 | 707.6K | OMat24 + sAlex + MPTrj, DFT (PBE+U)&sect; | not reported for this checkpoint | [nequix repository](https://github.com/atomicarchitects/nequix) &middot; [Koker et al. 2025](https://arxiv.org/abs/2508.16067) |
 | GPTFF | gptff_v2 | 502.5K | Atomly&#8214; | ~37.6M configurations | [Xie et al. 2024](https://doi.org/10.1016/j.scib.2024.08.039) |
 | ALIGNN | alignnff_wt10 | 4.03M | JARVIS-DFT&para; | ~307.1K | [Choudhary et al. 2023](https://arxiv.org/abs/2209.05554) |
-| NEP89 | nep89_20250409 | 976.3K | OMat24, MPtrj, SPICE, ANI-1xnr, SSE-ABACUS, SSE-VASP, Protein, UNEP-v1, CH, CHONPS, Water; mixed QM levels&dagger;&dagger; | 537,641 configurations | [GPUMD potentials](https://github.com/brucefan1983/GPUMD/tree/master/potentials/nep/nep89_20250409) &middot; [NEP89 paper](https://arxiv.org/abs/2504.21286) |
+| NEP89 | nep89_20250409 | 976.3K | OMat24, MPTrj, SPICE, ANI-1xnr, SSE-ABACUS, SSE-VASP, Protein, UNEP-v1, CH, CHONPS, Water; mixed QM levels&dagger;&dagger; | 537,641 configurations | [GPUMD potentials](https://github.com/brucefan1983/GPUMD/tree/master/potentials/nep/nep89_20250409) &middot; [NEP89 paper](https://arxiv.org/abs/2504.21286) |
 | DPA4 | DPA4-Plus-OMat24-v20260805 | 8.85M | OMat24, DFT / DFT+U&#35; | ~100.6M frames | [DPA4-OMat24 model card](https://huggingface.co/deepmodelingcommunity/DPA4-OMat24) |
-| GRACE | GRACE-3L-OMAT-large-ft-AM | 42.1M&Dagger;&Dagger; | OMat24 pretraining &rarr; sAlex + MPtrj fine-tuning | not reported for this checkpoint | [GRACE foundation models](https://gracemaker.readthedocs.io/en/latest/gracemaker/foundation/) |
-| eqV2 | eqV2_31M_omat_mp_salex.pt | 31.2M | OMat24 pretraining &rarr; MPtrj + sAlex fine-tuning, DFT / DFT+U&#35; | not reported for this checkpoint | [Meta OMat24 models](https://huggingface.co/facebook/OMAT24) |
-| eSEN | esen_30m_oam.pt | 30.2M | OMat24 pretraining &rarr; MPtrj + sAlex fine-tuning, DFT / DFT+U&#35; | not reported for this checkpoint | [Meta OMat24 models](https://huggingface.co/facebook/OMAT24) |
+| GRACE | GRACE-3L-OMAT-large-ft-AM | 42.1M&Dagger;&Dagger; | OMat24 pretraining &rarr; sAlex + MPTrj fine-tuning | not reported for this checkpoint | [GRACE foundation models](https://gracemaker.readthedocs.io/en/latest/gracemaker/foundation/) |
+| eqV2 | eqV2_31M_omat_mp_salex.pt | 31.2M | OMat24 pretraining &rarr; MPTrj + sAlex fine-tuning, DFT / DFT+U&#35; | not reported for this checkpoint | [Meta OMat24 models](https://huggingface.co/facebook/OMAT24) |
+| eSEN | esen_30m_oam.pt | 30.2M | OMat24 pretraining &rarr; MPTrj + sAlex fine-tuning, DFT / DFT+U&#35; | not reported for this checkpoint | [Meta OMat24 models](https://huggingface.co/facebook/OMAT24) |
 
 \* Pre-trained on MACE-OMAT-0, then fine-tuned on the matched MatPES functional.
 
@@ -208,8 +208,8 @@ reflects the absence of documented training exposure rather than a verified comp
 OMat24", and that the OMat24 dataset "contains ~55 million AIMD-sampled structures".
 
 &sect; The FP-DeErr checkpoint is `nequix-oam-1`. The official nequix repository documents this
-checkpoint as trained on OMat24, sAlex and MPtrj at the DFT (PBE+U) level. The Nequix paper
-describes an MPtrj-trained model and does not report a training-set size or parameter count for
+checkpoint as trained on OMat24, sAlex and MPTrj at the DFT (PBE+U) level. The Nequix paper
+describes an MPTrj-trained model and does not report a training-set size or parameter count for
 this released OAM checkpoint; the 707,569-parameter model size shown here was measured from the
 loaded checkpoint by FP-DeErr.
 

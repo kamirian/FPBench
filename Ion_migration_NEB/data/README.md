@@ -6,7 +6,7 @@
 > repository; its metadata block differs, because internal source-file references were
 > removed for the public deposit. Verify the repository copy with the SHA-256 in the
 > table below, and the deposited copy with the SHA-256 given in the deposit's own README. The analysis and generation code that consumes it lives at
-> <https://github.com/mogroupumd/FPBench>. The other two files described below, the
+> <https://github.com/mogroupumd/FP-DeErr>. The other two files described below, the
 > leaderboard summary and the all-FP results file, are not part of the deposit.
 
 ## `ion_migration_neb_reference.json.gz`

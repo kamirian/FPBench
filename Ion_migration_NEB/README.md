@@ -4,7 +4,7 @@ The Ion Migration by NEB component of [FP-DeErr](../README.md): migration-barrie
 migration-pathway metrics for foundation potentials (FPs), using the nudged elastic band
 (NEB) method.
 
-Leaderboard: **https://mogroupumd.github.io/FPBench/ion-migration-neb.html**
+Leaderboard: **https://mogroupumd.github.io/FP-DeErr/ion-migration-neb.html**
 
 ## Contents
 
@@ -110,8 +110,8 @@ serialization.
 ## Quick start
 
 ```bash
-git clone https://github.com/mogroupumd/FPBench.git
-cd FPBench/Ion_migration_NEB
+git clone https://github.com/mogroupumd/FP-DeErr.git
+cd FP-DeErr/Ion_migration_NEB
 pip install -r requirements.txt
 pip install jupyterlab
 jupyter lab analysis/neb_analysis.ipynb

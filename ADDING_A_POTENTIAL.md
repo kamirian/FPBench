@@ -121,7 +121,7 @@ For a new FP to be considered for inclusion in the public leaderboard, please co
 Prof. Yifei Mo at <yfmo@umd.edu>. Submissions are handled by email; the repository does not take
 outside commits.
 
-See the [Contribute page](https://mogroupumd.github.io/FPBench/contribute.html) for worked
+See the [Contribute page](https://mogroupumd.github.io/FP-DeErr/contribute.html) for worked
 examples of each component's results format. Please include the following:
 
 ```text

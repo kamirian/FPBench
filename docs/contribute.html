@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FP-DeErr: Contribute a Foundation Potential</title>
   <meta name="description" content="How to evaluate a new foundation potential with FP-DeErr and submit it for the public leaderboard: registering an ASE calculator, the standardized results file formats for force prediction, phase stability and ordering, and ion migration by NEB, worked examples, and what to email." />
-  <link rel="canonical" href="https://mogroupumd.github.io/FPBench/contribute.html" />
+  <link rel="canonical" href="https://mogroupumd.github.io/FP-DeErr/contribute.html" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="FP-DeErr" />
   <meta property="og:title" content="FP-DeErr: Contribute a Foundation Potential" />
   <meta property="og:description" content="How to evaluate a new foundation potential with FP-DeErr and submit it for the public leaderboard: registering an ASE calculator, the standardized results file formats for force prediction, phase stability and ordering, and ion migration by NEB, worked examples, and what to email." />
-  <meta property="og:url" content="https://mogroupumd.github.io/FPBench/contribute.html" />
+  <meta property="og:url" content="https://mogroupumd.github.io/FP-DeErr/contribute.html" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="FP-DeErr: Contribute a Foundation Potential" />
   <meta name="twitter:description" content="How to evaluate a new foundation potential with FP-DeErr and submit it for the public leaderboard: registering an ASE calculator, the standardized results file formats for force prediction, phase stability and ordering, and ion migration by NEB, worked examples, and what to email." />
@@ -376,7 +376,7 @@
     <a href="phase-stability-ordering.html">Phase Stability &amp; Ordering</a>
     <a href="ion-migration-neb.html">Ion Migration (NEB)</a>
     <a class="nav-highlight" href="contribute.html">Contribute</a>
-    <a href="https://github.com/mogroupumd/FPBench">GitHub</a>
+    <a href="https://github.com/mogroupumd/FP-DeErr">GitHub</a>
   </div>
 </nav>
 
@@ -414,7 +414,7 @@
     FP-DeErr evaluates foundation potentials through ASE calculators. Adding one means a single entry in
     the component's <code>POTENTIAL_REGISTRY</code> &mdash; no metric or analysis code changes. Full
     procedure:
-    <a href="https://github.com/mogroupumd/FPBench/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a>.
+    <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/ADDING_A_POTENTIAL.md" style="color:var(--accent);">Adding a Potential</a>.
   </p>
   <ol class="steps">
     <li><strong>Register</strong> &mdash; one entry in the component's <code>POTENTIAL_REGISTRY</code>.</li>
@@ -615,13 +615,13 @@ print(table)
 table.to_csv("force_highly_accurate_fraction.csv")</code></pre>
     </div>
     <p class="resources">
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/data/README.md">Format documentation</a>
+      <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/Force_error/data/README.md">Format documentation</a>
       <span class="sep">&middot;</span>
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/examples/mace_matpes_cartesian_force_example.json">Example data</a>
+      <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/Force_error/examples/mace_matpes_cartesian_force_example.json">Example data</a>
       <span class="sep">&middot;</span>
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/analysis/force_error_analysis_matpes_pbe.ipynb">Analysis notebook</a>
+      <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/Force_error/analysis/force_error_analysis_matpes_pbe.ipynb">Analysis notebook</a>
       <span class="sep">&middot;</span>
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Force_error/README.md">Component guide</a>
+      <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/Force_error/README.md">Component guide</a>
     </p>
   </div>
 
@@ -766,13 +766,13 @@ hull_table.to_csv("phase_hull_table_demo.csv")
 # For benchmark evaluation, use the official reference data and your model results.</code></pre>
     </div>
     <p class="resources">
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/data/README.md">Format documentation</a>
+      <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/Phase_stability_ordering/data/README.md">Format documentation</a>
       <span class="sep">&middot;</span>
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/examples/phase_stability_ordering_demo_data.json">Example data</a>
+      <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/Phase_stability_ordering/examples/phase_stability_ordering_demo_data.json">Example data</a>
       <span class="sep">&middot;</span>
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/analysis/convexhull_ordering_analysis_all_models.ipynb">Analysis notebook</a>
+      <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/Phase_stability_ordering/analysis/convexhull_ordering_analysis_all_models.ipynb">Analysis notebook</a>
       <span class="sep">&middot;</span>
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Phase_stability_ordering/README.md">Component guide</a>
+      <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/Phase_stability_ordering/README.md">Component guide</a>
     </p>
   </div>
 
@@ -881,13 +881,13 @@ analysis.dft_path_metrics_df.to_csv("neb_dft_path_metrics_demo.csv")
 # For benchmark evaluation, use the official reference data and your model results.</code></pre>
     </div>
     <p class="resources">
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/data/README.md">Format documentation</a>
+      <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/Ion_migration_NEB/data/README.md">Format documentation</a>
       <span class="sep">&middot;</span>
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/examples/ion_migration_neb_demo_data.json">Example data</a>
+      <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/Ion_migration_NEB/examples/ion_migration_neb_demo_data.json">Example data</a>
       <span class="sep">&middot;</span>
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/analysis/neb_analysis.ipynb">Analysis notebook</a>
+      <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/Ion_migration_NEB/analysis/neb_analysis.ipynb">Analysis notebook</a>
       <span class="sep">&middot;</span>
-      <a href="https://github.com/mogroupumd/FPBench/blob/main/Ion_migration_NEB/README.md">Component guide</a>
+      <a href="https://github.com/mogroupumd/FP-DeErr/blob/main/Ion_migration_NEB/README.md">Component guide</a>
     </p>
   </div>
 
@@ -936,7 +936,7 @@ Metric tables:           Attached files or links</code></pre>
 </div>
 
 <footer>
-  <p><strong>Kiyan Amirian</strong> &amp; <strong>Yifei Mo</strong> &middot; <a href="https://github.com/mogroupumd/FPBench">github.com/mogroupumd/FPBench</a></p>
+  <p><strong>Kiyan Amirian</strong> &amp; <strong>Yifei Mo</strong> &middot; <a href="https://github.com/mogroupumd/FP-DeErr">github.com/mogroupumd/FP-DeErr</a></p>
   <p class="affil">University of Maryland &middot; MIT License &middot; <a href="https://arxiv.org/abs/2609.05714" style="color:var(--accent);">arXiv:2609.05714</a></p>
 </footer>
 
